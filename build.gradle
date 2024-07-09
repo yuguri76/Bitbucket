@@ -28,6 +28,9 @@ dependencies {
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
+	// MySQL
+	implementation 'mysql:mysql-connector-java:8.0.28'
+
 	//Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 

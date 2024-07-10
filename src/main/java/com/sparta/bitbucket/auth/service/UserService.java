@@ -2,6 +2,7 @@ package com.sparta.bitbucket.auth.service;
 
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.dto.SignupRequestDto;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	/**
 	 * 회원가입 기능을 수행합니다.
@@ -34,10 +36,12 @@ public class UserService {
 			throw new IllegalArgumentException("이메일 중복"); // todo : Exception 의논해서 만든 후 변경
 		}
 
+		String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+
 		User user = User.builder()
 			.email(requestDto.getEmail())
 			.name(requestDto.getName())
-			.password(requestDto.getPassword())
+			.password(encodedPassword)
 			.role(Role.USER)
 			.build();
 

@@ -1,7 +1,9 @@
 package com.sparta.bitbucket.auth.service;
 
+import java.security.MessageDigest;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.auth.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,9 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+
+	@Value("${manager-secret-key}")
+	private String secretKey;
 
 	/**
 	 * 회원가입 기능을 수행합니다.
@@ -36,18 +42,29 @@ public class UserService {
 			throw new IllegalArgumentException("이메일 중복"); // todo : Exception 의논해서 만든 후 변경
 		}
 
+		Role role = setUserRole(requestDto.getSecretKey());
+
 		String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
 
 		User user = User.builder()
 			.email(requestDto.getEmail())
 			.name(requestDto.getName())
 			.password(encodedPassword)
-			.role(Role.USER)
+			.role(role)
 			.build();
 
 		User savedUser = userRepository.save(user);
 
 		return new SignupResponseDto(savedUser);
+	}
+
+	private Role setUserRole(String providedSecretKey) {
+		if (providedSecretKey != null && !providedSecretKey.isBlank()) {
+			if (MessageDigest.isEqual(secretKey.getBytes(), providedSecretKey.getBytes())) {
+				return Role.MANAGER;
+			}
+		}
+		return Role.USER;
 	}
 
 }

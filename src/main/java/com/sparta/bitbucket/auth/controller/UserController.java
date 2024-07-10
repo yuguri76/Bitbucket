@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.bitbucket.auth.dto.SignupRequestDto;
 import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.service.UserService;
+import com.sparta.bitbucket.common.util.ResponseFactory;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class UserController {
 
 		SignupResponseDto responseDto = userService.signup(requestDto);
 
-		return ResponseEntity.ok().body(responseDto);
+		return ResponseFactory.ok(responseDto, null);
 	}
 
 }

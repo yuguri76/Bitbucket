@@ -1,5 +1,7 @@
 package com.sparta.bitbucket.auth.entity;
 
+import com.sparta.bitbucket.common.entity.Timestamped;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "users")
 @NoArgsConstructor
-public class User {
+public class User extends Timestamped {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

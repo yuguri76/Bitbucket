@@ -1,5 +1,7 @@
 package com.sparta.bitbucket.auth.entity;
 
+import com.sparta.bitbucket.common.entity.Timestamped;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "users")
 @NoArgsConstructor
-public class User {
+public class User extends Timestamped {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +37,8 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
+	@Column
+	private String refreshToken;
 
 	/**
 	 * User 객체를 생성하는 생성자입니다.
@@ -43,7 +47,6 @@ public class User {
 	 * @param password 사용자의 비밀번호
 	 * @param name     사용자의 이름
 	 * @param role     사용자의 역할 (권한). null일 경우 기본값으로 Role.USER가 설정됩니다.
-	 *
 	 * @Builder 어노테이션을 사용하여 빌더 패턴으로 객체 생성이 가능합니다.
 	 * <p>
 	 * 예시: User user = User.builder().email("test@example.com").password("user_password").name("user_name").build();
@@ -54,6 +57,15 @@ public class User {
 		this.password = password;
 		this.name = name;
 		this.role = role != null ? role : Role.USER;
+	}
+
+	/**
+	 * Refresh 토큰을 업데이트합니다.
+	 *
+	 * @param refreshToken 새로운 Refresh 토큰 문자열
+	 */
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 
 }

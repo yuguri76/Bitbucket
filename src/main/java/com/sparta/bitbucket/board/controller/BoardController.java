@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
+import com.sparta.bitbucket.board.dto.BoardInviteRequestDto;
+import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
 import com.sparta.bitbucket.board.service.BoardService;
@@ -35,7 +37,6 @@ public class BoardController {
 		@RequestParam(value = "page", defaultValue = "1") int page,
 		@RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy
 	) {
-
 		List<BoardResponseDto> responseDtoList = boardService.getAllBoards(page - 1, sortBy);
 
 		return ResponseFactory.ok(responseDtoList, null);
@@ -46,7 +47,6 @@ public class BoardController {
 		@PathVariable(value = "boardId") Long boardId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
-
 		BoardWithMemberListResponseDto responseDto = boardService.getBoard(boardId, userDetails.getUser());
 
 		return ResponseFactory.ok(responseDto, null);
@@ -57,8 +57,19 @@ public class BoardController {
 		@Valid @RequestBody BoardCreateRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
-
 		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUser());
+
+		return ResponseFactory.ok(responseDto, null);
+	}
+
+	@PostMapping("/{boardId}/invite")
+	public ResponseEntity<DataResponseDto<BoardMemberResponseDto>> inviteBoard(
+		@PathVariable(value = "boardId") Long boardId,
+		@Valid @RequestBody BoardInviteRequestDto requestDto,
+		@AuthenticationPrincipal UserDetailsImpl userDetails
+	) {
+		BoardMemberResponseDto responseDto = boardService.inviteBoard(boardId, requestDto.getEmail(),
+			userDetails.getUser());
 
 		return ResponseFactory.ok(responseDto, null);
 	}

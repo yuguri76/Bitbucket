@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
@@ -29,6 +30,7 @@ public class BoardService {
 
 	private final BoardRepository boardRepository;
 	private final BoardMemberRepository boardMemberRepository;
+	private final UserRepository userRepository;
 
 	public List<BoardResponseDto> getAllBoards(int page, String sortBy) {
 
@@ -51,13 +53,9 @@ public class BoardService {
 
 	public BoardWithMemberListResponseDto getBoard(Long boardId, User user) {
 
-		Board board = boardRepository.findById(boardId).orElseThrow(
-			() -> new IllegalArgumentException("해당 id로 조회된 보드가 없습니다.")
-		);
+		Board board = findBoardById(boardId);
 
-		List<BoardMember> memberList = boardMemberRepository.findAllByBoard_Id(boardId);
-		List<Long> memberUserIdList = memberList.stream().map(BoardMember::getUser).map(User::getId).toList();
-		if (!memberUserIdList.contains(user.getId())) {
+		if (!isUserBoardMember(board.getId(), user.getId())) {
 			throw new IllegalArgumentException("로그인한 사용자는 해당 보드의 멤버가 아닙니다.");
 		}
 
@@ -66,7 +64,8 @@ public class BoardService {
 			.map((boardMember) -> BoardMemberResponseDto
 				.builder()
 				.boardMember(boardMember)
-				.build()).toList();
+				.build())
+			.toList();
 
 		return BoardWithMemberListResponseDto
 			.builder()
@@ -77,7 +76,7 @@ public class BoardService {
 
 	public BoardResponseDto createBoard(BoardCreateRequestDto requestDto, User user) {
 
-		if (user.getRole() != Role.MANAGER) {
+		if (!isUserManager(user)) {
 			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
 		}
 
@@ -106,5 +105,53 @@ public class BoardService {
 		return BoardResponseDto.builder()
 			.board(saveBoard)
 			.build();
+	}
+
+	public BoardMemberResponseDto inviteBoard(Long boardId, String invitedUserEmail, User user) {
+
+		Board board = findBoardById(boardId);
+
+		if (!isUserManager(user)) {
+			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+		}
+
+		if (!isUserBoardMember(board.getId(), user.getId())) {
+			throw new IllegalArgumentException("로그인한 사용자는 해당 보드의 멤버가 아닙니다.");
+		}
+
+		User invitedUser = userRepository.findByEmail(invitedUserEmail).orElseThrow(
+			() -> new IllegalArgumentException("초대한 사용자가 존재하지 않습니다.")
+		);
+
+		if (isUserBoardMember(board.getId(), invitedUser.getId())) {
+			throw new IllegalArgumentException("초대된 사용자는 이미 해당 보드의 멤버입니다.");
+		}
+
+		BoardMember boardMember = BoardMember
+			.builder()
+			.board(board)
+			.user(invitedUser)
+			.build();
+
+		BoardMember saveBoardMember = boardMemberRepository.save(boardMember);
+
+		return BoardMemberResponseDto
+			.builder()
+			.boardMember(saveBoardMember)
+			.build();
+	}
+
+	private Board findBoardById(Long boardId) {
+		return boardRepository.findById(boardId).orElseThrow(
+			() -> new IllegalArgumentException("해당 id로 조회된 보드가 없습니다.")
+		);
+	}
+
+	private boolean isUserManager(User user) {
+		return user.getRole() == Role.MANAGER;
+	}
+
+	private boolean isUserBoardMember(Long boardId, Long userId) {
+		return boardMemberRepository.findAllByBoard_IdAndUser_Id(boardId, userId).isPresent();
 	}
 }

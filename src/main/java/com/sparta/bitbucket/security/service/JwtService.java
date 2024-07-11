@@ -143,6 +143,7 @@ public class JwtService {
 		Cookie cookie = new Cookie(JwtConfig.REFRESH_TOKEN_COOKIE_NAME, refreshToken);
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
+		cookie.setPath("/");
 		cookie.setMaxAge(JwtConfig.staticRefreshTokenExpirationSecond);
 		HttpServletResponse response = ((ServletRequestAttributes)Objects.requireNonNull(
 			RequestContextHolder.getRequestAttributes())).getResponse();
@@ -169,6 +170,7 @@ public class JwtService {
 		Cookie cookie = new Cookie(JwtConfig.REFRESH_TOKEN_COOKIE_NAME, null);
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
+		cookie.setPath("/");
 		cookie.setMaxAge(0); // 쿠키 시간 초기화
 		HttpServletResponse response = ((ServletRequestAttributes)Objects.requireNonNull(
 			RequestContextHolder.getRequestAttributes())).getResponse();

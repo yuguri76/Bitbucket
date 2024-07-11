@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgba(255, 240, 130, 0.4);
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background-color: #FFFFFF;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border: 10px solid #FFECB2;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-size: 40px;
+            color: #FFAB2E;
+            font-family: 'ONE-Mobile-POP';
+            margin: 0;
+        }
+
+        @font-face {
+            font-family: 'ONE-Mobile-POP';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .login-box {
+            margin-top: 20px;
+            background-color: #FFECB2;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-box h2 {
+            text-align: center;
+            color: #FF9100;
+            font-family: 'ONE-Mobile-POP';
+            margin-bottom: 20px;
+        }
+
+        .login-box input[type="text"],
+        .login-box input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: calc(50% - 10px);
+            padding: 10px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #FF9100;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'ONE-Mobile-POP';
+        }
+    </style>
+    <script>
+        function login() {
+
+            const email = document.getElementById('userId').value;
+            const password = document.getElementById('userPassword').value;
+
+            fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    {
+                        email: email,
+                        password: password
+                    })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.status === 200) {
+                        // 로그인 성공
+                        localStorage.setItem('token', result.data);
+                        window.location.href = '/main';
+                    } else {
+                        // 로그인 실패 (서버에서 200이 아닌 상태 코드를 보낸 경우)
+                        alert('로그인 실패: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                    alert('로그인 중 오류 발생: ' + error.message);
+                });
+        }
+
+        function signUp() {
+            window.location.href = '/signup';
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
+        <h1>LionBucket</h1>
+    </div>
+    <div class="login-box">
+        <h2>Login</h2>
+        <form onsubmit="return false;">
+            <input type="text" id="userId" placeholder="아이디">
+            <input type="password" id="userPassword" placeholder="비밀번호">
+            <div style="text-align: center;">
+                <button type="button" onclick="login()">로그인</button>
+                <button type="button" onclick="signUp()">회원가입</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

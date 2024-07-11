@@ -27,7 +27,7 @@ public class AuthService {
 	public String login(LoginRequestDto requestDto) {
 
 		User user = userRepository.findByEmail(requestDto.getEmail())
-			.orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
+			.orElseThrow(() -> new UsernameNotFoundException("사용자가 존재하지않습니다.")); // todo : repository를 직접 쓰지말고 service에 만들기
 
 		if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
 			String accessToken = jwtService.generateToken(user.getEmail(), user.getRole(), TokenType.ACCESS);
@@ -41,7 +41,7 @@ public class AuthService {
 
 			return accessToken;
 		} else {
-			throw new IllegalArgumentException("Invalid password"); // todo : Exception 만들기
+			throw new IllegalArgumentException("비밀번호가 일치하지않습니다."); // todo : Exception 만들기
 		}
 	}
 
@@ -51,7 +51,7 @@ public class AuthService {
 		String email = jwtService.extractEmail(token);
 
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException("Invalid username"));
+			.orElseThrow(() -> new UsernameNotFoundException("사용자가 존재하지않습니다."));
 
 		user.updateRefreshToken(null);
 
@@ -67,7 +67,7 @@ public class AuthService {
 		String email = jwtService.extractEmail(refreshToken);
 
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+			.orElseThrow(() -> new UsernameNotFoundException("사용자가 존재하지않습니다."));
 
 		if (user.getRefreshToken().equals(refreshToken)) {
 			Object role = jwtService.extractRole(refreshToken);

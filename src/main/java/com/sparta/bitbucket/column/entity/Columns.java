@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,10 @@ public class Columns {
 
 	private int orders;
 
+	@Builder
+	public Columns(String title,Board board, int orders){
+		this.title = title;
+		this.board = board;
+		this.orders = orders;
+	}
 }

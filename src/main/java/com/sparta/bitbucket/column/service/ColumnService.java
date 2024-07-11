@@ -29,6 +29,7 @@ public class ColumnService {
 	@Transactional
 	public void createColumn(User user, CreateColumnRequestDto requestDto) {
 		validateUser(user);
+		checkUserIsBoardOwner(user, requestDto.getBoardId());
 		Board board = boardService.findBoardById(requestDto.getBoardId());
 
 		columnRepository.save(Columns.builder()

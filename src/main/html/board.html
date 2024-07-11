@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Board Page</title>
+  <style>
+    body {
+      background-color: rgba(255, 240, 130, 0.1);
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .header {
+      background-color: rgba(255, 194, 16, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .header .logo {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .header .logo img {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+    }
+    .header .logo h1 {
+      font-size: 40px;
+      color: #ffffff;
+      font-family: 'ONE-Mobile-POP';
+      margin: 0;
+    }
+    @font-face {
+      font-family: 'ONE-Mobile-POP';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .header .board-title {
+      font-size: 40px;
+      font-family: 'ONE-Mobile-POP';
+      color: #ffffff;
+      margin: 0;
+    }
+    .header .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .header .actions button {
+      background-color: #ff9100;
+      color: white;
+      font-family: 'ONE-Mobile-POP';
+      border: 2px;
+      font-size: 15px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .board-container {
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+      overflow-x: auto;
+    }
+    .column {
+      background-color: #FFECB2;
+      border-radius: 15px;
+      padding: 10px;
+      width: 200px;
+      min-width: 200px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    .column h3 {
+      text-align: center;
+      color: #000000;
+      margin-top: 0;
+    }
+    .card {
+      background-color: white;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 10px 0;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      color: #959494;
+    }
+    .add-card {
+      text-align: center;
+      color: #FF6D28;
+      cursor: pointer;
+    }
+    .add-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #FFECB2;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      color: #FF6D28;
+      cursor: pointer;
+      margin: 20px 0;
+      width: 200px; /* This line matches the column width */
+      min-width: 200px;
+      height: 100px; /* height to center the text */
+      font-weight: bold; /* bold text */
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #FFECB2;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      width: 500px;
+      text-align: left;
+    }
+    .modal-header {
+      color: #FF6D28;
+      margin-bottom: 20px;
+      font-size: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h2 {
+      margin: 0;
+    }
+    .modal-header .column-name {
+      font-size: 18px;
+      color: gray;
+    }
+    .modal-header .edit-btn,
+    .modal-header .delete-btn {
+      background-color: #ff9100;
+      color: white;
+      font-family: 'ONE-Mobile-POP';
+      border: 2px;
+      font-size: 15px;
+      padding: 5px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .modal-header .edit-btn {
+      margin-right: 10px;
+    }
+    .comment-section {
+      margin-top: 20px;
+    }
+    .comment {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .comment img {
+      width: 30px;
+      height: 30px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .comment .comment-text {
+      background-color: #FFFFFF;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      width: 100%;
+    }
+    .comment .comment-text strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .comment .comment-text span {
+      float: right;
+      font-size: 12px;
+      color: #959494;
+    }
+    .modal input[type="text"],
+    .modal textarea {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .modal textarea {
+      height: 100px;
+      resize: none;
+    }
+    .modal button {
+      background-color: #FF6D28;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .close {
+      color: #FF6D28;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .modal-header .in-list,
+    .modal-header .column-name {
+      font-size: 24px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="logo" onclick="window.location.href='Main.html'">
+    <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
+    <h1>LionBucket</h1>
+  </div>
+  <div class="board-title">라이언 보드</div>
+  <div class="actions">
+    <button onclick="showModal('editBoardModal')">Edit</button>
+    <button onclick="showModal('inviteModal')">Invite</button>
+    <button onclick="showModal('deleteModal')">Delete</button>
+    <button onclick="showModal('confirmOrderModal')">순서확정</button>
+    <button onclick="showModal('cardInfoModal')">카드 조회</button>
+  </div>
+</div>
+<div class="board-container" id="boardContainer">
+  <div class="column" draggable="true" ondragstart="drag(event)" id="column1">
+    <h3>To do</h3>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'To do')" ondragstart="drag(event)" id="card1">Card_1</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'To do')" ondragstart="drag(event)" id="card2">Card_2</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'To do')" ondragstart="drag(event)" id="card3">Card_3</div>
+    <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
+  </div>
+  <div class="column" draggable="true" ondragstart="drag(event)" id="column2">
+    <h3>In progress</h3>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'In progress')" ondragstart="drag(event)" id="card4">Card_1</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'In progress')" ondragstart="drag(event)" id="card5">Card_2</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'In progress')" ondragstart="drag(event)" id="card6">Card_3</div>
+    <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
+  </div>
+  <div class="column" draggable="true" ondragstart="drag(event)" id="column3">
+    <h3>Done</h3>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'Done')" ondragstart="drag(event)" id="card7">Card_1</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'Done')" ondragstart="drag(event)" id="card8">Card_2</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'Done')" ondragstart="drag(event)" id="card9">Card_3</div>
+    <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
+  </div>
+  <div class="column" draggable="true" ondragstart="drag(event)" id="column4">
+    <h3>Emergency</h3>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'Emergency')" ondragstart="drag(event)" id="card10">Card_1</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'Emergency')" ondragstart="drag(event)" id="card11">Card_2</div>
+    <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'Emergency')" ondragstart="drag(event)" id="card12">Card_3</div>
+    <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
+  </div>
+  <div class="add-column" onclick="showModal('createColumnModal')">+ Add another</div>
+</div>
+
+<!-- Modal Definitions -->
+<div id="editBoardModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('editBoardModal')">&times;</span>
+    <h2 class="modal-header">Edit board</h2>
+    <input type="text" placeholder="보드 이름">
+    <textarea placeholder="한줄 설명"></textarea>
+    <button type="button">Edit</button>
+  </div>
+</div>
+
+<div id="inviteModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('inviteModal')">&times;</span>
+    <h2 class="modal-header">Invite people</h2>
+    <input type="text" placeholder="초대할 멤버 아이디">
+    <button type="button">Invite</button>
+  </div>
+</div>
+
+<div id="deleteModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+    <h2 class="modal-header">WARNING!</h2>
+    <p>삭제하는 경우 연결된 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?</p>
+    <button type="button" onclick="confirmDelete()">확인</button>
+    <button type="button" onclick="closeModal('deleteModal')">취소</button>
+  </div>
+</div>
+
+<div id="confirmOrderModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('confirmOrderModal')">&times;</span>
+    <h2 class="modal-header">순서확정</h2>
+    <button type="button" onclick="confirmOrder()">확인</button>
+    <button type="button" onclick="closeModal('confirmOrderModal')">취소</button>
+  </div>
+</div>
+
+<div id="cardInfoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('cardInfoModal')">&times;</span>
+    <h2 class="modal-header">카드 조회</h2>
+    <button type="button" onclick="showModal('viewAllModal')">전체 조회</button>
+    <button type="button" onclick="showModal('viewWorkerModal')">작업자별 조회</button>
+    <button type="button" onclick="showModal('viewStatusModal')">상태별 조회</button>
+  </div>
+</div>
+
+<div id="createCardModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('createCardModal')">&times;</span>
+    <h2 class="modal-header">Create cards</h2>
+    <input type="text" placeholder="제목(필수)">
+    <input type="text" placeholder="카드 상태(디폴트)(입력아님)">
+    <textarea placeholder="내용"></textarea>
+    <input type="text" placeholder="마감일자">
+    <input type="text" placeholder="작업자">
+    <button type="button">CREATE</button>
+  </div>
+</div>
+
+<div id="createColumnModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('createColumnModal')">&times;</span>
+    <h2 class="modal-header">Create columns</h2>
+    <input type="text" placeholder="컬럼 이름">
+    <button type="button">CREATE</button>
+  </div>
+</div>
+
+<div id="cardDetailModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('cardDetailModal')">&times;</span>
+    <div class="modal-header">
+      <div>
+        <h2 style="color: #FF6D28; display: inline-block;">Card_1</h2>
+        <span class="in-list">in list</span>
+        <span class="column-name">To do</span>
+      </div>
+      <div>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    </div>
+    <p>작업자: 라이언</p>
+    <p>마감일자: 2024-07-12</p>
+    <textarea placeholder="Description"></textarea>
+    <div class="comment-section">
+      <p>Comment</p>
+      <div class="comment">
+        <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="User Image">
+        <div class="comment-text">
+          <strong>작성자:</strong> 👍👍👍 죽이네요
+          <span>2024-07-10</span>
+        </div>
+      </div>
+    </div>
+    <textarea placeholder="댓글 작성"></textarea>
+    <button type="button" style="float: right;">Create</button>
+  </div>
+</div>
+
+<!-- View Modals -->
+<div id="viewAllModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('viewAllModal')">&times;</span>
+    <h2 class="modal-header">전체 조회</h2>
+    <p>전체 카드 리스트를 보여줍니다.</p>
+  </div>
+</div>
+
+<div id="viewWorkerModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('viewWorkerModal')">&times;</span>
+    <h2 class="modal-header">작업자별 조회</h2>
+    <input type="text" placeholder="작업자 입력">
+    <button type="button">입력</button>
+  </div>
+</div>
+
+<div id="viewStatusModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('viewStatusModal')">&times;</span>
+    <h2 class="modal-header">상태별 조회</h2>
+    <input type="text" placeholder="상태 입력">
+    <button type="button">입력</button>
+  </div>
+</div>
+
+<script>
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+  }
+
+  function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    var item = document.getElementById(data);
+
+    if (item.classList.contains('card')) {
+      var targetColumn = ev.target.closest('.column');
+      if (targetColumn) {
+        var cards = targetColumn.querySelectorAll('.card');
+        if (cards.length === 0) {
+          targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
+        } else {
+          var inserted = false;
+          cards.forEach(function(targetCard) {
+            if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
+              targetColumn.insertBefore(item, targetCard);
+              inserted = true;
+              return false; // break the loop
+            }
+          });
+          if (!inserted) {
+            targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
+          }
+        }
+      }
+    } else if (item.classList.contains('column')) {
+      var boardContainer = document.getElementById("boardContainer");
+      var columns = boardContainer.querySelectorAll('.column');
+      if (columns.length === 0) {
+        boardContainer.insertBefore(item, boardContainer.querySelector(".add-column"));
+      } else {
+        var inserted = false;
+        columns.forEach(function(targetColumn) {
+          if (ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2) {
+            boardContainer.insertBefore(item, targetColumn);
+            inserted = true;
+            return false; // break the loop
+          }
+        });
+        if (!inserted) {
+          boardContainer.insertBefore(item, boardContainer.querySelector(".add-column"));
+        }
+      }
+    }
+  }
+
+  document.querySelectorAll('.column, .card').forEach(function(element) {
+    element.addEventListener('dragover', allowDrop);
+    element.addEventListener('drop', drop);
+  });
+
+  document.getElementById('boardContainer').addEventListener('dragover', allowDrop);
+  document.getElementById('boardContainer').addEventListener('drop', drop);
+
+  function showModal(modalId) {
+    document.getElementById(modalId).style.display = "flex";
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+  }
+
+  function confirmDelete() {
+    alert("Deleted!");
+    closeModal('deleteModal');
+  }
+
+  function confirmOrder() {
+    alert("Order Confirmed!");
+    closeModal('confirmOrderModal');
+  }
+
+  function showCardDetail(cardTitle, columnTitle) {
+    var cardDetailModal = document.getElementById('cardDetailModal');
+    cardDetailModal.querySelector('.modal-header h2').innerText = cardTitle;
+    cardDetailModal.querySelector('.column-name').innerText = columnTitle;
+    showModal('cardDetailModal');
+  }
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.common.entity.Timestamped;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,18 +17,20 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @Table(name = "boards")
 @NoArgsConstructor
-public class Board {
+public class Board extends Timestamped {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private String title;
 
 	@Column(nullable = false, length = 500)

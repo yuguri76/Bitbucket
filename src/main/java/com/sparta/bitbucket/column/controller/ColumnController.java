@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
+import com.sparta.bitbucket.column.dto.DeleteColumnRequestDto;
+import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
 import com.sparta.bitbucket.column.service.ColumnService;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
@@ -26,20 +28,27 @@ public class ColumnController {
 
 	private final ColumnService columnService;
 
-	@PostMapping("/{boardId}/columns")
-	public ResponseEntity<MessageResponseDto> createColumn(@PathVariable("boardId") Long boardId,
-		@RequestBody @Valid CreateColumnRequestDto requestDto, @AuthenticationPrincipal
-	UserDetailsImpl userDetails) {
-		columnService.createColumn(boardId, requestDto, userDetails.getUser());
+	@PostMapping("/columns")
+	public ResponseEntity<MessageResponseDto> createColumn(@RequestBody @Valid CreateColumnRequestDto requestDto,
+		@AuthenticationPrincipal
+		UserDetailsImpl userDetails) {
+		columnService.createColumn( userDetails.getUser(), requestDto);
 		return ResponseFactory.ok(CREATE_COLUMNS_SUCCESS.getMessage());
 	}
 
-	@DeleteMapping("/{boardId}/Columns/{columnId}")
-	public ResponseEntity<MessageResponseDto> deleteColumn(@PathVariable("boardId") Long boardId,
-		@PathVariable("columnId") Long columnId, @AuthenticationPrincipal
-	UserDetailsImpl userDetails) {
-		columnService.deleteColumn(boardId, columnId, userDetails.getUser());
+	@DeleteMapping("/columns/{columnId}")
+	public ResponseEntity<MessageResponseDto> deleteColumn(@PathVariable("columnId") Long columnId,
+		@RequestBody @Valid DeleteColumnRequestDto requestDto,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		columnService.deleteColumn(columnId, userDetails.getUser(), requestDto);
 		return ResponseFactory.ok(DELETE_COLUMNS_SUCCESS.getMessage());
 	}
 
+	@PatchMapping("/columns/{columnId}")
+	public ResponseEntity<MessageResponseDto> updateColumn(@PathVariable("columnId") Long columnId,
+		@RequestBody @Valid EditColumnRequestDto editColumnRequestDto,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		columnService.updateColumn(columnId, userDetails.getUser(), editColumnRequestDto);
+		return ResponseFactory.ok(UPDATE_COLUMNS_SUCCESS.getMessage());
+	}
 }

@@ -185,7 +185,7 @@ public class BoardService {
 		boardRepository.delete(board);
 	}
 
-	private Board findBoardById(Long boardId) {
+	public Board findBoardById(Long boardId) {
 		return boardRepository.findById(boardId).orElseThrow(
 			() -> new IllegalArgumentException("해당 id로 조회된 보드가 없습니다.")
 		);

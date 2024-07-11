@@ -30,6 +30,8 @@ public class ColumnService {
 	public void createColumn(User user, CreateColumnRequestDto requestDto) {
 		validateUser(user);
 		checkUserIsBoardOwner(user, requestDto.getBoardId());
+		existsBoardIdAndTitle(requestDto.getBoardId(), requestDto.getTitle());
+
 		Board board = boardService.findBoardById(requestDto.getBoardId());
 
 		columnRepository.save(Columns.builder()
@@ -52,6 +54,8 @@ public class ColumnService {
 
 		validateUser(user);
 		checkUserIsBoardOwner(user, requestDto.getBoardId());
+		existsBoardIdAndTitle(requestDto.getBoardId(), requestDto.getTitle());
+
 		Columns columns = findByColumnId(columnId);
 
 		Columns updatedColumns = columns.toBuilder()
@@ -101,6 +105,12 @@ public class ColumnService {
 		return columnRepository.findById(columnId).orElseThrow(
 			() -> new IllegalArgumentException("존재하지 않는 컬럼입니다.") // CommonException 로 바꿀예정
 		);
+	}
+
+	private void existsBoardIdAndTitle(Long boardId, String title) {
+		if(columnRepository.existsByBoardIdAndTitle(boardId, title)) {
+			throw new IllegalArgumentException("이미 존재하는 타이틀 입니다."); // CommonException 로 바꿀예정
+		}
 	}
 
 }

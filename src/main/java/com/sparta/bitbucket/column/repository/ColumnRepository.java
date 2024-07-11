@@ -9,4 +9,6 @@ import com.sparta.bitbucket.column.entity.Columns;
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
 	List<Columns> findAllByBoardIdOrderByOrders(Long boardId);
+
+	Boolean existsByBoardIdAndTitle(Long boardId, String title);
 }

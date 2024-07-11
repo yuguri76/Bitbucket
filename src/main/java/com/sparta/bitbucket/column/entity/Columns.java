@@ -29,7 +29,6 @@ public class Columns extends Timestamped {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(unique = true)
 	private String title;
 
 	@ManyToOne( fetch = FetchType.LAZY )

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Board Page</title>
+  <style>
+    body {
+      background-color: rgba(255, 240, 130, 0.1);
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .header {
+      background-color: rgba(255, 194, 16, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .header .logo {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    .header .logo img {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+    }
+    .header .logo h1 {
+      font-size: 40px;
+      color: #ffffff;
+      font-family: 'ONE-Mobile-POP';
+      margin: 0;
+    }
+    @font-face {
+      font-family: 'ONE-Mobile-POP';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .header .welcome {
+      font-size: 25px;
+      font-family: 'ONE-Mobile-POP';
+      color: #ffffff;
+      margin: 0;
+      margin-right: 20px;
+    }
+    .header .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header .logout-button {
+      background-color: #ff9100; /* Button background color */
+      color: white; /* Button text color */
+      font-family: 'ONE-Mobile-POP';
+      border: none; /* Remove border */
+      font-size: 15px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .create-board-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 60px);
+    }
+    .create-board-box {
+      background-color: #FFECB2;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .create-board-box h2 {
+      color: #FF6D28;
+      margin-bottom: 20px;
+    }
+    .create-board-box input[type="text"],
+    .create-board-box textarea {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .create-board-box textarea {
+      height: 100px;
+      resize: none;
+    }
+    .create-board-box button {
+      background-color: #FF6D28;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    function createBoard() {
+      window.location.href = 'board.html';
+    }
+    function logout() {
+      window.location.href = 'Login.html';
+    }
+  </script>
+</head>
+<body>
+<div class="header">
+  <div class="logo" onclick="window.location.href='Main.html'">
+    <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
+    <h1>LionBucket</h1>
+  </div>
+  <div class="actions">
+    <div class="welcome">라이언님 환영합니다!</div>
+    <button class="logout-button" onclick="logout()">로그아웃</button>
+  </div>
+</div>
+<div class="create-board-container">
+  <div class="create-board-box">
+    <h2>Create board</h2>
+    <form onsubmit="return false;">
+      <input type="text" placeholder="보드 이름">
+      <textarea placeholder="한줄 설명"></textarea>
+      <button type="button" onclick="createBoard()">CREATE</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

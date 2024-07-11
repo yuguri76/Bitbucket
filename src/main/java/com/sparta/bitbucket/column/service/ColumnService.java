@@ -45,7 +45,7 @@ public class ColumnService {
 	public void deleteColumn(Long columnId, User user, ColumnRequestDto requestDto) {
 		validateUser(user);
 		checkUserIsBoardOwner(user, requestDto.getBoardId());
-		Columns byColumnId = findByColumnId(columnId);
+		Columns byColumnId = findByColumnIdAndBoardId(columnId, requestDto.getBoardId());
 		columnRepository.delete(byColumnId);
 	}
 
@@ -56,7 +56,7 @@ public class ColumnService {
 		checkUserIsBoardOwner(user, requestDto.getBoardId());
 		existsBoardIdAndTitle(requestDto.getBoardId(), requestDto.getTitle());
 
-		Columns columns = findByColumnId(columnId);
+		Columns columns = findByColumnIdAndBoardId(columnId, requestDto.getBoardId());
 
 		Columns updatedColumns = columns.toBuilder()
 			.title(requestDto.getTitle())
@@ -101,8 +101,8 @@ public class ColumnService {
 		}
 	}
 
-	public Columns findByColumnId(Long columnId) {
-		return columnRepository.findById(columnId).orElseThrow(
+	public Columns findByColumnIdAndBoardId(Long columnId, Long boardId) {
+		return columnRepository.findByIdAndBoardId(columnId, boardId).orElseThrow(
 			() -> new IllegalArgumentException("존재하지 않는 컬럼입니다.") // CommonException 로 바꿀예정
 		);
 	}

@@ -1,5 +1,11 @@
 package com.sparta.bitbucket.board.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.entity.Role;
@@ -15,7 +21,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BoardService {
 
+	private final static int PAGE_SIZE = 5;
+
 	private final BoardRepository boardRepository;
+
+	public List<BoardResponseDto> getAllBoards(int page, String sortBy) {
+
+		Sort sort = Sort.by(Sort.Direction.DESC, sortBy);
+		Pageable pageable = PageRequest.of(page, PAGE_SIZE, sort);
+
+		Page<BoardResponseDto> boardResponseDtoPage = boardRepository.findAll(pageable).map(BoardResponseDto::new);
+		List<BoardResponseDto> boardResponseDtoList = boardResponseDtoPage.getContent();
+
+		if (boardResponseDtoList.isEmpty()) {
+			throw new IllegalArgumentException("조회된 보드가 없습니다.");
+		}
+
+		return boardResponseDtoList;
+	}
 
 	public BoardResponseDto createBoard(BoardCreateRequestDto requestDto, User user) {
 

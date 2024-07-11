@@ -30,10 +30,13 @@ public class SignupRequestDto {
 	@NotBlank(message = "Name cannot be blank.")
 	private String name;
 
+	private String secretKey;
+
 	@Builder
-	public SignupRequestDto(String email, String password, String name) {
+	public SignupRequestDto(String email, String password, String name, String secretKey) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
+		this.secretKey = secretKey;
 	}
 }

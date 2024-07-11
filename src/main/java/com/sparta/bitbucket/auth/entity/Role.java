@@ -7,11 +7,11 @@ import lombok.Getter;
  * <p>
  * USER 일반 사용자 역할
  * <p>
- * ADMIN 관리자 역할
+ * MANAGER 관리자 역할
  */
 @Getter
 public enum Role {
-	USER("ROLE_USER"), MANAGER ("ROLE_MANAGER");
+	USER("ROLE_USER"), MANAGER("ROLE_MANAGER");
 
 	private final String role;
 

@@ -14,7 +14,6 @@ import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.auth.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor

@@ -3,6 +3,7 @@ package com.sparta.bitbucket.column.entity;
 
 
 import com.sparta.bitbucket.board.entity.Board;
+import com.sparta.bitbucket.common.entity.Timestamped;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @AllArgsConstructor
-public class Columns {
+public class Columns extends Timestamped {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +33,7 @@ public class Columns {
 	@Column(unique = true)
 	private String title;
 
-	@ManyToOne( fetch = FetchType.LAZY, cascade = CascadeType.REMOVE )
+	@ManyToOne( fetch = FetchType.LAZY )
 	@JoinColumn(name = "board_id", nullable = false)
 	private Board board;
 

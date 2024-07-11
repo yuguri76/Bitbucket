@@ -195,7 +195,7 @@ public class BoardService {
 		return user.getRole() == Role.MANAGER;
 	}
 
-	private boolean isUserBoardMember(Long boardId, Long userId) {
+	public boolean isUserBoardMember(Long boardId, Long userId) {
 		return boardMemberRepository.findAllByBoard_IdAndUser_Id(boardId, userId).isPresent();
 	}
 

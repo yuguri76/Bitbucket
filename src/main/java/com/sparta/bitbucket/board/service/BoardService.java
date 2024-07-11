@@ -7,11 +7,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
+import com.sparta.bitbucket.board.dto.BoardEditRequestDto;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
@@ -102,7 +104,8 @@ public class BoardService {
 		Board saveBoard = boardRepository.save(board);
 		boardMemberRepository.save(boardMember);
 
-		return BoardResponseDto.builder()
+		return BoardResponseDto
+			.builder()
 			.board(saveBoard)
 			.build();
 	}
@@ -141,6 +144,36 @@ public class BoardService {
 			.build();
 	}
 
+	@Transactional
+	public BoardResponseDto editBoard(Long boardId, BoardEditRequestDto requestDto, User user) {
+
+		if (isNullAndEmpty(requestDto.getTitle()) && isNullAndEmpty(requestDto.getContent())) {
+			throw new IllegalArgumentException("수정으로 요청된 값이 없습니다.");
+		}
+
+		Board board = findBoardById(boardId);
+
+		if (!isUserManager(user)) {
+			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+		}
+
+		if (!isNullAndEmpty(requestDto.getTitle())) {
+			if (boardRepository.findByTitle(requestDto.getTitle()).isPresent()) {
+				throw new IllegalArgumentException("수정하려는 보드 제목과 중복되는 제목이 있습니다.");
+			}
+			board.updateTitle(requestDto.getTitle());
+		}
+
+		if (!isNullAndEmpty(requestDto.getContent())) {
+			board.updateContent(requestDto.getContent());
+		}
+
+		return BoardResponseDto
+			.builder()
+			.board(board)
+			.build();
+	}
+
 	private Board findBoardById(Long boardId) {
 		return boardRepository.findById(boardId).orElseThrow(
 			() -> new IllegalArgumentException("해당 id로 조회된 보드가 없습니다.")
@@ -153,5 +186,10 @@ public class BoardService {
 
 	private boolean isUserBoardMember(Long boardId, Long userId) {
 		return boardMemberRepository.findAllByBoard_IdAndUser_Id(boardId, userId).isPresent();
+	}
+
+	// String 요청 데이터가 비어 있느지 확인하는 메서드
+	private boolean isNullAndEmpty(String string) {
+		return string == null || string.isEmpty();
 	}
 }

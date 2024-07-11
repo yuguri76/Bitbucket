@@ -7,12 +7,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
+import com.sparta.bitbucket.board.dto.BoardEditRequestDto;
 import com.sparta.bitbucket.board.dto.BoardInviteRequestDto;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
@@ -70,6 +72,17 @@ public class BoardController {
 	) {
 		BoardMemberResponseDto responseDto = boardService.inviteBoard(boardId, requestDto.getEmail(),
 			userDetails.getUser());
+
+		return ResponseFactory.ok(responseDto, null);
+	}
+
+	@PutMapping("/{boardId}")
+	public ResponseEntity<DataResponseDto<BoardResponseDto>> editBoard(
+		@PathVariable(value = "boardId") Long boardId,
+		@RequestBody BoardEditRequestDto requestDto,
+		@AuthenticationPrincipal UserDetailsImpl userDetails
+	) {
+		BoardResponseDto responseDto = boardService.editBoard(boardId, requestDto, userDetails.getUser());
 
 		return ResponseFactory.ok(responseDto, null);
 	}

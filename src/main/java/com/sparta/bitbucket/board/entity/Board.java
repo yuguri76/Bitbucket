@@ -54,4 +54,12 @@ public class Board extends Timestamped {
 		boardMemberList.add(boardMember);
 	}
 
+	public void updateTitle(String title) {
+		this.title = title;
+	}
+
+	public void updateContent(String content) {
+		this.content = content;
+	}
+
 }

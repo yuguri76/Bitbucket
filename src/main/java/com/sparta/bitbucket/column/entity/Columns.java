@@ -5,7 +5,6 @@ package com.sparta.bitbucket.column.entity;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.common.entity.Timestamped;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

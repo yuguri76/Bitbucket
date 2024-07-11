@@ -56,7 +56,7 @@ public class User extends Timestamped {
 		this.email = email;
 		this.password = password;
 		this.name = name;
-		this.role = role != null ? role : Role.USER;
+		this.role = role;
 	}
 
 	/**

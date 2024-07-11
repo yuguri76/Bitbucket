@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
+import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
 import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
@@ -36,6 +38,16 @@ public class BoardController {
 		List<BoardResponseDto> responseDtoList = boardService.getAllBoards(page - 1, sortBy);
 
 		return ResponseFactory.ok(responseDtoList, null);
+	}
+
+	@GetMapping("/{boardId}")
+	public ResponseEntity<DataResponseDto<BoardWithMemberListResponseDto>> getBoard(
+		@PathVariable(value = "boardId") Long boardId,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+		BoardWithMemberListResponseDto responseDto = boardService.getBoard(boardId, userDetails.getUser());
+
+		return ResponseFactory.ok(responseDto, null);
 	}
 
 	@PostMapping

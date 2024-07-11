@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.column.dto;
+package com.sparta.bitbucket.column.entity;
 
 import lombok.Getter;
 

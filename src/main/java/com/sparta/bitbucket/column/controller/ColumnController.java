@@ -37,8 +37,7 @@ public class ColumnController {
 
 	@PostMapping("/columns")
 	public ResponseEntity<MessageResponseDto> createColumn(@RequestBody @Valid CreateColumnRequestDto requestDto,
-		@AuthenticationPrincipal
-		UserDetailsImpl userDetails) {
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		columnService.createColumn(userDetails.getUser(), requestDto);
 		return ResponseFactory.ok(CREATE_COLUMNS_SUCCESS.getMessage());
 	}

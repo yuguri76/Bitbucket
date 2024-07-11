@@ -33,7 +33,8 @@ public class BoardController {
 	@GetMapping
 	public ResponseEntity<DataResponseDto<List<BoardResponseDto>>> getAllBoards(
 		@RequestParam(value = "page", defaultValue = "1") int page,
-		@RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy) {
+		@RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy
+	) {
 
 		List<BoardResponseDto> responseDtoList = boardService.getAllBoards(page - 1, sortBy);
 
@@ -43,7 +44,8 @@ public class BoardController {
 	@GetMapping("/{boardId}")
 	public ResponseEntity<DataResponseDto<BoardWithMemberListResponseDto>> getBoard(
 		@PathVariable(value = "boardId") Long boardId,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		@AuthenticationPrincipal UserDetailsImpl userDetails
+	) {
 
 		BoardWithMemberListResponseDto responseDto = boardService.getBoard(boardId, userDetails.getUser());
 
@@ -53,7 +55,8 @@ public class BoardController {
 	@PostMapping
 	public ResponseEntity<DataResponseDto<BoardResponseDto>> createBoard(
 		@Valid @RequestBody BoardCreateRequestDto requestDto,
-		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		@AuthenticationPrincipal UserDetailsImpl userDetails
+	) {
 
 		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUser());
 

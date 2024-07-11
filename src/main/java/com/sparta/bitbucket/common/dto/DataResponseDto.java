@@ -12,8 +12,8 @@ public class DataResponseDto<T> extends MessageResponseDto {
 	}
 
 	// 매개변수가 있는 생성자
-	public DataResponseDto(int statusCode, String message, T data) {
-		super(statusCode, message);
+	public DataResponseDto(int status, String message, T data) {
+		super(status, message);
 		this.data = data;
 	}
 }

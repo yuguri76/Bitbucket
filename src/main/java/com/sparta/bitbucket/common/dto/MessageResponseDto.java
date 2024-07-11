@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class MessageResponseDto {
 
-	private int statusCode;
+	private int status;
 	private String message;
 
 	// 기본 생성자
@@ -13,8 +13,8 @@ public class MessageResponseDto {
 	}
 
 	// 매개변수가 있는 생성자
-	public MessageResponseDto(int statusCode, String message) {
-		this.statusCode = statusCode;
+	public MessageResponseDto(int status, String message) {
+		this.status = status;
 		this.message = message;
 	}
 }

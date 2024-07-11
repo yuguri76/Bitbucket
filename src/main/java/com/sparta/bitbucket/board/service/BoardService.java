@@ -174,6 +174,17 @@ public class BoardService {
 			.build();
 	}
 
+	public void deleteBoard(Long boardId, User user) {
+
+		Board board = findBoardById(boardId);
+
+		if (!isUserManager(user)) {
+			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+		}
+
+		boardRepository.delete(board);
+	}
+
 	private Board findBoardById(Long boardId) {
 		return boardRepository.findById(boardId).orElseThrow(
 			() -> new IllegalArgumentException("해당 id로 조회된 보드가 없습니다.")
@@ -188,7 +199,11 @@ public class BoardService {
 		return boardMemberRepository.findAllByBoard_IdAndUser_Id(boardId, userId).isPresent();
 	}
 
-	// String 요청 데이터가 비어 있느지 확인하는 메서드
+	/**
+	 * string 타입 데이터가 비어 있느지 확인하는 메서드
+	 * @param string
+	 * @return 입력값이 비었으면 true, null이 아닌 값이 있다면 false
+	 */
 	private boolean isNullAndEmpty(String string) {
 		return string == null || string.isEmpty();
 	}

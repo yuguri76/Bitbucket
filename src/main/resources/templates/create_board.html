@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Board Page</title>
+    <title>Create Board Page</title>
     <style>
         body {
             background-color: rgba(255, 240, 130, 0.1);
@@ -60,7 +60,7 @@
             gap: 10px;
         }
 
-        .header .actions button {
+        .header .logout-button {
             background-color: #ff9100; /* Button background color */
             color: white; /* Button text color */
             font-family: 'ONE-Mobile-POP';
@@ -71,64 +71,68 @@
             cursor: pointer;
         }
 
-        .board-container {
-            padding: 20px;
-        }
-
-        #boardList {
+        .create-board-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: flex-start;
-        }
-
-        .board {
-            width: calc(16% - 16px); /* 6개의 보드가 한 줄에 들어가도록 설정 */
-            height: 300px;
-            background-color: #f0f0f0;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px);
+        }
+
+        .create-board-box {
+            background-color: #FFECB2;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .create-board-box h2 {
+            color: #FF6D28;
+            margin-bottom: 20px;
+        }
+
+        .create-board-box input[type="text"],
+        .create-board-box textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .create-board-box textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        .create-board-box button {
+            background-color: #FF6D28;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            box-sizing: border-box;
-            color: #333;  /* 텍스트 색상 */
-            font-weight: bold;
-        }
-
-        .board:hover {
-            filter: brightness(90%);
-        }
-
-        .new-board {
-            border: 2px dashed #ccc;
-            background-color: #ffffff !important;  /* 흰색 배경 강제 적용 */
-        }
-
-        .new-board:hover {
-            background-color: #f8f8f8 !important;
-        }
-
-        @media (max-width: 1200px) {
-            .board {
-                width: calc(25% - 15px); /* 4개씩 */
-            }
-        }
-
-        @media (max-width: 900px) {
-            .board {
-                width: calc(33.33% - 14px); /* 3개씩 */
-            }
-        }
-
-        @media (max-width: 600px) {
-            .board {
-                width: calc(50% - 10px); /* 2개씩 */
-            }
         }
     </style>
-    <script type="module" src="./js/main.js"></script>
+    <script type="module">
+        import {createBoard} from "./js/board.js";
+
+        window.createBoard = async function () {
+            const title = document.getElementById('boardTitleField').value;
+            const content = document.getElementById('boardContentField').value;
+
+            try {
+                await createBoard(title, content);
+                console.log("보드 생성에 성공했습니다.");
+                window.location.href = '/main';
+            } catch (error) {
+                console.log("보드 생성에 실패 했습니다. " + error);
+            }
+        };
+
+    </script>
 </head>
 <body>
 <div class="header">
@@ -137,20 +141,27 @@
         <h1>LionBucket</h1>
     </div>
     <div class="actions">
-
+        <!--여기서 이름 나와야하면 이름이랑 리스트 받는걸 분리해야되나 고민-->
         <div class="welcome" id="welcomeMessage">라이언님 환영합니다!</div>
-        <button onclick="logout()">로그아웃</button>
+        <button class="logout-button" onclick="logout()">로그아웃</button>
     </div>
-</div>
-<div class="board-container" id="boardList">
+
     <script type="module">
         import { logout } from './js/auth.js';
 
         // logout 함수를 전역 스코프에 할당
         window.logout = logout;
     </script>
-    <!-- 여기에 동적으로 보드가 추가됩니다 -->
 </div>
-
+<div class="create-board-container">
+    <div class="create-board-box">
+        <h2>Create board</h2>
+        <form onsubmit="return false;">
+            <input type="text" id="boardTitleField" placeholder="보드 이름">
+            <textarea placeholder="한줄 설명" id="boardContentField"></textarea>
+            <button type="button" onclick="createBoard()">CREATE</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

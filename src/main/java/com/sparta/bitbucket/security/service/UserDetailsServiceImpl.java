@@ -6,7 +6,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.auth.exception.UserEmailNotFoundException;
 import com.sparta.bitbucket.auth.repository.UserRepository;
+import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException("사용자가 존재하지 않습니다: " + email));
+			.orElseThrow(() -> new UserEmailNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND));
 
 		return new UserDetailsImpl(user);
 	}

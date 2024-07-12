@@ -12,7 +12,9 @@ import com.sparta.bitbucket.auth.dto.SignupRequestDto;
 import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.auth.exception.UserEmailDuplicateException;
 import com.sparta.bitbucket.auth.repository.UserRepository;
+import com.sparta.bitbucket.common.entity.StatusMessage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +33,7 @@ public class UserService {
 	 *
 	 * @param requestDto 회원가입 요청 정보를 담고 있는 DTO
 	 * @return SignupResponseDto 회원가입 결과 정보를 담고 있는 DTO
-	 * @throws IllegalArgumentException 이미 존재하는 이메일로 가입 시도할 경우 발생
+	 * @throws UserEmailDuplicateException 이미 존재하는 이메일로 가입 시도할 경우 발생
 	 */
 	public SignupResponseDto signup(SignupRequestDto requestDto) {
 
@@ -39,7 +41,7 @@ public class UserService {
 
 		// 이메일 중복 확인
 		if (duplicateUser.isPresent()) {
-			throw new IllegalArgumentException("이메일 중복"); // todo : Exception 의논해서 만든 후 변경
+			throw new UserEmailDuplicateException(StatusMessage.USER_EMAIL_DUPLICATE);
 		}
 
 		Role role = setUserRole(requestDto.getSecretKey());

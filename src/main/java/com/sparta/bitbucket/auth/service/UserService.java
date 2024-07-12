@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.dto.SignupRequestDto;
 import com.sparta.bitbucket.auth.dto.SignupResponseDto;
+import com.sparta.bitbucket.auth.dto.UserBoardsResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.auth.exception.UsernameDuplicateException;
@@ -58,6 +59,14 @@ public class UserService {
 		User savedUser = userRepository.save(user);
 
 		return new SignupResponseDto(savedUser);
+	}
+
+	public UserBoardsResponseDto getUserBoards(String email) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
+
+		return UserBoardsResponseDto.builder().username(user.getName()).boards(user.getBoards()).build();
+
 	}
 
 	private Role setUserRole(String providedSecretKey) {

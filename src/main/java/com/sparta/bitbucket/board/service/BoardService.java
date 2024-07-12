@@ -192,7 +192,7 @@ public class BoardService {
 		);
 	}
 
-	private boolean isUserManager(User user) {
+	public boolean isUserManager(User user) {
 		return user.getRole() == Role.MANAGER;
 	}
 

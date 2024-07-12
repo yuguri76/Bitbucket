@@ -13,6 +13,5 @@ public class CardRequestDto {
 	private String content;
 	private String assignee;
 	private LocalDateTime dueDate;
-
 	private Long orders;
 }

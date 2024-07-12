@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
 import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
-import com.sparta.bitbucket.card.dto.CardRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.service.CardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;

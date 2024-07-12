@@ -1,13 +1,17 @@
 package com.sparta.bitbucket.card.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
@@ -63,6 +67,18 @@ public class CardController {
 	) {
 		cardService.deleteCard(userDetails.getUser(), columnId, cardId);
 		return ResponseFactory.ok("카드 삭제가 성공적으로 완료되었습니다.");
+	}
+
+	@GetMapping("/cards")
+	public ResponseEntity<DataResponseDto<List<CardResponseDto>>> getCards(
+		@PathVariable Long boardId,
+		@RequestParam(defaultValue = "all") String condition,
+		@RequestParam(required = false) String conditionDetail
+
+	) {
+		List<CardResponseDto> response = cardService.getCards(boardId, condition, conditionDetail);
+
+		return ResponseFactory.ok(response, "보드 목록 조회가 성공적으로 완료되었습니다.");
 	}
 
 }

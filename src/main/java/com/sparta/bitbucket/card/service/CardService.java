@@ -1,5 +1,8 @@
 package com.sparta.bitbucket.card.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +12,6 @@ import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
-import com.sparta.bitbucket.card.dto.CardRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.entity.Card;
 import com.sparta.bitbucket.card.repository.CardRepository;
@@ -80,6 +82,33 @@ public class CardService {
 			throw new IllegalArgumentException("수정 권한이 없습니다");
 		}
 		cardRepository.delete(card);
+	}
+
+	public List<CardResponseDto> getCards(Long boardId, String condition, String conditionDetail) {
+		if(condition.equals("assignee")){
+			if(conditionDetail.isEmpty()){
+				throw new IllegalArgumentException("작업자를 입력해주세요");
+			}
+			List<Card> assigneeCards = cardRepository.findByAssignee(conditionDetail);
+			if(assigneeCards.isEmpty()) {
+				throw new IllegalArgumentException("해당 작업자는 존재하지 않는 작업자입니다");
+			}else{
+				return assigneeCards.stream().map(CardResponseDto::new).collect(Collectors.toList());
+			}
+		}else if(condition.equals("status")){
+			if(conditionDetail.isEmpty()){
+				throw new IllegalArgumentException("컬럼 상태를 입력해주세요");
+			}
+			List<Card> statusCards = cardRepository.findByStatus(conditionDetail);
+			if(statusCards.isEmpty()){
+				throw new IllegalArgumentException("해당 상태는 존재하지 않는 상태입니다");
+			}else{
+				return statusCards.stream().map(CardResponseDto::new).collect(Collectors.toList());
+			}
+		}else{
+			List<Card> allCards = cardRepository.findByBoardId(boardId);
+			return allCards.stream().map(CardResponseDto::new).collect(Collectors.toList());
+		}
 	}
 
 	public Card findCard(Long cardId) {

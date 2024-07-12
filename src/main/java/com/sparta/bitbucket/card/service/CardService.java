@@ -12,6 +12,7 @@ import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
+import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.entity.Card;
 import com.sparta.bitbucket.card.repository.CardRepository;
@@ -68,6 +69,23 @@ public class CardService {
 		}
 
 		card.updateCard(requestDto);
+
+		return CardResponseDto
+			.builder()
+			.card(card)
+			.build();
+	}
+
+	@Transactional
+	public CardResponseDto moveCard(User user, Long columnId, Long cardId, CardMoveRequestDto requestDto) {
+		findColums(columnId);
+		Card card = findCard(cardId);
+
+		if (!boardService.isUserManager(user) && !isCardOwner(card.getId(), user.getId())) {
+			throw new IllegalArgumentException("수정 권한이 없습니다");
+		}
+
+		card.updateOrders(requestDto);
 
 		return CardResponseDto
 			.builder()

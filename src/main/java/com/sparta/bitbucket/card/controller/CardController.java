@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
+import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.service.CardService;
@@ -57,6 +58,20 @@ public class CardController {
 
 		return ResponseFactory.ok(responseDto, "카드 수정이 성공적으로 완료되었습니다.");
 	}
+
+	@PutMapping("/columns/{columnId}/cards/{cardId}/move")
+	public ResponseEntity<DataResponseDto<CardResponseDto>> moveCard(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable Long boardId,
+		@PathVariable Long columnId,
+		@PathVariable Long cardId,
+		@Valid @RequestBody CardMoveRequestDto requestDto
+	) {
+		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), columnId, cardId, requestDto);
+
+		return ResponseFactory.ok(responseDto, "카드 순서 수정이 성공적으로 완료되었습니다.");
+	}
+
 
 	@DeleteMapping("/columns/{columnId}/cards/{cardId}")
 	public ResponseEntity<MessageResponseDto> deleteCard(

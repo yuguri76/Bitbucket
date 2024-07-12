@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
+import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.common.entity.Timestamped;
@@ -75,6 +76,10 @@ public class Card extends Timestamped {
 		this.assignee = requestDto.getAssignee();
 		this.content = requestDto.getContent();
 		this.dueDate = requestDto.getDueDate();
+	}
+
+	public void updateOrders(CardMoveRequestDto requestDto) {
+		this.orders = requestDto.getOrders();
 	}
 }
 

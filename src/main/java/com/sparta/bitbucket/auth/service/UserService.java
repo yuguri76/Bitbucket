@@ -12,7 +12,7 @@ import com.sparta.bitbucket.auth.dto.SignupRequestDto;
 import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.exception.UserEmailDuplicateException;
+import com.sparta.bitbucket.auth.exception.UsernameDuplicateException;
 import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 
@@ -33,7 +33,7 @@ public class UserService {
 	 *
 	 * @param requestDto 회원가입 요청 정보를 담고 있는 DTO
 	 * @return SignupResponseDto 회원가입 결과 정보를 담고 있는 DTO
-	 * @throws UserEmailDuplicateException 이미 존재하는 이메일로 가입 시도할 경우 발생
+	 * @throws UsernameDuplicateException 이미 존재하는 이메일로 가입 시도할 경우 발생
 	 */
 	public SignupResponseDto signup(SignupRequestDto requestDto) {
 
@@ -41,7 +41,7 @@ public class UserService {
 
 		// 이메일 중복 확인
 		if (duplicateUser.isPresent()) {
-			throw new UserEmailDuplicateException(StatusMessage.USER_EMAIL_DUPLICATE);
+			throw new UsernameDuplicateException(StatusMessage.USER_EMAIL_DUPLICATE);
 		}
 
 		Role role = setUserRole(requestDto.getSecretKey());
@@ -70,9 +70,8 @@ public class UserService {
 	}
 
 	public User findUserByEmail(String email) {
-		return userRepository.findByEmail(email).orElseThrow(
-			() -> new UsernameNotFoundException("사용자가 존재하지않습니다.")
-		);
+		return userRepository.findByEmail(email)
+			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 	}
 
 }

@@ -9,6 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.sparta.bitbucket.auth.exception.PasswordInvalidException;
+import com.sparta.bitbucket.auth.exception.UsernameDuplicateException;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 
@@ -56,6 +58,22 @@ public class GlobalExceptionHandler {
 		String errorMessage = "Exception caught: " + e.getMessage();
 
 		return ResponseFactory.notFound(errorMessage);
+	}
+
+	@ExceptionHandler(UsernameDuplicateException.class)
+	public ResponseEntity<MessageResponseDto> UsernameDuplicateException(UsernameDuplicateException e) {
+
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.conflictError(errorMessage);
+	}
+
+	@ExceptionHandler(PasswordInvalidException.class)
+	public ResponseEntity<MessageResponseDto> PasswordInvalidException(PasswordInvalidException e) {
+
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.authorizedError(errorMessage);
 	}
 
 }

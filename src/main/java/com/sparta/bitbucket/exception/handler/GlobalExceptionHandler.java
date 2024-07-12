@@ -3,6 +3,7 @@ package com.sparta.bitbucket.exception.handler;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -47,6 +48,14 @@ public class GlobalExceptionHandler {
 		String errorMessage = "Exception caught: " + e.getMessage();
 
 		return ResponseFactory.badRequest(errorMessage);
+	}
+
+	@ExceptionHandler(UsernameNotFoundException.class)
+	public ResponseEntity<MessageResponseDto> UsernameNotFoundExceptionHandler(UsernameNotFoundException e) {
+
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.notFound(errorMessage);
 	}
 
 }

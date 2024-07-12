@@ -17,4 +17,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 	List<Card> findByStatus(String condition);
 
 	List<Card> findByBoardId(Long boardId);
+
+	Boolean existsByColumnsIdAndTitle(Long columnId, String title);
 }

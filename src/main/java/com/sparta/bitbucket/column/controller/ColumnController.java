@@ -1,6 +1,6 @@
 package com.sparta.bitbucket.column.controller;
 
-import static com.sparta.bitbucket.column.entity.StatusMessage.*;
+import static com.sparta.bitbucket.common.entity.StatusMessage.*;
 
 import java.util.List;
 

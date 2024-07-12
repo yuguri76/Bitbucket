@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.bitbucket.security.service.JwtService;
 import com.sparta.bitbucket.security.service.UserDetailsServiceImpl;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,11 +49,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 					return;
 				}
 			}
-		} catch (io.jsonwebtoken.ExpiredJwtException e) {
+		} catch (ExpiredJwtException e) {
 			log.warn("Expired JWT token", e);
 			sendTokenExpiredResponse(response);
 			return;
-		} catch (io.jsonwebtoken.security.SecurityException | io.jsonwebtoken.MalformedJwtException e) {
+		} catch (SecurityException | MalformedJwtException e) {
 			log.warn("Invalid JWT token", e);
 			sendInvalidTokenResponse(response);
 			return;

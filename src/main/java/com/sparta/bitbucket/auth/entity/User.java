@@ -1,7 +1,12 @@
 package com.sparta.bitbucket.auth.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.common.entity.Timestamped;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +14,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,6 +46,9 @@ public class User extends Timestamped {
 	@Column
 	private String refreshToken;
 
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<Board> boards = new ArrayList<>();
+
 	/**
 	 * User 객체를 생성하는 생성자입니다.
 	 *
@@ -66,6 +75,10 @@ public class User extends Timestamped {
 	 */
 	public void updateRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public void addBoard(Board board){
+		this.boards.add(board);
 	}
 
 }

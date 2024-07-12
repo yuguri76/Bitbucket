@@ -60,7 +60,7 @@ public class BoardController {
 		@Valid @RequestBody BoardCreateRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
-		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUser());
+		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUsername());
 
 		return ResponseFactory.created(responseDto, "보드 생성이 성공적으로 완료되었습니다.");
 	}

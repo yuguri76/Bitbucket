@@ -22,7 +22,6 @@ import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
 import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
-import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 
@@ -63,7 +62,7 @@ public class BoardController {
 	) {
 		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUser());
 
-		return ResponseFactory.ok(responseDto, "보드 생성이 성공적으로 완료되었습니다.");
+		return ResponseFactory.created(responseDto, "보드 생성이 성공적으로 완료되었습니다.");
 	}
 
 	@PostMapping("/{boardId}/invite")
@@ -90,13 +89,13 @@ public class BoardController {
 	}
 
 	@DeleteMapping("/{boardId}")
-	public ResponseEntity<MessageResponseDto> deleteBoard(
+	public ResponseEntity<?> deleteBoard(
 		@PathVariable(value = "boardId") Long boardId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
 		boardService.deleteBoard(boardId, userDetails.getUser());
 
-		return ResponseFactory.ok("보드 삭제가 성공적으로 완료되었습니다.");
+		return ResponseFactory.noContent();
 	}
 
 }

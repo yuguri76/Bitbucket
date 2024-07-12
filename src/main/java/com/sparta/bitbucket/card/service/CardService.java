@@ -73,6 +73,15 @@ public class CardService {
 			.build();
 	}
 
+	public void deleteCard(User user, Long columnId, Long cardId) {
+		findColums(columnId);
+		Card card = findCard(cardId);
+		if (!boardService.isUserManager(user) && !isCardOwner(card.getId(), user.getId())) {
+			throw new IllegalArgumentException("수정 권한이 없습니다");
+		}
+		cardRepository.delete(card);
+	}
+
 	public Card findCard(Long cardId) {
 		return cardRepository.findById(cardId).orElseThrow(
 			() -> new IllegalArgumentException("조회된 카드의 정보가 없습니다")

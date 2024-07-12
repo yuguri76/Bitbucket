@@ -2,6 +2,7 @@ package com.sparta.bitbucket.card.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,6 +16,7 @@ import com.sparta.bitbucket.card.dto.CardRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.service.CardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
+import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 
@@ -50,6 +52,17 @@ public class CardController {
 		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), columnId, cardId, requestDto);
 
 		return ResponseFactory.ok(responseDto, "카드 수정이 성공적으로 완료되었습니다.");
+	}
+
+	@DeleteMapping("/columns/{columnId}/cards/{cardId}")
+	public ResponseEntity<MessageResponseDto> deleteCard(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable Long boardId,
+		@PathVariable Long columnId,
+		@PathVariable Long cardId
+	) {
+		cardService.deleteCard(userDetails.getUser(), columnId, cardId);
+		return ResponseFactory.ok("카드 삭제가 성공적으로 완료되었습니다.");
 	}
 
 }

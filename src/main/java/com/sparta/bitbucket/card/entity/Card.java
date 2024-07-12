@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.board.entity.Board;
+import com.sparta.bitbucket.card.dto.CardEditRequestDto;
+import com.sparta.bitbucket.card.dto.CardRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.common.entity.Timestamped;
 
@@ -66,6 +68,13 @@ public class Card extends Timestamped {
 		this.content = content;
 		this.dueDate = dueDate;
 		this.orders = orders;
+	}
+
+	public void updateCard(CardEditRequestDto requestDto) {
+		this.title = requestDto.getTitle();
+		this.assignee = requestDto.getAssignee();
+		this.content = requestDto.getContent();
+		this.dueDate = requestDto.getDueDate();
 	}
 }
 

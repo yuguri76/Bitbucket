@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.repository.UserRepository;
+import com.sparta.bitbucket.auth.service.UserService;
 import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
 import com.sparta.bitbucket.board.dto.BoardEditRequestDto;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
@@ -23,7 +23,9 @@ import com.sparta.bitbucket.board.repository.BoardMemberRepository;
 import com.sparta.bitbucket.board.repository.BoardRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j(topic = "board service")
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -32,7 +34,7 @@ public class BoardService {
 
 	private final BoardRepository boardRepository;
 	private final BoardMemberRepository boardMemberRepository;
-	private final UserRepository userRepository;
+	private final UserService userService;
 
 	public List<BoardResponseDto> getAllBoards(int page, String sortBy) {
 
@@ -122,9 +124,7 @@ public class BoardService {
 			throw new IllegalArgumentException("로그인한 사용자는 해당 보드의 멤버가 아닙니다.");
 		}
 
-		User invitedUser = userRepository.findByEmail(invitedUserEmail).orElseThrow(
-			() -> new IllegalArgumentException("초대한 사용자가 존재하지 않습니다.")
-		);
+		User invitedUser = userService.findUserByEmail(invitedUserEmail);
 
 		if (isUserBoardMember(board.getId(), invitedUser.getId())) {
 			throw new IllegalArgumentException("초대된 사용자는 이미 해당 보드의 멤버입니다.");
@@ -183,6 +183,7 @@ public class BoardService {
 		}
 
 		boardRepository.delete(board);
+		log.info("보드가 삭제가 성공적으로 완료되었습니다.");
 	}
 
 	public Board findBoardById(Long boardId) {
@@ -191,7 +192,7 @@ public class BoardService {
 		);
 	}
 
-	private boolean isUserManager(User user) {
+	public boolean isUserManager(User user) {
 		return user.getRole() == Role.MANAGER;
 	}
 
@@ -201,10 +202,11 @@ public class BoardService {
 
 	/**
 	 * string 타입 데이터가 비어 있느지 확인하는 메서드
-	 * @param string
+	 * @param string 문자열 타입의 입력 데이터
 	 * @return 입력값이 비었으면 true, null이 아닌 값이 있다면 false
 	 */
 	private boolean isNullAndEmpty(String string) {
 		return string == null || string.isEmpty();
 	}
+
 }

@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.exception.handler;
+package com.sparta.bitbucket.exception;
 
 import java.util.stream.Collectors;
 

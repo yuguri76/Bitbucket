@@ -59,6 +59,7 @@ public class CardService {
 	@Transactional
 	public CardResponseDto updateCard(User user, Long columnId,
 		Long cardId, CardEditRequestDto requestDto) {
+		existsByColumnIdAndTitle(columnId, requestDto.getTitle());
 
 		findColum(columnId);
 		Card card = findCard(cardId);

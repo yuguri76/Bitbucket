@@ -1,5 +1,6 @@
 package com.sparta.bitbucket.card.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -42,8 +43,7 @@ public class Card extends Timestamped {
 	private Long orders;
 	private String status;
 
-	@JsonFormat(pattern = "yyyy-MM-dd")
-	private LocalDateTime dueDate;
+	private LocalDate dueDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="create_user_id", nullable = false)
@@ -58,7 +58,7 @@ public class Card extends Timestamped {
 	private Board board;
 
 	@Builder
-	public Card(User createUser, Columns columns, Board board, String title, String status, String assignee, String content, LocalDateTime dueDate, Long orders) {
+	public Card(User createUser, Columns columns, Board board, String title, String status, String assignee, String content, LocalDate dueDate, Long orders) {
 		this.createUser = createUser;
 		this.columns = columns;
 		this.board = board;

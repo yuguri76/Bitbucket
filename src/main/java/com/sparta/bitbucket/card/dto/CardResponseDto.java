@@ -1,5 +1,6 @@
 package com.sparta.bitbucket.card.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.sparta.bitbucket.card.entity.Card;
@@ -15,7 +16,7 @@ public class CardResponseDto {
 	private final String title;
 	private final String content;
 	private final Long orders;
-	private final LocalDateTime dueDate;
+	private final LocalDate dueDate;
 	private final LocalDateTime updatedAt;
 
 	@Builder

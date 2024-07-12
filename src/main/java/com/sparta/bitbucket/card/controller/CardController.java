@@ -42,7 +42,7 @@ public class CardController {
 	) {
 		CardResponseDto responseDto = cardService.createCard(userDetails.getUser(), columnId, boardId, requestDto);
 
-		return ResponseFactory.ok(responseDto, "카드 작성이 성공적으로 완료되었습니다.");
+		return ResponseFactory.created(responseDto, "카드 작성이 성공적으로 완료되었습니다.");
 	}
 
 	@PutMapping("/columns/{columnId}/cards/{cardId}")
@@ -73,14 +73,14 @@ public class CardController {
 
 
 	@DeleteMapping("/columns/{columnId}/cards/{cardId}")
-	public ResponseEntity<MessageResponseDto> deleteCard(
+	public ResponseEntity<?> deleteCard(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable Long boardId,
 		@PathVariable Long columnId,
 		@PathVariable Long cardId
 	) {
 		cardService.deleteCard(userDetails.getUser(), columnId, cardId);
-		return ResponseFactory.ok("카드 삭제가 성공적으로 완료되었습니다.");
+		return ResponseFactory.noContent();
 	}
 
 	@GetMapping("/cards")
@@ -92,7 +92,7 @@ public class CardController {
 	) {
 		List<CardResponseDto> response = cardService.getCards(boardId, condition, conditionDetail);
 
-		return ResponseFactory.ok(response, "보드 목록 조회가 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(response, "카드 목록 조회가 성공적으로 완료되었습니다.");
 	}
 
 }

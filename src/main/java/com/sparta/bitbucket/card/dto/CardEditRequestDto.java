@@ -1,5 +1,6 @@
 package com.sparta.bitbucket.card.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotBlank;
@@ -12,5 +13,5 @@ public class CardEditRequestDto {
 
 	private String content;
 	private String assignee;
-	private LocalDateTime dueDate;
+	private LocalDate dueDate;
 }

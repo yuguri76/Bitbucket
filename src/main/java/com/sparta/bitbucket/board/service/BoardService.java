@@ -202,7 +202,7 @@ public class BoardService {
 
 	/**
 	 * string 타입 데이터가 비어 있느지 확인하는 메서드
-	 * @param string
+	 * @param string 문자열 타입의 입력 데이터
 	 * @return 입력값이 비었으면 true, null이 아닌 값이 있다면 false
 	 */
 	private boolean isNullAndEmpty(String string) {

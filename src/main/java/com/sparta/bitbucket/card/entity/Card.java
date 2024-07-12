@@ -1,9 +1,7 @@
 package com.sparta.bitbucket.card.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;

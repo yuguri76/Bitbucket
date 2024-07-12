@@ -20,7 +20,6 @@ import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.service.CardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
-import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 

@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +65,12 @@ public class UserService {
 			}
 		}
 		return Role.USER;
+	}
+
+	public User findUserByEmail(String email) {
+		return userRepository.findByEmail(email).orElseThrow(
+			() -> new UsernameNotFoundException("사용자가 존재하지않습니다.")
+		);
 	}
 
 }

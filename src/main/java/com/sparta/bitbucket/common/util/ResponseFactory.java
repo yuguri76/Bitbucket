@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
-import com.sparta.bitbucket.common.dto.NoContentResponseDto;
 
 /**
  * HTTP 응답을 생성하기 위한 클래스입니다.
@@ -15,10 +14,12 @@ import com.sparta.bitbucket.common.dto.NoContentResponseDto;
 public class ResponseFactory {
 
 	private static final String MSG_OK = "요청이 성공적으로 완료되었습니다.";
+	private static final String MSG_CREATED = "요청에 대한 데이터가 생성 되었습니다";
 	private static final String MSG_BAD_REQUEST = "해당 요청을 처리할 수 없습니다.";
 	private static final String MSG_NOT_FOUND = "요청한 리소스를 찾을 수 없습니다.";
 	private static final String MSG_INTERNAL_SERVER_ERROR = "서버 오류가 발생했습니다.";
 	private final static int STATUS_OK = HttpStatus.OK.value();
+	private final static int STATUS_CREATED = HttpStatus.CREATED.value();
 	private final static int STATUS_NO_CONTENT = HttpStatus.NO_CONTENT.value();
 	private final static int STATUS_BAD_REQUEST = HttpStatus.BAD_REQUEST.value();
 	private final static int STATUS_NOT_FOUND = HttpStatus.NOT_FOUND.value();
@@ -60,14 +61,38 @@ public class ResponseFactory {
 	}
 
 	/**
+	 * 데이터와 메시지를 포함한 201  CREATED 응답을 생성합니다.
+	 *
+	 * @param data    응답에 포함할 데이터
+	 * @param message 응답 메시지 (null이거나 비어있으면 기본 메시지가 사용됨)
+	 * @return ResponseEntity 객체
+	 */
+	public static <T> ResponseEntity<DataResponseDto<T>> created(T data, String message) {
+		String okMessage = invalidMessage(message) ? MSG_CREATED : message;
+		DataResponseDto<T> responseDto = new DataResponseDto<>(STATUS_CREATED, okMessage, data);
+		return ResponseEntity.status(STATUS_CREATED).body(responseDto);
+	}
+
+	/**
+	 * 메시지만 포함한 201 CREATED 응답을 생성합니다.
+	 *
+	 * @param message 응답 메시지 (null이거나 비어있으면 기본 메시지가 사용됨)
+	 * @return ResponseEntity 객체
+	 */
+	public static ResponseEntity<MessageResponseDto> created(String message) {
+		String okMessage = invalidMessage(message) ? MSG_CREATED : message;
+		MessageResponseDto responseDto = new MessageResponseDto(STATUS_CREATED, okMessage);
+		return ResponseEntity.status(STATUS_CREATED).body(responseDto);
+	}
+
+	/**
 	 * 204 No Content 응답을 생성합니다.
 	 * 이 메서드는 다른 응답 메서드와 달리 본문을 포함하지 않습니다.
 	 *
 	 * @return ResponseEntity 객체
 	 */
-	public static ResponseEntity<NoContentResponseDto> noContent() {
-		NoContentResponseDto responseDto = new NoContentResponseDto(STATUS_NO_CONTENT);
-		return ResponseEntity.status(STATUS_NO_CONTENT).body(responseDto);
+	public static ResponseEntity<?> noContent() {
+		return ResponseEntity.status(STATUS_NO_CONTENT).build();
 	}
 
 	// 에러 응답을 위한 메서드들

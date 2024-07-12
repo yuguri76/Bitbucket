@@ -7,5 +7,11 @@ import lombok.Getter;
 
 @Getter
 public class CardCreateRequestDto {
+	@NotBlank(message = "제목을 입력해주세요.")
+	private String title;
 
+	private String content;
+	private String assignee;
+	private LocalDateTime dueDate;
+	private Long orders;
 }

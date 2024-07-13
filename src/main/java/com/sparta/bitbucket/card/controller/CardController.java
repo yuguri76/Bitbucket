@@ -52,7 +52,7 @@ public class CardController {
 		@PathVariable Long cardId,
 		@Valid @RequestBody CardEditRequestDto requestDto
 	) {
-		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), columnId, cardId, requestDto);
+		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), columnId, cardId, boardId, requestDto);
 
 		return ResponseFactory.ok(responseDto, "카드 수정이 성공적으로 완료되었습니다.");
 	}
@@ -65,7 +65,7 @@ public class CardController {
 		@PathVariable Long cardId,
 		@Valid @RequestBody CardMoveRequestDto requestDto
 	) {
-		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), columnId, cardId, requestDto);
+		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), boardId, columnId, cardId, requestDto);
 
 		return ResponseFactory.ok(responseDto, "카드 순서 수정이 성공적으로 완료되었습니다.");
 	}
@@ -78,7 +78,7 @@ public class CardController {
 		@PathVariable Long columnId,
 		@PathVariable Long cardId
 	) {
-		cardService.deleteCard(userDetails.getUser(), columnId, cardId);
+		cardService.deleteCard(userDetails.getUser(), boardId, columnId, cardId);
 		return ResponseFactory.noContent();
 	}
 

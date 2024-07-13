@@ -16,8 +16,12 @@ import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.entity.Card;
 import com.sparta.bitbucket.card.repository.CardRepository;
 import com.sparta.bitbucket.column.entity.Columns;
-import com.sparta.bitbucket.column.repository.ColumnRepository;
+import com.sparta.bitbucket.column.service.ColumnService;
+import com.sparta.bitbucket.exception.card.MissingSearchKeywordException;
+import com.sparta.bitbucket.exception.card.ResourceNotFoundException;
+import com.sparta.bitbucket.exception.card.TitleConflictException;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,8 +29,8 @@ import lombok.RequiredArgsConstructor;
 public class CardService {
 
 	private final CardRepository cardRepository;
-	private final ColumnRepository columnRepository;
 	private final BoardService boardService;
+	private final ColumnService columnService;
 
 	public CardResponseDto createCard(User user, Long columnId, Long boardId, CardCreateRequestDto requestDto) {
 		if (!boardService.isUserBoardMember(boardId, user.getId())) {
@@ -34,7 +38,7 @@ public class CardService {
 		}
 		existsByColumnIdAndTitle(columnId, requestDto.getTitle());
 		Board board = boardService.findBoardById(boardId);
-		Columns columns = findColum(columnId);
+		Columns columns = columnService.findByColumnIdAndBoardId(boardId, columnId);
 
 		Card saveCard = Card.builder()
 			.createUser(user)
@@ -57,11 +61,11 @@ public class CardService {
 	}
 
 	@Transactional
-	public CardResponseDto updateCard(User user, Long columnId,
+	public CardResponseDto updateCard(User user, Long boardId, Long columnId,
 		Long cardId, CardEditRequestDto requestDto) {
 		existsByColumnIdAndTitle(columnId, requestDto.getTitle());
 
-		findColum(columnId);
+		columnService.findByColumnIdAndBoardId(columnId, boardId);
 		Card card = findCard(cardId);
 
 		if (!boardService.isUserManager(user) && !isCardOwner(card.getId(), user.getId())) {
@@ -77,8 +81,10 @@ public class CardService {
 	}
 
 	@Transactional
-	public CardResponseDto moveCard(User user, Long columnId, Long cardId, CardMoveRequestDto requestDto) {
-		findColum(columnId);
+	public CardResponseDto moveCard(User user, Long boardId, Long columnId, Long cardId,
+		CardMoveRequestDto requestDto) {
+
+		columnService.findByColumnIdAndBoardId(columnId, boardId);
 		Card card = findCard(cardId);
 
 		if (!boardService.isUserManager(user) && !isCardOwner(card.getId(), user.getId())) {
@@ -93,8 +99,10 @@ public class CardService {
 			.build();
 	}
 
-	public void deleteCard(User user, Long columnId, Long cardId) {
-		findColum(columnId);
+	public void deleteCard(User user, Long boardId, Long columnId, Long cardId) {
+		// findColum(columnId);
+
+		columnService.findByColumnIdAndBoardId(columnId, boardId);
 		Card card = findCard(cardId);
 		if (!boardService.isUserManager(user) && !isCardOwner(card.getId(), user.getId())) {
 			throw new IllegalArgumentException("수정 권한이 없습니다");
@@ -105,21 +113,21 @@ public class CardService {
 	public List<CardResponseDto> getCards(Long boardId, String condition, String conditionDetail) {
 		if (condition.equals("assignee")) {
 			if (conditionDetail.isEmpty()) {
-				throw new IllegalArgumentException("작업자를 입력해주세요");
+				throw new MissingSearchKeywordException("검색어를 입력해주세요");
 			}
 			List<Card> assigneeCards = cardRepository.findByAssignee(conditionDetail);
 			if (assigneeCards.isEmpty()) {
-				throw new IllegalArgumentException("해당 작업자는 존재하지 않는 작업자입니다");
+				throw new ResourceNotFoundException("해당하는 정보가 없습니다");
 			} else {
 				return assigneeCards.stream().map(CardResponseDto::new).collect(Collectors.toList());
 			}
 		} else if (condition.equals("status")) {
 			if (conditionDetail.isEmpty()) {
-				throw new IllegalArgumentException("컬럼 상태를 입력해주세요");
+				throw new MissingSearchKeywordException("검색어를 입력해주세요 않습니다");
 			}
 			List<Card> statusCards = cardRepository.findByStatus(conditionDetail);
 			if (statusCards.isEmpty()) {
-				throw new IllegalArgumentException("해당 상태는 존재하지 않는 상태입니다");
+				throw new ResourceNotFoundException("해당하는 정보가 없습니다");
 			} else {
 				return statusCards.stream().map(CardResponseDto::new).collect(Collectors.toList());
 			}
@@ -131,13 +139,7 @@ public class CardService {
 
 	public Card findCard(Long cardId) {
 		return cardRepository.findById(cardId).orElseThrow(
-			() -> new IllegalArgumentException("조회된 카드의 정보가 없습니다")
-		);
-	}
-
-	public Columns findColum(Long columnId) {
-		return columnRepository.findById(columnId).orElseThrow(
-			() -> new IllegalArgumentException("조회된 컬럼의 정보가 없습니다.")
+			() -> new EntityNotFoundException("조회된 카드의 정보가 없습니다")
 		);
 	}
 
@@ -147,7 +149,7 @@ public class CardService {
 
 	private void existsByColumnIdAndTitle(Long columnId, String title) {
 		if (cardRepository.existsByColumnsIdAndTitle(columnId, title)) {
-			throw new IllegalArgumentException("이미 존재하는 타이틀 입니다."); // CommonException 로 바꿀예정
+			throw new TitleConflictException("이미 존재하는 타이틀 입니다."); // CommonException 로 바꿀예정
 		}
 	}
 }

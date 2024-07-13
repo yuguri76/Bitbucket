@@ -40,4 +40,14 @@ public class PageController {
 		return "SignUp";
 	}
 
+	/**
+	 * Board 만드는 페이지로 이동
+	 *
+	 * @return "create_board" 문자열을 이용하여 create_board.html 템플릿 렌더링
+	 */
+	@RequestMapping("/create_board")
+	public String createBoardPage(){
+		return "create_board";
+	}
+
 }

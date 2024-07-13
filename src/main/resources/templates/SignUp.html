@@ -89,44 +89,27 @@
             font-family: 'ONE-Mobile-POP';
         }
     </style>
-    <script>
-        function redirectToLogin() {
+    <script type="module">
+        import {signup} from "./js/auth.js";
+
+        window.performSignup = async function () {
+            const userId = document.getElementById('userId').value;
+            const userPassword = document.getElementById('userPassword').value;
+            const username = document.getElementById('username').value;
+            const managerKey = document.getElementById('managerKey').value;
+
+            try {
+                await signup(userId, userPassword, username, managerKey);
+            } catch (error) {
+                alert("회원가입에 실패 했습니다. " + error);
+                console.log("회원가입에 실패 했습니다. " + error);
+            }
+        }
+
+        window.redirectToLogin = function () {
             window.location.href = '/login';
         }
 
-        function signup() {
-            const userId = document.getElementById('userId').value;
-            const userPassword = document.getElementById('userPassword').value;
-            const userName = document.getElementById('userName').value;
-            const managerKey = document.getElementById('managerKey').value;
-
-            fetch('http://localhost:8080/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: userId,
-                    password: userPassword,
-                    name: userName,
-                    secretKey: managerKey
-                })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('회원가입 실패');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    alert('회원가입이 완료되었습니다.');
-                    window.location.href = '/login';  // 로그인 페이지로 리다이렉트
-                })
-                .catch(error => {
-                    console.error('회원가입 오류:', error);
-                    alert('회원가입 중 오류가 발생했습니다: ' + error.message);
-                });
-        }
     </script>
 </head>
 <body>
@@ -140,10 +123,10 @@
         <form>
             <input type="text" id="userId" placeholder="아이디">
             <input type="password" id="userPassword" placeholder="비밀번호">
-            <input type="text" id="userName" placeholder="이름">
+            <input type="text" id="username" placeholder="이름">
             <input type="text" id="managerKey" placeholder="역할(매니저키)">
             <div style="text-align: center;">
-                <button type="button" onclick="signup()">가입</button>
+                <button type="button" onclick="performSignup()">가입</button>
             </div>
         </form>
     </div>

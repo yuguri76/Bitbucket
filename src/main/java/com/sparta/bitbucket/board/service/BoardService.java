@@ -78,7 +78,10 @@ public class BoardService {
 			.build();
 	}
 
-	public BoardResponseDto createBoard(BoardCreateRequestDto requestDto, User user) {
+	@Transactional
+	public BoardResponseDto createBoard(BoardCreateRequestDto requestDto, String email) {
+
+		User user = userService.findUserByEmail(email);
 
 		if (!isUserManager(user)) {
 			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
@@ -106,12 +109,15 @@ public class BoardService {
 		Board saveBoard = boardRepository.save(board);
 		boardMemberRepository.save(boardMember);
 
+		user.addBoard(saveBoard);
+
 		return BoardResponseDto
 			.builder()
 			.board(saveBoard)
 			.build();
 	}
 
+	@Transactional
 	public BoardMemberResponseDto inviteBoard(Long boardId, String invitedUserEmail, User user) {
 
 		Board board = findBoardById(boardId);
@@ -137,6 +143,8 @@ public class BoardService {
 			.build();
 
 		BoardMember saveBoardMember = boardMemberRepository.save(boardMember);
+
+		invitedUser.addBoard(board);
 
 		return BoardMemberResponseDto
 			.builder()

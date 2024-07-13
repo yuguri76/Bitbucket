@@ -116,7 +116,6 @@ export async function loadBoardData(boardId) {
 
 // 보드 단건 조회 시, 보드 멤버 리스트의 객체에서 사용자 이름만 문자열 형식으로 붙이는 함수
 export function renderBoardMemberList(memberList) {
-
     let result = "";
 
     memberList.forEach(member => {
@@ -227,4 +226,75 @@ export async function deleteBoard(boardId) {
             console.error('보드 삭제 오류:', error);
             alert('보드 삭제 중 오류가 발생했습니다: ' + error.message);
         });
+}
+
+// 컬럼 데이터를 로드하는 함수
+export async function loadColumns(boardId) {
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch columns');
+        }
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+            return result.data; // 컬럼 데이터를 반환합니다.
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error loading columns:', error);
+        throw error;
+    }
+}
+
+// 컬럼을 생성하는 함수
+export async function createColumn(title, boardId) {
+    try {
+        const response = await fetch('http://localhost:8080/api/boards/columns', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessToken()}`
+            },
+            body: JSON.stringify({ title, boardId, orders: 0 })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create column');
+        }
+
+        const result = await response.json();
+        if (result.status === 200) {
+            return result.data; // 생성된 컬럼 데이터를 반환합니다.
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error creating column:', error);
+        throw error;
+    }
+}
+
+export function addColumnToUI(columnName, columnId) {
+    const boardContainer = document.getElementById('boardContainer');
+    const addColumnButton = boardContainer.querySelector('.add-column');
+    const columnTemplate = `
+        <div class="column" draggable="true" ondragstart="drag(event)" id="column${columnId}">
+            <h3>${columnName}</h3>
+            <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
+        </div>
+    `;
+    if (addColumnButton) {
+        addColumnButton.insertAdjacentHTML('beforebegin', columnTemplate);
+    } else {
+        boardContainer.insertAdjacentHTML('beforeend', columnTemplate);
+    }
 }

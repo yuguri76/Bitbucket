@@ -66,7 +66,7 @@ export async function createBoard(title, content) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessToken()}`
             },
-            body: JSON.stringify({ title, content })
+            body: JSON.stringify({title, content})
         });
 
         console.log(response);
@@ -85,4 +85,71 @@ export async function createBoard(title, content) {
         console.error('Error loading main page data:', error);
         throw error;  // 에러를 다시 던져서 호출한 곳에서 처리할 수 있게 합니다.
     }
+}
+
+export async function loadBoardData(boardId) {
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch board page data');
+        }
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+            return result.data;  // 여기서 데이터를 반환합니다.
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error loading board page data:', error);
+        throw error;  // 에러를 다시 던져서 호출한 곳에서 처리할 수 있게 합니다.
+    }
+}
+
+export async function updateBoardData(title, content) {
+    const boardTitleElement = document.getElementById('boardTitle');
+    const boardContentElement = document.getElementById('boardContent');
+    if (boardTitleElement) {
+        boardTitleElement.textContent = `${title}`;
+    }
+    if (boardContentElement) {
+        boardContentElement.textContent = `${content}`;
+    }
+}
+
+export async function editBoard(boardId, title, content) {
+    console.log(title, content)
+    fetch(`http://localhost:8080/api/boards/${boardId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${getAccessToken()}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            title: title,
+            content: content
+        })
+    })
+        .then(response => {
+            console.log(response);
+            if (!response.ok) {
+                throw new Error('보드 수정 실패');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('보드 수정이 완료되었습니다.');
+            window.location.href = '/board';  // 보드 페이지로 리다이렉트
+        })
+        .catch(error => {
+            console.error('보드 수정 오류:', error);
+            alert('보드 수정 중 오류가 발생했습니다: ' + error.message);
+        });
 }

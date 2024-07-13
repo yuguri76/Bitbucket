@@ -12,7 +12,7 @@ public class PageController {
 
 	/**
 	 * 로그인 페이지로 이동
-	 * 
+	 *
 	 * @return "Login" 문자열을 이용하여 Login.html 템플릿을 렌더링
 	 */
 	@RequestMapping("/login")
@@ -46,8 +46,18 @@ public class PageController {
 	 * @return "create_board" 문자열을 이용하여 create_board.html 템플릿 렌더링
 	 */
 	@RequestMapping("/create_board")
-	public String createBoardPage(){
+	public String createBoardPage() {
 		return "create_board";
+	}
+
+	/**
+	 * Board 페이지로 이동
+	 *
+	 * @return "board" 문자열을 이용하여 board.html 템플릿 렌더링
+	 */
+	@RequestMapping("/board")
+	public String boardPage() {
+		return "board";
 	}
 
 }

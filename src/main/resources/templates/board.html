@@ -69,6 +69,15 @@
             cursor: pointer;
         }
 
+        .board-content {
+            background-color: #ff9100;
+            font-size: 16px;
+            font-family: 'ONE-Mobile-POP';
+            color: gray;
+            padding: 10px;
+            margin: 0;
+        }
+
         .board-container {
             display: flex;
             padding: 20px;
@@ -259,6 +268,49 @@
             color: gray;
         }
     </style>
+    <script type="module">
+        import {editBoard, loadBoardData, updateBoardData} from "./js/board.js";
+        import {checkAuth} from "./js/auth.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                await checkAuth();
+                console.log('Authentication checked');
+
+                let boardId = 1; // todo: 추후에 Main에서 넘겨주는 id를 받는 것으로 수정
+
+                const data = await loadBoardData(boardId);
+                console.log('Board page data loaded:', data);
+
+                if (data && data.title && data.content && data.id) {
+                    updateBoardData(data.title, data.content);
+                    console.log('Board title updated');
+                    localStorage.setItem('board_id', data.id)
+                } else {
+                    console.warn('title not found in data');
+                }
+
+            } catch (error) {
+                console.error('Error during board page initialization:', error);
+                alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        window.performEditBoard = async function () {
+            let boardId = localStorage.getItem('board_id');
+
+            let title = document.getElementById('editBoardTitle').value;
+            let content = document.getElementById('editBoardContent').value;
+
+            try {
+                await editBoard(boardId, title, content);
+            } catch (error) {
+                alert("보드 수정에 실패 했습니다. " + error);
+                console.log("보드 수정에 실패 했습니다. " + error);
+            }
+        }
+
+    </script>
 </head>
 <body>
 <div class="header">
@@ -266,7 +318,7 @@
         <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
         <h1>LionBucket</h1>
     </div>
-    <div class="board-title">라이언 보드</div>
+    <div class="board-title" id="boardTitle">라이언 보드</div>
     <div class="actions">
         <button onclick="showModal('editBoardModal')">Edit</button>
         <button onclick="showModal('inviteModal')">Invite</button>
@@ -275,6 +327,7 @@
         <button onclick="showModal('cardInfoModal')">카드 조회</button>
     </div>
 </div>
+<div class="board-content">보드 한줄 소개 : <span id="boardContent" style="color: white">보드 한줄 소개</span></div>
 <div class="board-container" id="boardContainer">
     <div class="column" draggable="true" ondragstart="drag(event)" id="column1">
         <h3>To do</h3>
@@ -336,9 +389,9 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('editBoardModal')">&times;</span>
         <h2 class="modal-header">Edit board</h2>
-        <input type="text" placeholder="보드 이름">
-        <textarea placeholder="한줄 설명"></textarea>
-        <button type="button">Edit</button>
+        <input type="text" placeholder="보드 이름" id="editBoardTitle">
+        <textarea placeholder="한줄 설명" id="editBoardContent"></textarea>
+        <button type="button" onclick="performEditBoard()">Edit</button>
     </div>
 </div>
 

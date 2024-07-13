@@ -87,6 +87,7 @@ export async function createBoard(title, content) {
     }
 }
 
+// 보드 단건 조회 API 호출하는 함수
 export async function loadBoardData(boardId) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
@@ -113,6 +114,7 @@ export async function loadBoardData(boardId) {
     }
 }
 
+// 보드 단건 조회 시, 보드 멤버 리스트의 객체에서 사용자 이름만 문자열 형식으로 붙이는 함수
 export function renderBoardMemberList(memberList) {
 
     let result = "";
@@ -124,6 +126,7 @@ export function renderBoardMemberList(memberList) {
     return result;
 }
 
+// 보드 단건 조회로 가져온 데이터들을 HTML 로 그려주는 함수
 export async function updateBoardData(title, content, memberList) {
     const boardTitleElement = document.getElementById('boardTitle');
     const boardContentElement = document.getElementById('boardContent');
@@ -139,6 +142,7 @@ export async function updateBoardData(title, content, memberList) {
     }
 }
 
+// 보드 수정 API 호출하는 함수
 export async function editBoard(boardId, title, content) {
     fetch(`http://localhost:8080/api/boards/${boardId}`, {
         method: 'PUT',
@@ -168,6 +172,7 @@ export async function editBoard(boardId, title, content) {
         });
 }
 
+// 보드 초대 API 호출하는 함수
 export async function inviteBoard(boardId, email) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/invite`, {
@@ -198,4 +203,28 @@ export async function inviteBoard(boardId, email) {
         console.error('보드 초대 오류:', error);
         alert('보드 초대 중 오류가 발생했습니다: ' + error.message);
     }
+}
+
+// 보드 삭제 API 호출하는 함수
+export async function deleteBoard(boardId) {
+    fetch(`http://localhost:8080/api/boards/${boardId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${getAccessToken()}`
+        }
+    })
+        .then(response => {
+            console.log(response);
+            if (!response.ok) {
+                throw new Error('보드 삭제 실패');
+            }
+        })
+        .then(data => {
+            alert('보드 삭제가 완료되었습니다.');
+            window.location.href = '/main';  // 메인 페이지로 리다이렉트
+        })
+        .catch(error => {
+            console.error('보드 삭제 오류:', error);
+            alert('보드 삭제 중 오류가 발생했습니다: ' + error.message);
+        });
 }

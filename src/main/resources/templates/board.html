@@ -269,9 +269,17 @@
         }
     </style>
     <script type="module">
-        import {editBoard, inviteBoard, loadBoardData, renderBoardMemberList, updateBoardData} from "./js/board.js";
+        import {
+            deleteBoard,
+            editBoard,
+            inviteBoard,
+            loadBoardData,
+            renderBoardMemberList,
+            updateBoardData
+        } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
 
+        // '/board' 페이지 로드 시, 보드 단건 조회
         document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await checkAuth();
@@ -297,6 +305,7 @@
             }
         });
 
+        // 보드 수정 함수
         window.performEditBoard = async function () {
             let boardId = localStorage.getItem('board_id');
 
@@ -311,6 +320,7 @@
             }
         }
 
+        // 보드 초대 함수
         window.performInviteBoard = async function () {
             let boardId = localStorage.getItem('board_id');
 
@@ -324,11 +334,23 @@
             }
         }
 
+        // 보드 삭제 함수
+        window.performDeleteBoard = async function () {
+            let boardId = localStorage.getItem('board_id');
+
+            try {
+                await deleteBoard(boardId);
+            } catch (error) {
+                alert("보드 삭제에 실패 했습니다. " + error);
+                console.log("보드 삭제에 실패 했습니다. " + error);
+            }
+        }
+
     </script>
 </head>
 <body>
 <div class="header">
-    <div class="logo" onclick="window.location.href='Main.html'">
+    <div class="logo" onclick="window.location.href='/main'">
         <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
         <h1>LionBucket</h1>
     </div>
@@ -424,7 +446,7 @@
         <span class="close" onclick="closeModal('deleteModal')">&times;</span>
         <h2 class="modal-header">WARNING!</h2>
         <p>삭제하는 경우 연결된 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?</p>
-        <button type="button" onclick="confirmDelete()">확인</button>
+        <button type="button" onclick="performDeleteBoard()">확인</button>
         <button type="button" onclick="closeModal('deleteModal')">취소</button>
     </div>
 </div>
@@ -599,12 +621,7 @@
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
     }
-
-    function confirmDelete() {
-        alert("Deleted!");
-        closeModal('deleteModal');
-    }
-
+    
     function confirmOrder() {
         alert("Order Confirmed!");
         closeModal('confirmOrderModal');

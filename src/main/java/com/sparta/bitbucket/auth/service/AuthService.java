@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.dto.LoginRequestDto;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.exception.PasswordInvalidException;
 import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.common.entity.StatusMessage;
+import com.sparta.bitbucket.exception.auth.PasswordInvalidException;
 import com.sparta.bitbucket.security.TokenType;
 import com.sparta.bitbucket.security.service.JwtService;
 

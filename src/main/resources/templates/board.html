@@ -269,7 +269,7 @@
         }
     </style>
     <script type="module">
-        import {editBoard, inviteBoard, loadBoardData, updateBoardData} from "./js/board.js";
+        import {editBoard, inviteBoard, loadBoardData, renderBoardMemberList, updateBoardData} from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
 
         document.addEventListener('DOMContentLoaded', async function () {
@@ -282,8 +282,9 @@
                 const data = await loadBoardData(boardId);
                 console.log('Board page data loaded:', data);
 
-                if (data && data.title && data.content && data.id) {
-                    updateBoardData(data.title, data.content);
+                if (data && data.title && data.content && data.id && data.memberList) {
+                    let boardMemberText = renderBoardMemberList(data.memberList);
+                    updateBoardData(data.title, data.content, boardMemberText);
                     console.log('Board title updated');
                     localStorage.setItem('board_id', data.id)
                 } else {
@@ -341,6 +342,7 @@
     </div>
 </div>
 <div class="board-content">보드 한줄 소개 : <span id="boardContent" style="color: white">보드 한줄 소개</span></div>
+<div class="board-content">보드 멤버 : <span id="boardMember" style="color: white">보드 멤버</span></div>
 <div class="board-container" id="boardContainer">
     <div class="column" draggable="true" ondragstart="drag(event)" id="column1">
         <h3>To do</h3>

@@ -113,14 +113,29 @@ export async function loadBoardData(boardId) {
     }
 }
 
-export async function updateBoardData(title, content) {
+export function renderBoardMemberList(memberList) {
+
+    let result = "";
+
+    memberList.forEach(member => {
+        result += " [ " + member.userName + " ] ";
+    });
+
+    return result;
+}
+
+export async function updateBoardData(title, content, memberList) {
     const boardTitleElement = document.getElementById('boardTitle');
     const boardContentElement = document.getElementById('boardContent');
+    const boardMemberElement = document.getElementById('boardMember');
     if (boardTitleElement) {
         boardTitleElement.textContent = `${title}`;
     }
     if (boardContentElement) {
         boardContentElement.textContent = `${content}`;
+    }
+    if (boardMemberElement) {
+        boardMemberElement.textContent = `${memberList}`;
     }
 }
 

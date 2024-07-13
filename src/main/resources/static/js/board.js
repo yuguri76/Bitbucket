@@ -125,7 +125,6 @@ export async function updateBoardData(title, content) {
 }
 
 export async function editBoard(boardId, title, content) {
-    console.log(title, content)
     fetch(`http://localhost:8080/api/boards/${boardId}`, {
         method: 'PUT',
         headers: {
@@ -152,4 +151,36 @@ export async function editBoard(boardId, title, content) {
             console.error('보드 수정 오류:', error);
             alert('보드 수정 중 오류가 발생했습니다: ' + error.message);
         });
+}
+
+export async function inviteBoard(boardId, email) {
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/invite`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('보드 초대 실패');
+        }
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+            let data = result.data;
+            alert(`${data.boardTitle} 보드에 사용자${data.userName} 이 초대되었습니다.`);
+            window.location.href = '/board';
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('보드 초대 오류:', error);
+        alert('보드 초대 중 오류가 발생했습니다: ' + error.message);
+    }
 }

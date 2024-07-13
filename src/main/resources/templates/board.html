@@ -269,7 +269,7 @@
         }
     </style>
     <script type="module">
-        import {editBoard, loadBoardData, updateBoardData} from "./js/board.js";
+        import {editBoard, inviteBoard, loadBoardData, updateBoardData} from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
 
         document.addEventListener('DOMContentLoaded', async function () {
@@ -307,6 +307,19 @@
             } catch (error) {
                 alert("보드 수정에 실패 했습니다. " + error);
                 console.log("보드 수정에 실패 했습니다. " + error);
+            }
+        }
+
+        window.performInviteBoard = async function () {
+            let boardId = localStorage.getItem('board_id');
+
+            let email = document.getElementById('inviteUserEmail').value;
+
+            try {
+                await inviteBoard(boardId, email);
+            } catch (error) {
+                alert("보드 초대에 실패 했습니다. " + error);
+                console.log("보드 초대에 실패 했습니다. " + error);
             }
         }
 
@@ -399,8 +412,8 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('inviteModal')">&times;</span>
         <h2 class="modal-header">Invite people</h2>
-        <input type="text" placeholder="초대할 멤버 아이디">
-        <button type="button">Invite</button>
+        <input type="text" placeholder="초대할 멤버 아이디" id="inviteUserEmail">
+        <button type="button" onclick="performInviteBoard()">Invite</button>
     </div>
 </div>
 

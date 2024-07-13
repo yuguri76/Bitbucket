@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * CommentController는 댓글 관련 요청을 처리합니다.
+ */
 @RestController
 @RequestMapping("/api/boards/{boardId}/columns/{columnId}/cards/{cardId}/comments")
 @RequiredArgsConstructor
@@ -21,6 +24,16 @@ public class CommentController {
 
 	private final CommentService commentService;
 
+	/**
+	 * 새로운 댓글을 생성합니다.
+	 *
+	 * @param userDetails 인증된 사용자 정보
+	 * @param boardId 게시판 ID
+	 * @param columnId 칼럼 ID
+	 * @param cardId 카드 ID
+	 * @param requestDto 생성할 댓글의 세부 정보
+	 * @return 생성된 댓글을 포함한 응답 엔티티
+	 */
 	@PostMapping
 	public ResponseEntity<DataResponseDto<CommentResponseDto>> createComment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -33,6 +46,16 @@ public class CommentController {
 		return ResponseFactory.created(responseDto, "댓글 작성이 성공적으로 완료되었습니다.");
 	}
 
+	/**
+	 * 특정 댓글을 조회합니다.
+	 *
+	 * @param userDetails 인증된 사용자 정보
+	 * @param boardId 게시판 ID
+	 * @param columnId 칼럼 ID
+	 * @param cardId 카드 ID
+	 * @param commentId 댓글 ID
+	 * @return 조회된 댓글을 포함한 응답 엔티티
+	 */
 	@GetMapping("/{commentId}")
 	public ResponseEntity<DataResponseDto<CommentResponseDto>> getComment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -45,6 +68,15 @@ public class CommentController {
 		return ResponseFactory.ok(responseDto, "댓글 조회 성공");
 	}
 
+	/**
+	 * 카드에 달린 모든 댓글을 조회합니다.
+	 *
+	 * @param userDetails 인증된 사용자 정보
+	 * @param boardId 게시판 ID
+	 * @param columnId 칼럼 ID
+	 * @param cardId 카드 ID
+	 * @return 카드별 댓글 목록을 포함한 응답 엔티티
+	 */
 	@GetMapping
 	public ResponseEntity<DataResponseDto<List<CommentResponseDto>>> getComments(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,

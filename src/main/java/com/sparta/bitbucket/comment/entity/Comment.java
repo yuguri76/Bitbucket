@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 댓글 엔티티
+ */
 @Entity
 @Getter
 @Table(name = "comments")

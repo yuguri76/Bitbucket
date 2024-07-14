@@ -6,4 +6,8 @@ import lombok.Getter;
 public class ColumnRequestDto {
 
 	private Long boardId;
+
+	public ColumnRequestDto(Long boardId) {
+		this.boardId = boardId;
+	}
 }

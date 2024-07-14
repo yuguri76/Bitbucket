@@ -80,20 +80,20 @@ public class GlobalExceptionHandler {
 		return ResponseFactory.authorizedError(errorMessage);
 	}
 
-	//
+	// Card Exception
 	@ExceptionHandler(MissingSearchKeywordException.class)
 	public ResponseEntity<MessageResponseDto> MissingSearchKeywordException(MissingSearchKeywordException e) {
 
 		String errorMessage = "Exception caught: " + e.getMessage();
 
-		return ResponseFactory.notFound(errorMessage);
+		return ResponseFactory.badRequest(errorMessage);
 	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<MessageResponseDto> ResourceNotFoundException(ResourceNotFoundException e){
 		String errorMessage = "Exception caught: " + e.getMessage();
 
-		return ResponseFactory.notFound(errorMessage);
+		return ResponseFactory.badRequest(errorMessage);
 	}
 
 	@ExceptionHandler(TitleConflictException.class)
@@ -109,5 +109,4 @@ public class GlobalExceptionHandler {
 
 		return ResponseFactory.notFound(errorMessage);
 	}
-
 }

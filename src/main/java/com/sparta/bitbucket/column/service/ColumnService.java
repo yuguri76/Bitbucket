@@ -1,6 +1,6 @@
 package com.sparta.bitbucket.column.service;
 
-import static com.sparta.bitbucket.exception.ErrorCode.*;
+import static com.sparta.bitbucket.common.entity.ErrorMessage.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +17,7 @@ import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
 import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.column.repository.ColumnRepository;
-import com.sparta.bitbucket.exception.CustomException;
+import com.sparta.bitbucket.common.exception.comment.CustomException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,8 +46,8 @@ public class ColumnService {
 	@Transactional
 	public void deleteColumn(Long columnId, User user, Long boardId) {
 		validateUser(user);
-		checkUserIsBoardOwner(user,boardId);
-		Columns byColumnId = findByColumnIdAndBoardId(columnId,boardId);
+		checkUserIsBoardOwner(user, boardId);
+		Columns byColumnId = findByColumnIdAndBoardId(columnId, boardId);
 		columnRepository.delete(byColumnId);
 	}
 
@@ -58,10 +58,10 @@ public class ColumnService {
 		checkUserIsBoardOwner(user, boardId);
 		existsBoardIdAndTitle(boardId, requestDto.getTitle());
 
-		Columns columns = findByColumnIdAndBoardId(columnId,boardId);
+		Columns columns = findByColumnIdAndBoardId(columnId, boardId);
 
 		Columns updatedColumns = columns.toBuilder()
-			.title(requestDto.getTitle() ==null ? columns.getTitle() : requestDto.getTitle())
+			.title(requestDto.getTitle() == null ? columns.getTitle() : requestDto.getTitle())
 			.orders(requestDto.getOrders() == null ? columns.getOrders() : requestDto.getOrders())
 			.build();
 
@@ -70,7 +70,7 @@ public class ColumnService {
 
 	@Transactional(readOnly = true)
 	public List<ColumnResponseDto> getAllColumns(User user, Long boardId) {
-		if(!boardService.isUserBoardMember(boardId, user.getId())) {
+		if (!boardService.isUserBoardMember(boardId, user.getId())) {
 			throw new CustomException(NOT_BOARD_MEMBER); // CommonException 바꿀 예정
 		}
 
@@ -107,7 +107,7 @@ public class ColumnService {
 	}
 
 	private void existsBoardIdAndTitle(Long boardId, String title) {
-		if(columnRepository.existsByBoardIdAndTitle(boardId, title)) {
+		if (columnRepository.existsByBoardIdAndTitle(boardId, title)) {
 			throw new CustomException(TITLE_ALREADY_EXISTS);
 		}
 	}

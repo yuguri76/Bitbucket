@@ -71,7 +71,7 @@ public class ColumnService {
 	@Transactional(readOnly = true)
 	public List<ColumnResponseDto> getAllColumns(User user, Long boardId) {
 		if (!boardService.isUserBoardMember(boardId, user.getId())) {
-			throw new CustomException(NOT_BOARD_MEMBER); // CommonException 바꿀 예정
+			throw new CustomException(NOT_BOARD_MEMBER);
 		}
 
 		return columnRepository.findAllByBoardIdOrderByOrders(boardId).stream()

@@ -350,3 +350,36 @@ function showModal(modalId) {
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = "none";
 }
+
+// 순서확정 함수
+export async function confirmOrder() {
+    try {
+        const boardContainer = document.getElementById('boardContainer');
+        const columns = Array.from(boardContainer.querySelectorAll('.column'));
+        const updatedOrders = columns.map((column, index) => ({
+            columnId: column.id.replace('column', ''),
+            orders: index
+        }));
+
+        const boardId = localStorage.getItem('board_id');
+
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/order`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedOrders)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update column order');
+        }
+
+        alert('Order Confirmed!');
+        closeModal('confirmOrderModal');
+    } catch (error) {
+        console.error('Error confirming order:', error);
+        alert('Error confirming order: ' + error.message);
+    }
+}

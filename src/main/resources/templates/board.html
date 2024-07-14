@@ -281,7 +281,8 @@
             createColumn,
             addColumnToUI,
             loadColumns,
-            deleteColumn
+            deleteColumn,
+            confirmOrder // 이 줄을 추가합니다.
         } from "./js/board.js";
         import { checkAuth } from "./js/auth.js";
 
@@ -424,6 +425,9 @@
         window.handleDeleteColumn = function (columnId) {
             deleteColumn(columnId);
         };
+
+        // confirmOrder 함수를 window 객체에 할당합니다.
+        window.confirmOrder = confirmOrder;
     </script>
 </head>
 <body>
@@ -591,6 +595,7 @@
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
     }
+
     function drop(ev) {
         ev.preventDefault();
         var data = ev.dataTransfer.getData("text");
@@ -634,16 +639,6 @@
         }
     }
 
-    // Allow drop event handler
-    function allowDrop(ev) {
-        ev.preventDefault();
-    }
-
-    // Drag event handler
-    function drag(ev) {
-        ev.dataTransfer.setData("text", ev.target.id);
-    }
-
     // Event listeners for drag and drop
     document.querySelectorAll('.column, .card').forEach(function (element) {
         element.addEventListener('dragstart', drag);
@@ -653,46 +648,6 @@
 
     document.getElementById('boardContainer').addEventListener('dragover', allowDrop);
     document.getElementById('boardContainer').addEventListener('drop', drop);
-
-    // Confirm order function to save the order to the backend
-    async function confirmOrder() {
-        try {
-            const boardContainer = document.getElementById('boardContainer');
-            const columns = Array.from(boardContainer.querySelectorAll('.column'));
-            const updatedOrders = columns.map((column, index) => ({
-                columnId: column.id.replace('column', ''),
-                orders: index
-            }));
-
-            const boardId = localStorage.getItem('board_id');
-
-            const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/order`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${getAccessToken()}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedOrders)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update column order');
-            }
-
-            alert('Order Confirmed!');
-            closeModal('confirmOrderModal');
-        } catch (error) {
-            console.error('Error confirming order:', error);
-            alert('Error confirming order: ' + error.message);
-        }
-    }
-
-    function showCardDetail(cardTitle, columnTitle) {
-        var cardDetailModal = document.getElementById('cardDetailModal');
-        cardDetailModal.querySelector('.modal-header h2').innerText = cardTitle;
-        cardDetailModal.querySelector('.column-name').innerText = columnTitle;
-        showModal('cardDetailModal');
-    }
 </script>
 </body>
 </html>

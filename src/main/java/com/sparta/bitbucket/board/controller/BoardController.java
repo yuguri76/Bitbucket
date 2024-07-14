@@ -22,6 +22,7 @@ import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
 import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
+import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 
@@ -42,7 +43,7 @@ public class BoardController {
 	) {
 		List<BoardResponseDto> responseDtoList = boardService.getAllBoards(page - 1, sortBy);
 
-		return ResponseFactory.ok(responseDtoList, "보드 목록 조회가 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(responseDtoList, StatusMessage.GET_LIST_BOARD_SUCCESS.getMessage());
 	}
 
 	@GetMapping("/{boardId}")
@@ -52,7 +53,7 @@ public class BoardController {
 	) {
 		BoardWithMemberListResponseDto responseDto = boardService.getBoard(boardId, userDetails.getUser());
 
-		return ResponseFactory.ok(responseDto, "보드 단건 조회가 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(responseDto, StatusMessage.GET_BOARD_SUCCESS.getMessage());
 	}
 
 	@PostMapping
@@ -62,7 +63,7 @@ public class BoardController {
 	) {
 		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUsername());
 
-		return ResponseFactory.created(responseDto, "보드 생성이 성공적으로 완료되었습니다.");
+		return ResponseFactory.created(responseDto, StatusMessage.CREATE_BOARD_SUCCESS.getMessage());
 	}
 
 	@PostMapping("/{boardId}/invite")
@@ -74,7 +75,7 @@ public class BoardController {
 		BoardMemberResponseDto responseDto = boardService.inviteBoard(boardId, requestDto.getEmail(),
 			userDetails.getUser());
 
-		return ResponseFactory.ok(responseDto, "보드 초대가 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(responseDto, StatusMessage.INVITE_BOARD_SUCCESS.getMessage());
 	}
 
 	@PutMapping("/{boardId}")
@@ -85,7 +86,7 @@ public class BoardController {
 	) {
 		BoardResponseDto responseDto = boardService.editBoard(boardId, requestDto, userDetails.getUser());
 
-		return ResponseFactory.ok(responseDto, "보드 수정이 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_BOARD_SUCCESS.getMessage());
 	}
 
 	@DeleteMapping("/{boardId}")

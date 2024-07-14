@@ -21,7 +21,14 @@ import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.board.entity.BoardMember;
 import com.sparta.bitbucket.board.repository.BoardMemberRepository;
 import com.sparta.bitbucket.board.repository.BoardRepository;
+import com.sparta.bitbucket.common.entity.ErrorMessage;
+import com.sparta.bitbucket.common.entity.StatusMessage;
+import com.sparta.bitbucket.common.exception.auth.UnauthorizedException;
+import com.sparta.bitbucket.common.exception.board.BoardMemberDuplicateException;
+import com.sparta.bitbucket.common.exception.board.BoardTitleDuplicateException;
+import com.sparta.bitbucket.common.exception.card.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,7 +56,7 @@ public class BoardService {
 		List<BoardResponseDto> boardResponseDtoList = boardResponseDtoPage.getContent();
 
 		if (boardResponseDtoList.isEmpty()) {
-			throw new IllegalArgumentException("조회된 보드가 없습니다.");
+			throw new EntityNotFoundException(ErrorMessage.NOT_FOUND_BOARD.getMessage());
 		}
 
 		return boardResponseDtoList;
@@ -60,7 +67,7 @@ public class BoardService {
 		Board board = findBoardById(boardId);
 
 		if (!isUserBoardMember(board.getId(), user.getId())) {
-			throw new IllegalArgumentException("로그인한 사용자는 해당 보드의 멤버가 아닙니다.");
+			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_BOARD_MEMBER);
 		}
 
 		List<BoardMemberResponseDto> boardMemberResponseDtoList = board.getBoardMemberList()
@@ -84,11 +91,11 @@ public class BoardService {
 		User user = userService.findUserByEmail(email);
 
 		if (!isUserManager(user)) {
-			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_MANAGER);
 		}
 
 		if (boardRepository.findByTitle(requestDto.getTitle()).isPresent()) {
-			throw new IllegalArgumentException("이미 생성된 보드입니다.");
+			throw new BoardTitleDuplicateException(ErrorMessage.BOARD_TITLE_DUPLICATE);
 		}
 
 		Board board = Board
@@ -123,17 +130,17 @@ public class BoardService {
 		Board board = findBoardById(boardId);
 
 		if (!isUserManager(user)) {
-			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_MANAGER);
 		}
 
 		if (!isUserBoardMember(board.getId(), user.getId())) {
-			throw new IllegalArgumentException("로그인한 사용자는 해당 보드의 멤버가 아닙니다.");
+			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_BOARD_MEMBER);
 		}
 
 		User invitedUser = userService.findUserByEmail(invitedUserEmail);
 
 		if (isUserBoardMember(board.getId(), invitedUser.getId())) {
-			throw new IllegalArgumentException("초대된 사용자는 이미 해당 보드의 멤버입니다.");
+			throw new BoardMemberDuplicateException(ErrorMessage.BOARD_MEMBER_DUPLICATE);
 		}
 
 		BoardMember boardMember = BoardMember
@@ -156,18 +163,18 @@ public class BoardService {
 	public BoardResponseDto editBoard(Long boardId, BoardEditRequestDto requestDto, User user) {
 
 		if (isNullAndEmpty(requestDto.getTitle()) && isNullAndEmpty(requestDto.getContent())) {
-			throw new IllegalArgumentException("수정으로 요청된 값이 없습니다.");
+			throw new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND);
 		}
 
 		Board board = findBoardById(boardId);
 
 		if (!isUserManager(user)) {
-			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_MANAGER);
 		}
 
 		if (!isNullAndEmpty(requestDto.getTitle())) {
 			if (boardRepository.findByTitle(requestDto.getTitle()).isPresent()) {
-				throw new IllegalArgumentException("수정하려는 보드 제목과 중복되는 제목이 있습니다.");
+				throw new BoardTitleDuplicateException(ErrorMessage.BOARD_TITLE_DUPLICATE);
 			}
 			board.updateTitle(requestDto.getTitle());
 		}
@@ -187,16 +194,16 @@ public class BoardService {
 		Board board = findBoardById(boardId);
 
 		if (!isUserManager(user)) {
-			throw new IllegalArgumentException("로그인한 사용자는 매니저가 아닙니다.");
+			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_MANAGER);
 		}
 
 		boardRepository.delete(board);
-		log.info("보드가 삭제가 성공적으로 완료되었습니다.");
+		log.info(StatusMessage.DELETE_BOARD_SUCCESS.getMessage());
 	}
 
 	public Board findBoardById(Long boardId) {
 		return boardRepository.findById(boardId).orElseThrow(
-			() -> new IllegalArgumentException("해당 id로 조회된 보드가 없습니다.")
+			() -> new EntityNotFoundException(ErrorMessage.NOT_FOUND_BOARD.getMessage())
 		);
 	}
 
@@ -205,7 +212,7 @@ public class BoardService {
 	}
 
 	public boolean isUserBoardMember(Long boardId, Long userId) {
-		return boardMemberRepository.findAllByBoard_IdAndUser_Id(boardId, userId).isPresent();
+		return boardMemberRepository.existsByBoard_IdAndUser_Id(boardId, userId);
 	}
 
 	/**
@@ -216,5 +223,4 @@ public class BoardService {
 	private boolean isNullAndEmpty(String string) {
 		return string == null || string.isEmpty();
 	}
-
 }

@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.exception;
+package com.sparta.bitbucket.common.exception;
 
 import java.util.stream.Collectors;
 
@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
+import com.sparta.bitbucket.common.exception.auth.PasswordInvalidException;
+import com.sparta.bitbucket.common.exception.auth.UnauthorizedException;
+import com.sparta.bitbucket.common.exception.auth.UsernameDuplicateException;
+import com.sparta.bitbucket.common.exception.board.BoardMemberDuplicateException;
+import com.sparta.bitbucket.common.exception.board.BoardTitleDuplicateException;
+import com.sparta.bitbucket.common.exception.card.MissingSearchKeywordException;
+import com.sparta.bitbucket.common.exception.card.ResourceNotFoundException;
+import com.sparta.bitbucket.common.exception.card.TitleConflictException;
+import com.sparta.bitbucket.common.exception.comment.CustomException;
 import com.sparta.bitbucket.common.util.ResponseFactory;
-import com.sparta.bitbucket.exception.auth.PasswordInvalidException;
-import com.sparta.bitbucket.exception.auth.UsernameDuplicateException;
-import com.sparta.bitbucket.exception.card.MissingSearchKeywordException;
-import com.sparta.bitbucket.exception.card.ResourceNotFoundException;
-import com.sparta.bitbucket.exception.card.TitleConflictException;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -65,7 +69,7 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(UsernameDuplicateException.class)
-	public ResponseEntity<MessageResponseDto> UsernameDuplicateException(UsernameDuplicateException e) {
+	public ResponseEntity<MessageResponseDto> UsernameDuplicateExceptionHandler(UsernameDuplicateException e) {
 
 		String errorMessage = "Exception caught: " + e.getMessage();
 
@@ -73,16 +77,15 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(PasswordInvalidException.class)
-	public ResponseEntity<MessageResponseDto> PasswordInvalidException(PasswordInvalidException e) {
+	public ResponseEntity<MessageResponseDto> PasswordInvalidExceptionHandler(PasswordInvalidException e) {
 
 		String errorMessage = "Exception caught: " + e.getMessage();
 
 		return ResponseFactory.authorizedError(errorMessage);
 	}
 
-	// Card Exception
 	@ExceptionHandler(MissingSearchKeywordException.class)
-	public ResponseEntity<MessageResponseDto> MissingSearchKeywordException(MissingSearchKeywordException e) {
+	public ResponseEntity<MessageResponseDto> MissingSearchKeywordExceptionHandler(MissingSearchKeywordException e) {
 
 		String errorMessage = "Exception caught: " + e.getMessage();
 
@@ -90,23 +93,51 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<MessageResponseDto> ResourceNotFoundException(ResourceNotFoundException e){
+	public ResponseEntity<MessageResponseDto> ResourceNotFoundExceptionHandler(ResourceNotFoundException e) {
 		String errorMessage = "Exception caught: " + e.getMessage();
 
 		return ResponseFactory.badRequest(errorMessage);
 	}
 
 	@ExceptionHandler(TitleConflictException.class)
-	public ResponseEntity<MessageResponseDto> TitleConflictException(TitleConflictException e){
+	public ResponseEntity<MessageResponseDto> TitleConflictExceptionHandler(TitleConflictException e) {
 		String errorMessage = "Exception caught: " + e.getMessage();
 
 		return ResponseFactory.conflictError(errorMessage);
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
-	public ResponseEntity<MessageResponseDto> EntityNotFoundExceptionHandler(EntityNotFoundException e){
+	public ResponseEntity<MessageResponseDto> EntityNotFoundExceptionHandler(EntityNotFoundException e) {
 		String errorMessage = "Exception caught: " + e.getMessage();
 
 		return ResponseFactory.notFound(errorMessage);
+	}
+
+	@ExceptionHandler(CustomException.class)
+	public ResponseEntity<MessageResponseDto> CustomExceptionHandler(CustomException e) {
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.notFound(errorMessage);
+	}
+
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<MessageResponseDto> UnauthorizedExceptionHandler(UnauthorizedException e) {
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.authorizedError(errorMessage);
+	}
+
+	@ExceptionHandler(BoardTitleDuplicateException.class)
+	public ResponseEntity<MessageResponseDto> BoardTitleDuplicateExceptionHandler(BoardTitleDuplicateException e) {
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.conflictError(errorMessage);
+	}
+
+	@ExceptionHandler(BoardMemberDuplicateException.class)
+	public ResponseEntity<MessageResponseDto> BoardMemberDuplicateExceptionHandler(BoardMemberDuplicateException e) {
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.conflictError(errorMessage);
 	}
 }

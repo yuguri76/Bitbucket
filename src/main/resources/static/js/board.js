@@ -376,7 +376,7 @@ export async function confirmOrder() {
             throw new Error('Failed to update column order');
         }
 
-        alert('Order Confirmed!');
+        alert('순서 수정이 완료되었습니다.');
         closeModal('confirmOrderModal');
     } catch (error) {
         console.error('Error confirming order:', error);

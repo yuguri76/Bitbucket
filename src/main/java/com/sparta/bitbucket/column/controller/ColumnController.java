@@ -58,10 +58,11 @@ public class ColumnController {
 		return ResponseFactory.ok(UPDATE_COLUMNS_SUCCESS.getMessage());
 	}
 
-	@GetMapping("/columns")
+	@GetMapping("/{boardId}/columns")
 	public ResponseEntity<DataResponseDto<List<ColumnResponseDto>>> getAllColumns(
-		@RequestBody @Valid ColumnRequestDto requestDto,
+		@PathVariable Long boardId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		ColumnRequestDto requestDto = new ColumnRequestDto(boardId);
 		return ResponseFactory.ok(columnService.getAllColumns(userDetails.getUser(), requestDto),
 			GET_LIST_COLUMNS_SUCCESS.getMessage());
 	}

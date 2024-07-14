@@ -35,7 +35,7 @@
         .header .logo h1 {
             font-size: 40px;
             color: #ffffff;
-            font-family: 'ONE-Mobile-POP';
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
             margin: 0;
         }
 
@@ -48,7 +48,7 @@
 
         .header .board-title {
             font-size: 40px;
-            font-family: 'ONE-Mobile-POP';
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
             color: #ffffff;
             margin: 0;
         }
@@ -61,7 +61,7 @@
         .header .actions button {
             background-color: #ff9100;
             color: white;
-            font-family: 'ONE-Mobile-POP';
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
             border: 2px;
             font-size: 15px;
             padding: 10px 20px;
@@ -72,7 +72,7 @@
         .board-content {
             background-color: #ff9100;
             font-size: 16px;
-            font-family: 'ONE-Mobile-POP';
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
             color: gray;
             padding: 10px;
             margin: 0;
@@ -100,16 +100,6 @@
             text-align: center;
             color: #000000;
             margin-top: 0;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px 0;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            color: #959494;
         }
 
         .add-card {
@@ -180,7 +170,7 @@
         .modal-header .delete-btn {
             background-color: #ff9100;
             color: white;
-            font-family: 'ONE-Mobile-POP';
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
             border: 2px;
             font-size: 15px;
             padding: 5px 10px;
@@ -275,26 +265,34 @@
             inviteBoard,
             loadBoardData,
             renderBoardMemberList,
-            updateBoardData
+            updateBoardData,
+            createColumn,
+            addColumnToUI,
+            loadColumns
         } from "./js/board.js";
-        import {checkAuth} from "./js/auth.js";
+        import { checkAuth } from "./js/auth.js";
 
-        // '/board' 페이지 로드 시, 보드 단건 조회
+        // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
             try {
                 await checkAuth();
                 console.log('Authentication checked');
 
-                let boardId = 1; // todo: 추후에 Main에서 넘겨주는 id를 받는 것으로 수정
+                let boardId = 2; // 추후에 Main에서 넘겨주는 id를 받는 것으로 수정
 
-                const data = await loadBoardData(boardId);
-                console.log('Board page data loaded:', data);
+                const boardData = await loadBoardData(boardId);
+                console.log('Board page data loaded:', boardData);
 
-                if (data && data.title && data.content && data.id && data.memberList) {
-                    let boardMemberText = renderBoardMemberList(data.memberList);
-                    updateBoardData(data.title, data.content, boardMemberText);
+                if (boardData && boardData.title && boardData.content && boardData.id && boardData.memberList) {
+                    let boardMemberText = renderBoardMemberList(boardData.memberList);
+                    updateBoardData(boardData.title, boardData.content, boardMemberText);
                     console.log('Board title updated');
-                    localStorage.setItem('board_id', data.id)
+                    localStorage.setItem('board_id', boardData.id);
+
+                    // Load columns from the database and update UI
+                    const columnsData = await loadColumns(boardData.id);
+                    console.log('Columns data loaded:', columnsData);
+                    updateColumnsUI(columnsData);
                 } else {
                     console.warn('title not found in data');
                 }
@@ -346,6 +344,60 @@
             }
         }
 
+        // 컬럼 생성 함수
+        window.createColumn = async function () {
+            let columnName = document.getElementById('columnNameInput').value;
+            let boardId = localStorage.getItem('board_id');
+
+            if (!columnName || !boardId) {
+                alert('Column name and board ID are required.');
+                return;
+            }
+
+            try {
+                const columnData = await createColumn(columnName, boardId);
+                if (columnData) {
+                    alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
+                    closeModal('createColumnModal'); // 모달창 닫기
+                    addColumnToUI(columnData.title, columnData.id); // Updated to use columnData
+                }
+            } catch (error) {
+                console.error('Error creating column:', error);
+                alert('Error creating column: ' + error.message);
+            }
+        }
+
+        // UI에 컬럼 추가 함수
+        window.addColumnToUI = function (columnTitle, columnId) {
+            const boardContainer = document.getElementById('boardContainer');
+            const columnTemplate = `
+                <div class="column" draggable="true" ondragstart="drag(event)" id="column${columnId}">
+                    <h3>${columnTitle}</h3>
+                    <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
+                </div>
+            `;
+            const addColumnButton = boardContainer.querySelector('.add-column');
+            if (addColumnButton) {
+                addColumnButton.insertAdjacentHTML('beforebegin', columnTemplate);
+            } else {
+                boardContainer.insertAdjacentHTML('beforeend', columnTemplate);
+            }
+        }
+
+        // UI에 컬럼 업데이트 함수
+        function updateColumnsUI(columns) {
+            const boardContainer = document.getElementById('boardContainer');
+            boardContainer.innerHTML = ''; // Clear existing columns
+
+            columns.forEach(column => {
+                addColumnToUI(column.title, column.id);
+            });
+
+            const addColumnButtonTemplate = `
+                <div class="add-column" onclick="showModal('createColumnModal')">+ Add another</div>
+            `;
+            boardContainer.insertAdjacentHTML('beforeend', addColumnButtonTemplate);
+        }
     </script>
 </head>
 <body>
@@ -365,61 +417,7 @@
 </div>
 <div class="board-content">보드 한줄 소개 : <span id="boardContent" style="color: white">보드 한줄 소개</span></div>
 <div class="board-content">보드 멤버 : <span id="boardMember" style="color: white">보드 멤버</span></div>
-<div class="board-container" id="boardContainer">
-    <div class="column" draggable="true" ondragstart="drag(event)" id="column1">
-        <h3>To do</h3>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'To do')" ondragstart="drag(event)"
-             id="card1">Card_1
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'To do')" ondragstart="drag(event)"
-             id="card2">Card_2
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'To do')" ondragstart="drag(event)"
-             id="card3">Card_3
-        </div>
-        <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
-    </div>
-    <div class="column" draggable="true" ondragstart="drag(event)" id="column2">
-        <h3>In progress</h3>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'In progress')" ondragstart="drag(event)"
-             id="card4">Card_1
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'In progress')" ondragstart="drag(event)"
-             id="card5">Card_2
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'In progress')" ondragstart="drag(event)"
-             id="card6">Card_3
-        </div>
-        <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
-    </div>
-    <div class="column" draggable="true" ondragstart="drag(event)" id="column3">
-        <h3>Done</h3>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'Done')" ondragstart="drag(event)"
-             id="card7">Card_1
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'Done')" ondragstart="drag(event)"
-             id="card8">Card_2
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'Done')" ondragstart="drag(event)"
-             id="card9">Card_3
-        </div>
-        <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
-    </div>
-    <div class="column" draggable="true" ondragstart="drag(event)" id="column4">
-        <h3>Emergency</h3>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_1', 'Emergency')" ondragstart="drag(event)"
-             id="card10">Card_1
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_2', 'Emergency')" ondragstart="drag(event)"
-             id="card11">Card_2
-        </div>
-        <div class="card" draggable="true" onclick="showCardDetail('Card_3', 'Emergency')" ondragstart="drag(event)"
-             id="card12">Card_3
-        </div>
-        <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
-    </div>
-    <div class="add-column" onclick="showModal('createColumnModal')">+ Add another</div>
-</div>
+<div class="board-container" id="boardContainer"></div>
 
 <!-- Modal Definitions -->
 <div id="editBoardModal" class="modal">
@@ -487,8 +485,8 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('createColumnModal')">&times;</span>
         <h2 class="modal-header">Create columns</h2>
-        <input type="text" placeholder="컬럼 이름">
-        <button type="button">CREATE</button>
+        <input type="text" id="columnNameInput" placeholder="컬럼 이름">
+        <button type="button" onclick="createColumn()">CREATE</button>
     </div>
 </div>
 
@@ -621,7 +619,7 @@
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
     }
-    
+
     function confirmOrder() {
         alert("Order Confirmed!");
         closeModal('confirmOrderModal');

@@ -353,6 +353,7 @@ export async function confirmOrder() {
 
         alert('순서 수정이 완료되었습니다.');
         closeModal('confirmOrderModal');
+        window.location.reload();
     } catch (error) {
         console.error('Error confirming order:', error);
         alert('Error confirming order: ' + error.message);

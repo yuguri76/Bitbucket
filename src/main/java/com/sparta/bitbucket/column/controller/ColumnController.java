@@ -44,11 +44,12 @@ public class ColumnController {
 	}
 
 	@DeleteMapping("/columns/{columnId}")
-	public ResponseEntity<?> deleteColumn(@PathVariable("boardId") Long boardId,
+	public ResponseEntity<MessageResponseDto> deleteColumn(
+		@PathVariable("boardId") Long boardId,
 		@PathVariable("columnId") Long columnId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		columnService.deleteColumn(columnId, userDetails.getUser(), boardId);
-		return ResponseFactory.noContent();
+		return ResponseFactory.ok(DELETE_COLUMNS_SUCCESS.getMessage());
 	}
 
 	@PatchMapping("/columns/{columnId}")

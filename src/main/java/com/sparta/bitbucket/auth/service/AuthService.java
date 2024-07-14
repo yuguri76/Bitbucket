@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import com.sparta.bitbucket.auth.dto.LoginRequestDto;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.auth.repository.UserRepository;
-import com.sparta.bitbucket.common.entity.StatusMessage;
-import com.sparta.bitbucket.exception.auth.PasswordInvalidException;
+import com.sparta.bitbucket.common.entity.ErrorMessage;
+import com.sparta.bitbucket.common.exception.auth.PasswordInvalidException;
 import com.sparta.bitbucket.security.TokenType;
 import com.sparta.bitbucket.security.service.JwtService;
 
@@ -37,7 +37,7 @@ public class AuthService {
 	public String login(LoginRequestDto requestDto) {
 
 		User user = userRepository.findByEmail(requestDto.getEmail())
-			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
+			.orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 
 		if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
 			String accessToken = jwtService.generateToken(user.getEmail(), user.getRole(), TokenType.ACCESS);
@@ -51,7 +51,7 @@ public class AuthService {
 
 			return accessToken;
 		} else {
-			throw new PasswordInvalidException(StatusMessage.PASSWORD_INVALID);
+			throw new PasswordInvalidException(ErrorMessage.PASSWORD_INVALID);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class AuthService {
 		String email = jwtService.extractEmail(token);
 
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
+			.orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 
 		user.updateRefreshToken(null);
 
@@ -91,7 +91,7 @@ public class AuthService {
 		String email = jwtService.extractEmail(refreshToken);
 
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
+			.orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 
 		if (user.getRefreshToken().equals(refreshToken)) {
 			Object role = jwtService.extractRole(refreshToken);

@@ -13,9 +13,9 @@ import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.dto.UserBoardsResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.exception.auth.UsernameDuplicateException;
 import com.sparta.bitbucket.auth.repository.UserRepository;
-import com.sparta.bitbucket.common.entity.StatusMessage;
+import com.sparta.bitbucket.common.entity.ErrorMessage;
+import com.sparta.bitbucket.common.exception.auth.UsernameDuplicateException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,7 +42,7 @@ public class UserService {
 
 		// 이메일 중복 확인
 		if (duplicateUser.isPresent()) {
-			throw new UsernameDuplicateException(StatusMessage.USER_EMAIL_DUPLICATE);
+			throw new UsernameDuplicateException(ErrorMessage.USER_EMAIL_DUPLICATE);
 		}
 
 		Role role = setUserRole(requestDto.getSecretKey());
@@ -63,7 +63,7 @@ public class UserService {
 
 	public UserBoardsResponseDto getUserBoards(String email) {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
+			.orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 
 		return UserBoardsResponseDto.builder().username(user.getName()).boards(user.getBoards()).build();
 
@@ -80,7 +80,7 @@ public class UserService {
 
 	public User findUserByEmail(String email) {
 		return userRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException(StatusMessage.USER_EMAIL_NOT_FOUND.getMessage()));
+			.orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 	}
 
 }

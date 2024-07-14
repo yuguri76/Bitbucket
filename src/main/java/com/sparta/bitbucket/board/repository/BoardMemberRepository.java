@@ -10,4 +10,6 @@ import com.sparta.bitbucket.board.entity.BoardMember;
 @Repository
 public interface BoardMemberRepository extends JpaRepository<BoardMember, Long> {
 	Optional<BoardMember> findAllByBoard_IdAndUser_Id(Long boardId, Long userId);
+
+	boolean existsByBoard_IdAndUser_Id(Long boardId, Long userId);
 }

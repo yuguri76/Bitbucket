@@ -1,5 +1,7 @@
 package com.sparta.bitbucket.column.service;
 
+import static com.sparta.bitbucket.exception.ErrorCode.*;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -10,12 +12,12 @@ import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.board.service.BoardService;
-import com.sparta.bitbucket.column.dto.ColumnRequestDto;
 import com.sparta.bitbucket.column.dto.ColumnResponseDto;
 import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
 import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.column.repository.ColumnRepository;
+import com.sparta.bitbucket.exception.CustomException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,12 +29,12 @@ public class ColumnService {
 	private final BoardService boardService;
 
 	@Transactional
-	public void createColumn(User user, CreateColumnRequestDto requestDto) {
+	public void createColumn(Long boardId, User user, CreateColumnRequestDto requestDto) {
 		validateUser(user);
-		checkUserIsBoardOwner(user, requestDto.getBoardId());
-		existsBoardIdAndTitle(requestDto.getBoardId(), requestDto.getTitle());
+		checkUserIsBoardOwner(user, boardId);
+		existsBoardIdAndTitle(boardId, requestDto.getTitle());
 
-		Board board = boardService.findBoardById(requestDto.getBoardId());
+		Board board = boardService.findBoardById(boardId);
 
 		columnRepository.save(Columns.builder()
 			.title(requestDto.getTitle())
@@ -42,37 +44,34 @@ public class ColumnService {
 	}
 
 	@Transactional
-	public void deleteColumn(Long columnId, User user, ColumnRequestDto requestDto) {
+	public void deleteColumn(Long columnId, User user, Long boardId) {
 		validateUser(user);
-		checkUserIsBoardOwner(user, requestDto.getBoardId());
-		Columns byColumnId = findByColumnIdAndBoardId(columnId, requestDto.getBoardId());
+		checkUserIsBoardOwner(user,boardId);
+		Columns byColumnId = findByColumnIdAndBoardId(columnId,boardId);
 		columnRepository.delete(byColumnId);
 	}
 
 	@Transactional
-	public void updateColumn(Long columnId, User user, EditColumnRequestDto requestDto) {
+	public void updateColumn(Long boardId, Long columnId, User user, EditColumnRequestDto requestDto) {
 
 		validateUser(user);
-		checkUserIsBoardOwner(user, requestDto.getBoardId());
-		existsBoardIdAndTitle(requestDto.getBoardId(), requestDto.getTitle());
+		checkUserIsBoardOwner(user, boardId);
+		existsBoardIdAndTitle(boardId, requestDto.getTitle());
 
-		Columns columns = findByColumnIdAndBoardId(columnId, requestDto.getBoardId());
+		Columns columns = findByColumnIdAndBoardId(columnId,boardId);
 
 		Columns updatedColumns = columns.toBuilder()
-			.title(requestDto.getTitle())
-			.orders(requestDto.getOrders())
+			.title(requestDto.getTitle() ==null ? columns.getTitle() : requestDto.getTitle())
+			.orders(requestDto.getOrders() == null ? columns.getOrders() : requestDto.getOrders())
 			.build();
 
 		columnRepository.save(updatedColumns);
 	}
 
 	@Transactional(readOnly = true)
-	public List<ColumnResponseDto> getAllColumns(User user, ColumnRequestDto requestDto) {
-		Long boardId = requestDto.getBoardId();
-		Long userId = user.getId();
-
-		if(!boardService.isUserBoardMember(boardId, userId)) {
-			throw new IllegalArgumentException("방장이 아니거나 보드 멤버에 없습니다."); // CommonException 바꿀 예정
+	public List<ColumnResponseDto> getAllColumns(User user, Long boardId) {
+		if(!boardService.isUserBoardMember(boardId, user.getId())) {
+			throw new CustomException(NOT_BOARD_MEMBER); // CommonException 바꿀 예정
 		}
 
 		return columnRepository.findAllByBoardIdOrderByOrders(boardId).stream()
@@ -90,26 +89,26 @@ public class ColumnService {
 
 	public void validateUser(User user) {
 		if (user.getRole() != Role.MANAGER) {
-			throw new IllegalArgumentException("유저 권한이 없습니다."); // CommonException 로 바꿀예정
+			throw new CustomException(FORBIDDEN);
 		}
 	}
 
 	public void checkUserIsBoardOwner(User user, Long boardId) {
 		Board board = boardService.findBoardById(boardId);
 		if (!Objects.equals(board.getUser().getId(), user.getId())) {
-			throw new IllegalArgumentException("유저 권한이 없습니다."); // CommonException 로 바꿀예정
+			throw new CustomException(FORBIDDEN);
 		}
 	}
 
 	public Columns findByColumnIdAndBoardId(Long columnId, Long boardId) {
 		return columnRepository.findByIdAndBoardId(columnId, boardId).orElseThrow(
-			() -> new IllegalArgumentException("존재하지 않는 컬럼입니다.") // CommonException 로 바꿀예정
+			() -> new CustomException(COLUMN_NOT_FOUND)
 		);
 	}
 
 	private void existsBoardIdAndTitle(Long boardId, String title) {
 		if(columnRepository.existsByBoardIdAndTitle(boardId, title)) {
-			throw new IllegalArgumentException("이미 존재하는 타이틀 입니다."); // CommonException 로 바꿀예정
+			throw new CustomException(TITLE_ALREADY_EXISTS);
 		}
 	}
 

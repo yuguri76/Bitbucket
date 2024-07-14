@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
+import com.sparta.bitbucket.exception.ErrorCode;
 
 /**
  * HTTP 응답을 생성하기 위한 클래스입니다.
@@ -161,4 +162,10 @@ public class ResponseFactory {
 		return ResponseEntity.status(STATUS_UNAUTHORIZED).body(responseDto);
 	}
 
+
+	public static ResponseEntity<MessageResponseDto> customError(ErrorCode errorCode) {
+		String errorMessage = errorCode.getMessage();
+		int status = errorCode.getStatus().value();
+		return ResponseEntity.status(status).body(new MessageResponseDto(errorCode.getStatus().value(), errorMessage));
+	}
 }

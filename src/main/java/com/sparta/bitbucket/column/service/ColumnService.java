@@ -53,19 +53,30 @@ public class ColumnService {
 
 	@Transactional
 	public void updateColumn(Long boardId, Long columnId, User user, EditColumnRequestDto requestDto) {
-
 		validateUser(user);
 		checkUserIsBoardOwner(user, boardId);
 		existsBoardIdAndTitle(boardId, requestDto.getTitle());
 
 		Columns columns = findByColumnIdAndBoardId(columnId, boardId);
 
-		Columns updatedColumns = columns.toBuilder()
+		columns = columns.toBuilder()
 			.title(requestDto.getTitle() == null ? columns.getTitle() : requestDto.getTitle())
 			.orders(requestDto.getOrders() == null ? columns.getOrders() : requestDto.getOrders())
 			.build();
 
-		columnRepository.save(updatedColumns);
+		columnRepository.save(columns);
+	}
+
+	@Transactional
+	public void updateColumnOrder(Long boardId, User user, List<EditColumnRequestDto> orderRequestDtos) {
+		validateUser(user);
+		checkUserIsBoardOwner(user, boardId);
+
+		for (EditColumnRequestDto dto : orderRequestDtos) {
+			Columns column = findByColumnIdAndBoardId(dto.getColumnId(), boardId);
+			column.setOrders(dto.getOrders());
+			columnRepository.save(column); // 수정된 컬럼 저장
+		}
 	}
 
 	@Transactional(readOnly = true)
@@ -111,5 +122,4 @@ public class ColumnService {
 			throw new CustomException(TITLE_ALREADY_EXISTS);
 		}
 	}
-
 }

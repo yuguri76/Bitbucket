@@ -21,7 +21,6 @@ import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
 import com.sparta.bitbucket.column.service.ColumnService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
-import com.sparta.bitbucket.common.dto.NoContentResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 
@@ -42,14 +41,17 @@ public class ColumnController {
 		columnService.createColumn(boardId, userDetails.getUser(), requestDto);
 		return ResponseFactory.created(CREATE_COLUMNS_SUCCESS.getMessage());
 	}
-
 	@DeleteMapping("/columns/{columnId}")
 	public ResponseEntity<MessageResponseDto> deleteColumn(
 		@PathVariable("boardId") Long boardId,
 		@PathVariable("columnId") Long columnId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		columnService.deleteColumn(columnId, userDetails.getUser(), boardId);
-		return ResponseFactory.ok(DELETE_COLUMNS_SUCCESS.getMessage());
+		try {
+			columnService.deleteColumn(columnId, userDetails.getUser(), boardId);
+			return ResponseFactory.ok(DELETE_COLUMNS_SUCCESS.getMessage());
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body(new MessageResponseDto(500, "Failed to delete column"));
+		}
 	}
 
 	@PatchMapping("/columns/{columnId}")
@@ -59,6 +61,15 @@ public class ColumnController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		columnService.updateColumn(boardId, columnId, userDetails.getUser(), editColumnRequestDto);
 		return ResponseFactory.ok(UPDATE_COLUMNS_SUCCESS.getMessage());
+	}
+
+	@PatchMapping("/columns/order")
+	public ResponseEntity<MessageResponseDto> updateColumnOrder(
+		@PathVariable("boardId") Long boardId,
+		@RequestBody @Valid List<EditColumnRequestDto> orderRequestDtos,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		columnService.updateColumnOrder(boardId, userDetails.getUser(), orderRequestDtos);
+		return ResponseFactory.ok("Column order updated successfully");
 	}
 
 	@GetMapping("/columns")

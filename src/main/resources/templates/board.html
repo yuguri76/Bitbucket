@@ -281,7 +281,11 @@
             loadColumns,
             renderBoardMemberList,
             updateBoardData,
+            createColumn,
+            addColumnToUI,
+            loadColumns,
             deleteColumn,
+            confirmOrder
         } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
 
@@ -428,6 +432,9 @@
         window.handleDeleteColumn = function (columnId) {
             deleteColumn(columnId);
         };
+
+        // confirmOrder 함수를 window 객체에 할당합니다.
+        window.confirmOrder = confirmOrder;
     </script>
 </head>
 <body>
@@ -588,6 +595,14 @@
         ev.dataTransfer.setData("text", ev.target.id);
     }
 
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
     function drop(ev) {
         ev.preventDefault();
         var data = ev.dataTransfer.getData("text");
@@ -615,52 +630,31 @@
             }
         } else if (item.classList.contains('column')) {
             var boardContainer = document.getElementById("boardContainer");
-            var columns = boardContainer.querySelectorAll('.column');
-            if (columns.length === 0) {
-                boardContainer.insertBefore(item, boardContainer.querySelector(".add-column"));
-            } else {
-                var inserted = false;
-                columns.forEach(function (targetColumn) {
-                    if (ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2) {
-                        boardContainer.insertBefore(item, targetColumn);
-                        inserted = true;
-                        return false; // break the loop
-                    }
-                });
-                if (!inserted) {
-                    boardContainer.insertBefore(item, boardContainer.querySelector(".add-column"));
-                }
-            }
+            var columns = Array.from(boardContainer.querySelectorAll('.column'));
+            columns.splice(columns.indexOf(item), 1);
+            var insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
+            if (insertIndex === -1) insertIndex = columns.length;
+            columns.splice(insertIndex, 0, item);
+
+            columns.forEach((column, index) => {
+                column.dataset.order = index; // Update the order attribute
+                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`; // Display the order for testing
+            });
+
+            boardContainer.innerHTML = ''; // Clear the container
+            columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
         }
     }
 
+    // Event listeners for drag and drop
     document.querySelectorAll('.column, .card').forEach(function (element) {
+        element.addEventListener('dragstart', drag);
         element.addEventListener('dragover', allowDrop);
         element.addEventListener('drop', drop);
     });
 
     document.getElementById('boardContainer').addEventListener('dragover', allowDrop);
     document.getElementById('boardContainer').addEventListener('drop', drop);
-
-    function showModal(modalId) {
-        document.getElementById(modalId).style.display = "flex";
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
-
-    function confirmOrder() {
-        alert("Order Confirmed!");
-        closeModal('confirmOrderModal');
-    }
-
-    function showCardDetail(cardTitle, columnTitle) {
-        var cardDetailModal = document.getElementById('cardDetailModal');
-        cardDetailModal.querySelector('.modal-header h2').innerText = cardTitle;
-        cardDetailModal.querySelector('.column-name').innerText = columnTitle;
-        showModal('cardDetailModal');
-    }
 </script>
 </body>
 </html>

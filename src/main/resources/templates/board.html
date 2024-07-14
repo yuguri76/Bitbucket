@@ -584,6 +584,13 @@
         ev.dataTransfer.setData("text", ev.target.id);
     }
 
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
     function drop(ev) {
         ev.preventDefault();
         var data = ev.dataTransfer.getData("text");
@@ -611,26 +618,35 @@
             }
         } else if (item.classList.contains('column')) {
             var boardContainer = document.getElementById("boardContainer");
-            var columns = boardContainer.querySelectorAll('.column');
-            if (columns.length === 0) {
-                boardContainer.insertBefore(item, boardContainer.querySelector(".add-column"));
-            } else {
-                var inserted = false;
-                columns.forEach(function (targetColumn) {
-                    if (ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2) {
-                        boardContainer.insertBefore(item, targetColumn);
-                        inserted = true;
-                        return false; // break the loop
-                    }
-                });
-                if (!inserted) {
-                    boardContainer.insertBefore(item, boardContainer.querySelector(".add-column"));
-                }
-            }
+            var columns = Array.from(boardContainer.querySelectorAll('.column'));
+            columns.splice(columns.indexOf(item), 1);
+            var insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
+            if (insertIndex === -1) insertIndex = columns.length;
+            columns.splice(insertIndex, 0, item);
+
+            columns.forEach((column, index) => {
+                column.dataset.order = index; // Update the order attribute
+                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`; // Display the order for testing
+            });
+
+            boardContainer.innerHTML = ''; // Clear the container
+            columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
         }
     }
 
+    // Allow drop event handler
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    // Drag event handler
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    // Event listeners for drag and drop
     document.querySelectorAll('.column, .card').forEach(function (element) {
+        element.addEventListener('dragstart', drag);
         element.addEventListener('dragover', allowDrop);
         element.addEventListener('drop', drop);
     });
@@ -638,17 +654,37 @@
     document.getElementById('boardContainer').addEventListener('dragover', allowDrop);
     document.getElementById('boardContainer').addEventListener('drop', drop);
 
-    function showModal(modalId) {
-        document.getElementById(modalId).style.display = "flex";
-    }
+    // Confirm order function to save the order to the backend
+    async function confirmOrder() {
+        try {
+            const boardContainer = document.getElementById('boardContainer');
+            const columns = Array.from(boardContainer.querySelectorAll('.column'));
+            const updatedOrders = columns.map((column, index) => ({
+                columnId: column.id.replace('column', ''),
+                orders: index
+            }));
 
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
+            const boardId = localStorage.getItem('board_id');
 
-    function confirmOrder() {
-        alert("Order Confirmed!");
-        closeModal('confirmOrderModal');
+            const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/order`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getAccessToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedOrders)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update column order');
+            }
+
+            alert('Order Confirmed!');
+            closeModal('confirmOrderModal');
+        } catch (error) {
+            console.error('Error confirming order:', error);
+            alert('Error confirming order: ' + error.message);
+        }
     }
 
     function showCardDetail(cardTitle, columnTitle) {

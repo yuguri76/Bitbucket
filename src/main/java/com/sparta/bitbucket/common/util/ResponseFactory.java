@@ -160,5 +160,4 @@ public class ResponseFactory {
 		MessageResponseDto responseDto = new MessageResponseDto(STATUS_UNAUTHORIZED, errorMessage);
 		return ResponseEntity.status(STATUS_UNAUTHORIZED).body(responseDto);
 	}
-
 }

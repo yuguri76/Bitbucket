@@ -1,23 +1,21 @@
-import { getAccessToken } from './auth.js';
-import { getRandomColor } from "./util.js";
+import {getAccessToken, refreshTokenAndRetry} from './auth.js';
+import {getRandomColor} from "./util.js";
 
 export async function loadMainPageData() {
     try {
         const response = await fetch('http://localhost:8080/api/users', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${getAccessToken()}`
+            method: 'GET', headers: {
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
             }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch main page data');
-        }
 
         const result = await response.json();
 
         if (result.status === 200) {
             return result.data;  // 여기서 데이터를 반환합니다.
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(loadMainPageData);
         } else {
             throw new Error(result.message);
         }
@@ -51,7 +49,7 @@ function createBoardElement(text, onClick) {
 
 export function openBoard(boardId) {
     console.log(`Opening board with id: ${boardId}`);
-    // 추후 구현
+    window.location.href = `/board?id=${boardId}`;
 }
 
 export function redirectToCreateBoard() {
@@ -61,23 +59,20 @@ export function redirectToCreateBoard() {
 export async function createBoard(title, content) {
     try {
         const response = await fetch('http://localhost:8080/api/boards', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAccessToken()}`
-            },
-            body: JSON.stringify({ title, content })
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
+            }, body: JSON.stringify({title, content})
         });
 
         console.log(response);
-        if (!response.ok) {
-            throw new Error('Failed to create board');
-        }
 
         const result = await response.json();
         console.log(result);
         if (result.status === 201) {
             return result.data;  // 여기서 데이터를 반환합니다.
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(createBoard);
         } else {
             throw new Error(result.message);
         }
@@ -91,20 +86,18 @@ export async function createBoard(title, content) {
 export async function loadBoardData(boardId) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${getAccessToken()}`
+            method: 'GET', headers: {
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
             }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch board page data');
-        }
 
         const result = await response.json();
 
         if (result.status === 200) {
             return result.data;  // 여기서 데이터를 반환합니다.
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(loadBoardData);
         } else {
             throw new Error(result.message);
         }
@@ -143,51 +136,44 @@ export async function updateBoardData(title, content, memberList) {
 
 // 보드 수정 API 호출하는 함수
 export async function editBoard(boardId, title, content) {
-    fetch(`http://localhost:8080/api/boards/${boardId}`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${getAccessToken()}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            title: title,
-            content: content
-        })
-    })
-        .then(response => {
-            console.log(response);
-            if (!response.ok) {
-                throw new Error('보드 수정 실패');
-            }
-            return response.json();
-        })
-        .then(data => {
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
+            method: 'PUT', headers: {
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
+            }, body: JSON.stringify({
+                title: title, content: content
+            })
+        });
+
+        const result = await response;
+
+        if (result.status === 200) {
             alert('보드 수정이 완료되었습니다.');
             window.location.href = '/board';  // 보드 페이지로 리다이렉트
-        })
-        .catch(error => {
-            console.error('보드 수정 오류:', error);
-            alert('보드 수정 중 오류가 발생했습니다: ' + error.message);
-        });
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(editBoard);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('Error loading board page data:', error);
+        alert('보드 수정 중 오류가 발생했습니다: ' + error.message);
+        throw error;  // 에러를 다시 던져서 호출한 곳에서 처리할 수 있게 합니다.
+    }
 }
 
 // 보드 초대 API 호출하는 함수
 export async function inviteBoard(boardId, email) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/invite`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${getAccessToken()}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+            method: 'POST', headers: {
+                'Authorization': `Bearer ${getAccessToken()}`, 'Content-Type': 'application/json'
+            }, body: JSON.stringify({
                 email: email
             })
         });
-
-        if (!response.ok) {
-            throw new Error('보드 초대 실패');
-        }
 
         const result = await response.json();
 
@@ -195,6 +181,9 @@ export async function inviteBoard(boardId, email) {
             let data = result.data;
             alert(`${data.boardTitle} 보드에 사용자${data.userName} 이 초대되었습니다.`);
             window.location.href = '/board';
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(inviteBoard);
         } else {
             throw new Error(result.message);
         }
@@ -206,46 +195,47 @@ export async function inviteBoard(boardId, email) {
 
 // 보드 삭제 API 호출하는 함수
 export async function deleteBoard(boardId) {
-    fetch(`http://localhost:8080/api/boards/${boardId}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${getAccessToken()}`
-        }
-    })
-        .then(response => {
-            console.log(response);
-            if (!response.ok) {
-                throw new Error('보드 삭제 실패');
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
+            method: 'DELETE', headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
             }
-        })
-        .then(data => {
-            alert('보드 삭제가 완료되었습니다.');
-            window.location.href = '/main';  // 메인 페이지로 리다이렉트
-        })
-        .catch(error => {
-            console.error('보드 삭제 오류:', error);
-            alert('보드 삭제 중 오류가 발생했습니다: ' + error.message);
         });
+
+        const result = await response.json();
+
+        if (result.status === 200) {
+            alert('보드 삭제가 완료되었습니다.');
+            window.location.href = '/main';
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(deleteBoard);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        console.error('보드 삭제 오류:', error);
+        alert('보드 삭제 중 오류가 발생했습니다: ' + error.message);
+    }
 }
 
 // 컬럼 데이터를 로드하는 함수
 export async function loadColumns(boardId) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns`, {
-            method: 'GET',
-            headers: {
+            method: 'GET', headers: {
                 'Authorization': `Bearer ${getAccessToken()}`
             }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch columns');
-        }
 
         const result = await response.json();
 
         if (result.status === 200) {
             return result.data; // 컬럼 데이터를 반환합니다.
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(loadColumns);
         } else {
             throw new Error(result.message);
         }
@@ -259,24 +249,20 @@ export async function loadColumns(boardId) {
 export async function createColumn(title, boardId) {
     try {
         const response = await fetch('http://localhost:8080/api/boards/columns', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAccessToken()}`
-            },
-            body: JSON.stringify({ title, boardId, orders: 0 })
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
+            }, body: JSON.stringify({title, boardId, orders: 0})
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to create column');
-        }
 
         const result = await response.json();
         if (result.status === 200) {
             alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
             closeModal('createColumnModal'); // 모달창 닫기
-            window.location.href='/board';
+            window.location.href = '/board';
             return result.data; // 생성된 컬럼 데이터를 반환합니다.
+        } else if (result.status === 401) {
+            console.log("초기화");
+            return refreshTokenAndRetry(createColumn);
         } else {
             throw new Error(result.message);
         }

@@ -272,47 +272,51 @@
     </style>
     <script type="module">
         import {
+            addColumnToUI,
+            createColumn,
             deleteBoard,
             editBoard,
             inviteBoard,
             loadBoardData,
+            loadColumns,
             renderBoardMemberList,
             updateBoardData,
-            createColumn,
-            addColumnToUI,
-            loadColumns,
-            deleteColumn
+            deleteColumn,
         } from "./js/board.js";
-        import { checkAuth } from "./js/auth.js";
+        import {checkAuth} from "./js/auth.js";
 
         // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
-            try {
-                await checkAuth();
-                console.log('Authentication checked');
 
-                let boardId = 2; // 추후에 Main에서 넘겨주는 id를 받는 것으로 수정
+            const urlParams = new URLSearchParams(window.location.search);
+            const boardId = urlParams.get('id');
 
-                const boardData = await loadBoardData(boardId);
-                console.log('Board page data loaded:', boardData);
+            if (boardId) {
+                try {
+                    await checkAuth();
+                    console.log('Authentication checked');
 
-                if (boardData && boardData.title && boardData.content && boardData.id && boardData.memberList) {
-                    let boardMemberText = renderBoardMemberList(boardData.memberList);
-                    updateBoardData(boardData.title, boardData.content, boardMemberText);
-                    console.log('Board title updated');
-                    localStorage.setItem('board_id', boardData.id);
+                    const boardData = await loadBoardData(boardId);
+                    console.log('Board page data loaded:', boardData);
 
-                    // Load columns from the database and update UI
-                    const columnsData = await loadColumns(boardData.id);
-                    console.log('Columns data loaded:', columnsData);
-                    updateColumnsUI(columnsData);
-                } else {
-                    console.warn('title not found in data');
+                    if (boardData && boardData.title && boardData.content && boardData.id && boardData.memberList) {
+                        let boardMemberText = renderBoardMemberList(boardData.memberList);
+                        updateBoardData(boardData.title, boardData.content, boardMemberText);
+                        console.log('Board title updated');
+                        localStorage.setItem('board_id', boardData.id);
+
+                        // Load columns from the database and update UI
+                        const columnsData = await loadColumns(boardData.id);
+                        console.log('Columns data loaded:', columnsData);
+                        updateColumnsUI(columnsData);
+                    } else {
+                        console.warn('title not found in data');
+                    }
+
+                } catch (error) {
+                    console.error('Error during board page initialization:', error);
+                    alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
                 }
-
-            } catch (error) {
-                console.error('Error during board page initialization:', error);
-                alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
             }
         });
 

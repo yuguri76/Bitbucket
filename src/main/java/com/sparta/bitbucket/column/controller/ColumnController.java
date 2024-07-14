@@ -42,13 +42,15 @@ public class ColumnController {
 		return ResponseFactory.ok(CREATE_COLUMNS_SUCCESS.getMessage());
 	}
 
-	@DeleteMapping("/columns/{columnId}")
-	public ResponseEntity<MessageResponseDto> deleteColumn(@PathVariable("columnId") Long columnId,
-		@RequestBody @Valid ColumnRequestDto requestDto,
+	@DeleteMapping("/{boardId}/columns/{columnId}")
+	public ResponseEntity<MessageResponseDto> deleteColumn(
+		@PathVariable("boardId") Long boardId,
+		@PathVariable("columnId") Long columnId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		columnService.deleteColumn(columnId, userDetails.getUser(), requestDto);
+		columnService.deleteColumn(columnId, userDetails.getUser(), new ColumnRequestDto(boardId));
 		return ResponseFactory.ok(DELETE_COLUMNS_SUCCESS.getMessage());
 	}
+
 
 	@PatchMapping("/columns/{columnId}")
 	public ResponseEntity<MessageResponseDto> updateColumn(@PathVariable("columnId") Long columnId,

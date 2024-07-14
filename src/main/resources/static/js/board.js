@@ -1,5 +1,5 @@
-import {getAccessToken} from './auth.js';
-import {getRandomColor} from "./util.js";
+import { getAccessToken } from './auth.js';
+import { getRandomColor } from "./util.js";
 
 export async function loadMainPageData() {
     try {
@@ -66,7 +66,7 @@ export async function createBoard(title, content) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessToken()}`
             },
-            body: JSON.stringify({title, content})
+            body: JSON.stringify({ title, content })
         });
 
         console.log(response);
@@ -286,12 +286,16 @@ export async function createColumn(title, boardId) {
     }
 }
 
-export function addColumnToUI(columnName, columnId) {
+// UI에 컬럼 추가 함수
+export function addColumnToUI(columnTitle, columnId) {
     const boardContainer = document.getElementById('boardContainer');
     const addColumnButton = boardContainer.querySelector('.add-column');
     const columnTemplate = `
         <div class="column" draggable="true" ondragstart="drag(event)" id="column${columnId}">
-            <h3>${columnName}</h3>
+            <div style="display: flex; justify-content: space-between;">
+                <h3>${columnTitle}</h3>
+                <button class="delete-column-btn" data-column-id="${columnId}">X</button>
+            </div>
             <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
         </div>
     `;
@@ -300,4 +304,41 @@ export function addColumnToUI(columnName, columnId) {
     } else {
         boardContainer.insertAdjacentHTML('beforeend', columnTemplate);
     }
+
+    // 이벤트 핸들러 추가
+    document.querySelector(`.delete-column-btn[data-column-id="${columnId}"]`).addEventListener('click', function() {
+        handleDeleteColumn(columnId);
+    });
 }
+
+// 컬럼 삭제 API 호출하는 함수
+export async function deleteColumn(columnId) {
+    try {
+        console.log(`Attempting to delete column with id: ${columnId}`); // 로그 추가
+        const boardId = localStorage.getItem('board_id'); // boardId 가져오기
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
+        });
+
+        if (!response.ok) {
+            // 서버 응답이 200이 아닌 경우, 오류 메시지를 로그에 출력합니다.
+            const errorMessage = await response.text();
+            console.error('Server response:', errorMessage);
+            throw new Error('Failed to delete column');
+        }
+
+        alert('컬럼 삭제에 성공하였습니다.');
+        document.getElementById(`column${columnId}`).remove(); // UI에서 컬럼 삭제
+    } catch (error) {
+        console.error('Error deleting column:', error);
+        alert('Error deleting column: ' + error.message);
+    }
+}
+
+// 삭제 버튼 핸들러
+window.handleDeleteColumn = function (columnId) {
+    deleteColumn(columnId);
+};

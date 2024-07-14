@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.auth.exception;
+package com.sparta.bitbucket.exception.auth;
 
 import com.sparta.bitbucket.common.entity.StatusMessage;
 

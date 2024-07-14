@@ -20,6 +20,7 @@ import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.service.CardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
+import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 
@@ -39,9 +40,9 @@ public class CardController {
 		@PathVariable Long columnId,
 		@Valid @RequestBody CardCreateRequestDto requestDto
 	) {
-		CardResponseDto responseDto = cardService.createCard(userDetails.getUser(), columnId, boardId, requestDto);
+		CardResponseDto responseDto = cardService.createCard(userDetails.getUser(), boardId, columnId, requestDto);
 
-		return ResponseFactory.created(responseDto, "카드 작성이 성공적으로 완료되었습니다.");
+		return ResponseFactory.created(responseDto, StatusMessage.CREATE_CARD_SUCCESS.getMessage());
 	}
 
 	@PutMapping("/columns/{columnId}/cards/{cardId}")
@@ -52,9 +53,9 @@ public class CardController {
 		@PathVariable Long cardId,
 		@Valid @RequestBody CardEditRequestDto requestDto
 	) {
-		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), columnId, cardId, requestDto);
+		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), boardId, columnId, cardId, requestDto);
 
-		return ResponseFactory.ok(responseDto, "카드 수정이 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_CARD_SUCCESS.getMessage());
 	}
 
 	@PutMapping("/columns/{columnId}/cards/{cardId}/move")
@@ -65,9 +66,9 @@ public class CardController {
 		@PathVariable Long cardId,
 		@Valid @RequestBody CardMoveRequestDto requestDto
 	) {
-		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), columnId, cardId, requestDto);
+		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), boardId, columnId, cardId, requestDto);
 
-		return ResponseFactory.ok(responseDto, "카드 순서 수정이 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_CARD_ORDER_SUCCESS.getMessage());
 	}
 
 
@@ -78,7 +79,7 @@ public class CardController {
 		@PathVariable Long columnId,
 		@PathVariable Long cardId
 	) {
-		cardService.deleteCard(userDetails.getUser(), columnId, cardId);
+		cardService.deleteCard(userDetails.getUser(), boardId, columnId, cardId);
 		return ResponseFactory.noContent();
 	}
 
@@ -91,7 +92,7 @@ public class CardController {
 	) {
 		List<CardResponseDto> response = cardService.getCards(boardId, condition, conditionDetail);
 
-		return ResponseFactory.ok(response, "카드 목록 조회가 성공적으로 완료되었습니다.");
+		return ResponseFactory.ok(response, StatusMessage.GET_LIST_CARD_SUCCESS.getMessage());
 	}
 
 }

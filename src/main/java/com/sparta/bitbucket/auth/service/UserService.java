@@ -13,7 +13,7 @@ import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.dto.UserBoardsResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.exception.UsernameDuplicateException;
+import com.sparta.bitbucket.exception.auth.UsernameDuplicateException;
 import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 

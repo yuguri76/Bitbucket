@@ -9,11 +9,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.sparta.bitbucket.auth.exception.PasswordInvalidException;
-import com.sparta.bitbucket.auth.exception.UsernameDuplicateException;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
+import com.sparta.bitbucket.exception.auth.PasswordInvalidException;
+import com.sparta.bitbucket.exception.auth.UsernameDuplicateException;
+import com.sparta.bitbucket.exception.card.MissingSearchKeywordException;
+import com.sparta.bitbucket.exception.card.ResourceNotFoundException;
+import com.sparta.bitbucket.exception.card.TitleConflictException;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
@@ -76,4 +80,33 @@ public class GlobalExceptionHandler {
 		return ResponseFactory.authorizedError(errorMessage);
 	}
 
+	// Card Exception
+	@ExceptionHandler(MissingSearchKeywordException.class)
+	public ResponseEntity<MessageResponseDto> MissingSearchKeywordException(MissingSearchKeywordException e) {
+
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.badRequest(errorMessage);
+	}
+
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<MessageResponseDto> ResourceNotFoundException(ResourceNotFoundException e){
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.badRequest(errorMessage);
+	}
+
+	@ExceptionHandler(TitleConflictException.class)
+	public ResponseEntity<MessageResponseDto> TitleConflictException(TitleConflictException e){
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.conflictError(errorMessage);
+	}
+
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<MessageResponseDto> EntityNotFoundExceptionHandler(EntityNotFoundException e){
+		String errorMessage = "Exception caught: " + e.getMessage();
+
+		return ResponseFactory.notFound(errorMessage);
+	}
 }

@@ -1,5 +1,5 @@
-import { getAccessToken, refreshTokenAndRetry } from './auth.js';
-import { getRandomColor } from "./util.js";
+import {getAccessToken, refreshTokenAndRetry} from './auth.js';
+import {getRandomColor} from "./util.js";
 
 export async function loadMainPageData() {
     try {
@@ -14,8 +14,7 @@ export async function loadMainPageData() {
         if (result.status === 200) {
             return result.data;  // 여기서 데이터를 반환합니다.
         } else if (result.status === 401) {
-            console.log("초기화");
-            return refreshTokenAndRetry(loadMainPageData);
+            return refreshTokenAndRetry(() => loadMainPageData());
         } else {
             throw new Error(result.message);
         }
@@ -68,7 +67,7 @@ export async function createBoard(title, content) {
         if (result.status === 201) {
             return result.data;  // 여기서 데이터를 반환합니다.
         } else if (result.status === 401) {
-            return refreshTokenAndRetry(createBoard);
+            return refreshTokenAndRetry(() => createBoard(title, content));
         } else {
             throw new Error(result.message);
         }
@@ -92,7 +91,7 @@ export async function loadBoardData(boardId) {
         if (result.status === 200) {
             return result.data;  // 여기서 데이터를 반환합니다.
         } else if (result.status === 401) {
-            return refreshTokenAndRetry(loadBoardData);
+            return refreshTokenAndRetry(() => loadBoardData(boardId));
         } else {
             throw new Error(result.message);
         }
@@ -224,7 +223,7 @@ export async function loadColumns(boardId) {
         if (result.status === 200) {
             return result.data; // 컬럼 데이터를 반환합니다.
         } else if (result.status === 401) {
-            return refreshTokenAndRetry(loadColumns);
+            return refreshTokenAndRetry(() => loadColumns(boardId));
         } else {
             throw new Error(result.message);
         }
@@ -237,24 +236,22 @@ export async function loadColumns(boardId) {
 export async function createColumn(title, boardId) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAccessToken()}`
-            },
-            body: JSON.stringify({ title, orders: 0 })
+            method: 'POST', headers: {
+                'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
+            }, body: JSON.stringify({title, orders: 0})
         });
 
         const result = await response.json();
-        if (response.status === 201) {
-            return result; // result 자체가 컬럼 데이터라면 이렇게 수정
-        } else if (response.status === 401) {
+
+        if (result.status === 201) {
+            return result;
+        } else if (result.status === 401) {
             return refreshTokenAndRetry(() => createColumn(title, boardId));
         } else {
-            throw new Error(result.message);
+            throw new Error(result.message || '컬럼 생성에 실패했습니다.');
         }
     } catch (error) {
-        console.error('Error creating column:', error);
+        alert('컬럼 생성 중 오류가 발생했습니다: ' + error.message);
         throw error;
     }
 }
@@ -262,6 +259,7 @@ export async function createColumn(title, boardId) {
 
 // UI에 컬럼 추가 함수
 export function addColumnToUI(columnTitle, columnId) {
+    console.log(columnId);
     const boardContainer = document.getElementById('boardContainer');
     const addColumnButton = boardContainer.querySelector('.add-column');
     const columnTemplate = `
@@ -280,7 +278,7 @@ export function addColumnToUI(columnTitle, columnId) {
     }
 
     // 이벤트 핸들러 추가
-    document.querySelector(`.delete-column-btn[data-column-id="${columnId}"]`).addEventListener('click', function() {
+    document.querySelector(`.delete-column-btn[data-column-id="${columnId}"]`).addEventListener('click', function () {
         handleDeleteColumn(columnId);
     });
 }
@@ -291,21 +289,21 @@ export async function deleteColumn(columnId) {
         console.log(`Attempting to delete column with id: ${columnId}`); // 로그 추가
         const boardId = localStorage.getItem('board_id'); // boardId 가져오기
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}`, {
-            method: 'DELETE',
-            headers: {
+            method: 'DELETE', headers: {
                 'Authorization': `Bearer ${getAccessToken()}`
             }
         });
 
-        if (!response.ok) {
-            // 서버 응답이 200이 아닌 경우, 오류 메시지를 로그에 출력합니다.
-            const errorMessage = await response.text();
-            console.error('Server response:', errorMessage);
-            throw new Error('Failed to delete column');
-        }
+        const result = await response.json();
 
-        alert('컬럼 삭제에 성공하였습니다.');
-        document.getElementById(`column${columnId}`).remove(); // UI에서 컬럼 삭제
+        if (result.status === 200) {
+            alert('컬럼 삭제에 성공하였습니다.');
+            document.getElementById(`column${columnId}`).remove(); // UI에서 컬럼 삭제
+        } else if (result.status === 401) {
+            return refreshTokenAndRetry(() => deleteColumn(columnId));
+        } else {
+            throw new Error(result.message || '컬럼 삭제에 실패했습니다.');
+        }
     } catch (error) {
         console.error('Error deleting column:', error);
         alert('Error deleting column: ' + error.message);
@@ -332,28 +330,29 @@ export async function confirmOrder() {
         const boardContainer = document.getElementById('boardContainer');
         const columns = Array.from(boardContainer.querySelectorAll('.column'));
         const updatedOrders = columns.map((column, index) => ({
-            columnId: column.id.replace('column', ''),
-            orders: index
+            columnId: column.id.replace('column', ''), orders: index
         }));
 
         const boardId = localStorage.getItem('board_id');
 
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/order`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${getAccessToken()}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedOrders)
+            method: 'PATCH', headers: {
+                'Authorization': `Bearer ${getAccessToken()}`, 'Content-Type': 'application/json'
+            }, body: JSON.stringify(updatedOrders)
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to update column order');
-        }
+        const result = await response.json();
 
-        alert('순서 수정이 완료되었습니다.');
-        closeModal('confirmOrderModal');
-        window.location.reload();
+
+        if (result.status === 200) {
+            alert('순서 수정이 완료되었습니다.');
+            closeModal('confirmOrderModal');
+            window.location.reload();
+        } else if (result.status === 401) {
+            return refreshTokenAndRetry(() => confirmOrder());
+        } else {
+            throw new Error(result.message);
+        }
     } catch (error) {
         console.error('Error confirming order:', error);
         alert('Error confirming order: ' + error.message);

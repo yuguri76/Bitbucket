@@ -27,6 +27,7 @@ export function logout() {
     return fetch('http://localhost:8080/api/auth/logout', {
         method: 'DELETE',
         headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
     })
@@ -41,6 +42,9 @@ export function logout() {
 }
 
 export function refreshTokenAndRetry(originalFunction) {
+
+    console.log("access token 재발급");
+
     return fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include'

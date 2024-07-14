@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.bitbucket.column.dto.ColumnRequestDto;
 import com.sparta.bitbucket.column.dto.ColumnResponseDto;
 import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
 import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
 import com.sparta.bitbucket.column.service.ColumnService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
+import com.sparta.bitbucket.common.dto.NoContentResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 

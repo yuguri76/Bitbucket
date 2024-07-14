@@ -1,5 +1,5 @@
-import {getAccessToken, refreshTokenAndRetry} from './auth.js';
-import {getRandomColor} from "./util.js";
+import { getAccessToken, refreshTokenAndRetry } from './auth.js';
+import { getRandomColor } from "./util.js";
 
 export async function loadMainPageData() {
     try {
@@ -64,14 +64,10 @@ export async function createBoard(title, content) {
             }, body: JSON.stringify({title, content})
         });
 
-        console.log(response);
-
         const result = await response.json();
-        console.log(result);
         if (result.status === 201) {
             return result.data;  // 여기서 데이터를 반환합니다.
         } else if (result.status === 401) {
-            console.log("초기화");
             return refreshTokenAndRetry(createBoard);
         } else {
             throw new Error(result.message);
@@ -96,7 +92,6 @@ export async function loadBoardData(boardId) {
         if (result.status === 200) {
             return result.data;  // 여기서 데이터를 반환합니다.
         } else if (result.status === 401) {
-            console.log("초기화");
             return refreshTokenAndRetry(loadBoardData);
         } else {
             throw new Error(result.message);
@@ -136,7 +131,6 @@ export async function updateBoardData(title, content, memberList) {
 
 // 보드 수정 API 호출하는 함수
 export async function editBoard(boardId, title, content) {
-
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
             method: 'PUT', headers: {
@@ -152,7 +146,6 @@ export async function editBoard(boardId, title, content) {
             alert('보드 수정이 완료되었습니다.');
             window.location.href = '/board';  // 보드 페이지로 리다이렉트
         } else if (result.status === 401) {
-            console.log("초기화");
             return refreshTokenAndRetry(editBoard);
         } else {
             throw new Error(result.message);
@@ -182,7 +175,6 @@ export async function inviteBoard(boardId, email) {
             alert(`${data.boardTitle} 보드에 사용자${data.userName} 이 초대되었습니다.`);
             window.location.href = '/board';
         } else if (result.status === 401) {
-            console.log("초기화");
             return refreshTokenAndRetry(inviteBoard);
         } else {
             throw new Error(result.message);
@@ -195,7 +187,6 @@ export async function inviteBoard(boardId, email) {
 
 // 보드 삭제 API 호출하는 함수
 export async function deleteBoard(boardId) {
-
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
             method: 'DELETE', headers: {
@@ -209,7 +200,6 @@ export async function deleteBoard(boardId) {
             alert('보드 삭제가 완료되었습니다.');
             window.location.href = '/main';
         } else if (result.status === 401) {
-            console.log("초기화");
             return refreshTokenAndRetry(deleteBoard);
         } else {
             throw new Error(result.message);
@@ -234,7 +224,6 @@ export async function loadColumns(boardId) {
         if (result.status === 200) {
             return result.data; // 컬럼 데이터를 반환합니다.
         } else if (result.status === 401) {
-            console.log("초기화");
             return refreshTokenAndRetry(loadColumns);
         } else {
             throw new Error(result.message);
@@ -253,18 +242,14 @@ export async function createColumn(title, boardId) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessToken()}`
             },
-            body: JSON.stringify({ title, orders: 0 }) // boardId는 URL에서 전달하므로 body에 포함하지 않습니다.
+            body: JSON.stringify({ title, orders: 0 })
         });
 
         const result = await response.json();
-        if (result.status === 201) {
-            alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
-            closeModal('createColumnModal'); // 모달창 닫기
-            window.location.href = '/board';
-            return result.data; // 생성된 컬럼 데이터를 반환합니다.
-        } else if (result.status === 401) {
-            console.log("초기화");
-            return refreshTokenAndRetry(createColumn);
+        if (response.status === 201) {
+            return result; // result 자체가 컬럼 데이터라면 이렇게 수정
+        } else if (response.status === 401) {
+            return refreshTokenAndRetry(() => createColumn(title, boardId));
         } else {
             throw new Error(result.message);
         }
@@ -273,6 +258,7 @@ export async function createColumn(title, boardId) {
         throw error;
     }
 }
+
 
 // UI에 컬럼 추가 함수
 export function addColumnToUI(columnTitle, columnId) {

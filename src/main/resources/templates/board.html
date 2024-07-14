@@ -281,13 +281,10 @@
             loadColumns,
             renderBoardMemberList,
             updateBoardData,
-            createColumn,
-            addColumnToUI,
-            loadColumns,
             deleteColumn,
             confirmOrder
         } from "./js/board.js";
-        import {checkAuth} from "./js/auth.js";
+        import { checkAuth } from "./js/auth.js";
 
         // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
@@ -365,7 +362,6 @@
             }
         }
 
-        // 컬럼 생성 함수
         window.createColumn = async function () {
             let columnName = document.getElementById('columnNameInput').value;
             let boardId = localStorage.getItem('board_id');
@@ -377,15 +373,21 @@
 
             try {
                 const columnData = await createColumn(columnName, boardId);
+                console.log('컬럼 데이터:', columnData); // 추가 로그
                 if (columnData) {
                     alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
                     closeModal('createColumnModal'); // 모달창 닫기
-                    addColumnToUI(columnData.title, columnData.columnId); // Updated to use columnData
+                    addColumnToUI(columnData.title, columnData.id); // 컬럼 UI에 추가
+                    window.location.reload();
                 }
             } catch (error) {
                 console.error('Error creating column:', error);
                 alert('Error creating column: ' + error.message);
             }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
         }
 
         // UI에 컬럼 추가 함수

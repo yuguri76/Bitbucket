@@ -140,7 +140,7 @@ public class CardService {
 
 	public Card findCard(Long cardId) {
 		return cardRepository.findById(cardId).orElseThrow(
-			() -> new EntityNotFoundException(StatusMessage.ENTITY_NOT_FOUND.getMessage())
+			() -> new EntityNotFoundException(StatusMessage.NOT_FOUND_CARD.getMessage())
 		);
 	}
 
@@ -150,7 +150,7 @@ public class CardService {
 
 	private void existsByColumnIdAndTitle(Long columnId, String title) {
 		if (cardRepository.existsByColumnsIdAndTitle(columnId, title)) {
-			throw new TitleConflictException(StatusMessage.TITLE_CONFLICT);
+			throw new TitleConflictException(StatusMessage.CARD_TITLE_CONFLICT);
 		}
 	}
 }

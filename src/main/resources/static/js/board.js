@@ -273,6 +273,9 @@ export async function createColumn(title, boardId) {
 
         const result = await response.json();
         if (result.status === 200) {
+            alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
+            closeModal('createColumnModal'); // 모달창 닫기
+            window.location.href='/board';
             return result.data; // 생성된 컬럼 데이터를 반환합니다.
         } else {
             throw new Error(result.message);

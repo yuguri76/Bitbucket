@@ -347,7 +347,7 @@
         // 컬럼 생성 함수
         window.createColumn = async function () {
             let columnName = document.getElementById('columnNameInput').value;
-            let boardId = localStorage.getItem('board_id'); // Ensure board ID is stored in localStorage
+            let boardId = localStorage.getItem('board_id');
 
             if (!columnName || !boardId) {
                 alert('Column name and board ID are required.');

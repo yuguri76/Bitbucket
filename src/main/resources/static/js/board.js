@@ -255,16 +255,15 @@ export async function loadColumns(boardId) {
     }
 }
 
-// 컬럼을 생성하는 함수
 export async function createColumn(title, boardId) {
     try {
-        const response = await fetch('http://localhost:8080/api/boards/columns', {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessToken()}`
             },
-            body: JSON.stringify({ title, boardId, orders: 0 })
+            body: JSON.stringify({ title, orders: 0 }) // boardId는 URL에서 전달하므로 body에 포함하지 않습니다.
         });
 
         if (!response.ok) {
@@ -272,10 +271,10 @@ export async function createColumn(title, boardId) {
         }
 
         const result = await response.json();
-        if (result.status === 200) {
+        if (result.status === 201) {
             alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
             closeModal('createColumnModal'); // 모달창 닫기
-            window.location.href='/board';
+            window.location.href = '/board';
             return result.data; // 생성된 컬럼 데이터를 반환합니다.
         } else {
             throw new Error(result.message);
@@ -342,3 +341,45 @@ export async function deleteColumn(columnId) {
 window.handleDeleteColumn = function (columnId) {
     deleteColumn(columnId);
 };
+
+// Show Modal 함수 추가
+function showModal(modalId) {
+    document.getElementById(modalId).style.display = "flex";
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+}
+
+// 순서확정 함수
+export async function confirmOrder() {
+    try {
+        const boardContainer = document.getElementById('boardContainer');
+        const columns = Array.from(boardContainer.querySelectorAll('.column'));
+        const updatedOrders = columns.map((column, index) => ({
+            columnId: column.id.replace('column', ''),
+            orders: index
+        }));
+
+        const boardId = localStorage.getItem('board_id');
+
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/order`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedOrders)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update column order');
+        }
+
+        alert('순서 수정이 완료되었습니다.');
+        closeModal('confirmOrderModal');
+    } catch (error) {
+        console.error('Error confirming order:', error);
+        alert('Error confirming order: ' + error.message);
+    }
+}

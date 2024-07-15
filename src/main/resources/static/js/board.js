@@ -438,6 +438,7 @@ export function addCardToUI(columnId, card) {
         <div>Due Date: ${card.dueDate}</div>
     `;
     cardElement.addEventListener('dragstart', drag);
+    cardElement.addEventListener('click', () => showModal('cardDetailModal'));
 
     // 'Add a card' 버튼 앞에 새 카드를 삽입
     const addCardButton = column.querySelector('.add-card');

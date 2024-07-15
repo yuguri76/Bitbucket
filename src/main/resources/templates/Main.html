@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Page</title>
+    <style>
+        body {
+            background-color: rgba(255, 240, 130, 0.1);
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: rgba(255, 194, 16, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .header .logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .header .logo h1 {
+            font-size: 40px;
+            color: #ffffff;
+            font-family: 'ONE-Mobile-POP';
+            margin: 0;
+        }
+
+        @font-face {
+            font-family: 'ONE-Mobile-POP';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .header .welcome {
+            font-size: 25px;
+            font-family: 'ONE-Mobile-POP';
+            color: #ffffff;
+            margin: 0;
+            margin-right: 20px;
+        }
+
+        .header .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header .actions button {
+            background-color: #ff9100; /* Button background color */
+            color: white; /* Button text color */
+            font-family: 'ONE-Mobile-POP';
+            border: none; /* Remove border */
+            font-size: 15px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .board-container {
+            padding: 20px;
+        }
+
+        #boardList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: flex-start;
+        }
+
+        .board {
+            width: calc(16% - 16px); /* 6개의 보드가 한 줄에 들어가도록 설정 */
+            height: 300px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+            color: #333;  /* 텍스트 색상 */
+            font-weight: bold;
+        }
+
+        .board:hover {
+            filter: brightness(90%);
+        }
+
+        .new-board {
+            border: 2px dashed #ccc;
+            background-color: #ffffff !important;  /* 흰색 배경 강제 적용 */
+        }
+
+        .new-board:hover {
+            background-color: #f8f8f8 !important;
+        }
+
+        @media (max-width: 1200px) {
+            .board {
+                width: calc(25% - 15px); /* 4개씩 */
+            }
+        }
+
+        @media (max-width: 900px) {
+            .board {
+                width: calc(33.33% - 14px); /* 3개씩 */
+            }
+        }
+
+        @media (max-width: 600px) {
+            .board {
+                width: calc(50% - 10px); /* 2개씩 */
+            }
+        }
+    </style>
+    <script type="module" src="./js/main.js"></script>
+</head>
+<body>
+<div class="header">
+    <div class="logo" onclick="window.location.href='/main'">
+        <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
+        <h1>LionBucket</h1>
+    </div>
+    <div class="actions">
+
+        <div class="welcome" id="welcomeMessage">라이언님 환영합니다!</div>
+        <button onclick="logout()">로그아웃</button>
+    </div>
+</div>
+<div class="board-container" id="boardList">
+    <script type="module">
+        import { logout } from './js/auth.js';
+
+        // logout 함수를 전역 스코프에 할당
+        window.logout = logout;
+    </script>
+    <!-- 여기에 동적으로 보드가 추가됩니다 -->
+</div>
+
+</body>
+</html>

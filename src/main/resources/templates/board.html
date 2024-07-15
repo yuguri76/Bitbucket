@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Page</title>
+    <style>
+        body {
+            background-color: rgba(255, 240, 130, 0.1);
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: rgba(255, 194, 16, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .header .logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .header .logo h1 {
+            font-size: 40px;
+            color: #ffffff;
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
+            margin: 0;
+        }
+
+        @font-face {
+            font-family: 'ONE-Mobile-POP';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .header .board-title {
+            font-size: 40px;
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .header .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header .actions button {
+            background-color: #ff9100;
+            color: white;
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
+            border: 2px;
+            font-size: 15px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .board-content {
+            background-color: #ff9100;
+            font-size: 16px;
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
+            color: gray;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .board-container {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .column {
+            background-color: #FFECB2;
+            border-radius: 15px;
+            padding: 10px;
+            width: 200px;
+            min-width: 200px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column h3 {
+            text-align: center;
+            color: #000000;
+            margin-top: 0;
+        }
+
+        .add-card {
+            text-align: center;
+            color: #FF6D28;
+            cursor: pointer;
+        }
+
+        .add-column {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #FFECB2;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #FF6D28;
+            cursor: pointer;
+            margin: 20px 0;
+            width: 200px; /* This line matches the column width */
+            min-width: 200px;
+            height: 100px; /* height to center the text */
+            font-weight: bold; /* bold text */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #FFECB2;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            text-align: left;
+        }
+
+        .modal-header {
+            color: #FF6D28;
+            margin-bottom: 20px;
+            font-size: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .modal-header .column-name {
+            font-size: 18px;
+            color: gray;
+        }
+
+        .modal-header .edit-btn,
+        .modal-header .delete-btn {
+            background-color: #ff9100;
+            color: white;
+            font-family: 'ONE-Mobile-POP', Arial, sans-serif;
+            border: 2px;
+            font-size: 15px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .modal-header .edit-btn {
+            margin-right: 10px;
+        }
+
+        .comment-section {
+            margin-top: 20px;
+        }
+
+        .comment {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .comment img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .comment-text {
+            position: relative;
+            background-color: #FFFFFF;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: 100px; /* 고정 높이 설정 */
+            overflow-y: auto; /* 내용이 넘칠 때 스크롤 추가 */
+        }
+
+        .comment-author-date {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .comment-content {
+            margin-top: 5px;
+            white-space: pre-wrap; /* 줄바꿈 포함 */
+            word-wrap: break-word; /* 긴 단어 줄바꿈 */
+        }
+
+        .comment-date {
+            position: absolute;
+            bottom: 0;
+            right: 10px;
+            font-size: 12px;
+            color: #959494;
+        }
+
+        .comment .comment-text strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .comment .comment-text span {
+            float: right;
+            font-size: 12px;
+            color: #959494;
+        }
+
+        .modal input[type="text"],
+        .modal textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .modal textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        .modal button {
+            background-color: #FF6D28;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .close {
+            color: #FF6D28;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-header .in-list,
+        .modal-header .column-name {
+            font-size: 24px;
+            color: gray;
+        }
+
+        .delete-column-btn {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .delete-column-btn:hover {
+            color: darkred;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 12px;
+            padding: 16px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .card-assignee, .card-due-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #444;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            max-height: calc(80vh - 150px); /* 모달 높이에서 헤더와 필터 영역 높이를 뺀 값 */
+            padding: 10px;
+        }
+
+        .card-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .card-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .card-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+    <script type="module">
+        import {
+            addCardToUI,
+            addColumnToUI,
+            confirmOrder,
+            createColumn,
+            deleteBoard,
+            deleteCard,
+            deleteColumn,
+            editBoard,
+            editCard,
+            handleCreateCard,
+            inviteBoard,
+            loadAllCards,
+            loadBoardData,
+            loadColumns,
+            organizeCardsByColumn,
+            renderBoardMemberList,
+            showEditCardModal,
+            updateBoardData
+        } from "./js/board.js";
+        import {checkAuth} from "./js/auth.js";
+        import {moveCard} from "./js/card.js";
+        import {createComment, fetchComments, renderComments} from './js/comment.js';
+
+        // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const boardId = urlParams.get('id');
+
+            if (boardId) {
+                try {
+                    await checkAuth();
+                    console.log('Authentication checked');
+
+                    const boardData = await loadBoardData(boardId);
+
+                    if (boardData && boardData.title && boardData.content && boardData.id && boardData.memberList) {
+                        let boardMemberText = renderBoardMemberList(boardData.memberList);
+                        updateBoardData(boardData.title, boardData.content, boardMemberText);
+                        console.log('Board title updated');
+                        localStorage.setItem('board_id', boardData.id);
+
+                        // Load columns from the database and update UI
+                        const columnsData = await loadColumns(boardData.id);
+                        console.log('Columns data loaded:', columnsData);
+
+                        const cards = await loadAllCards(boardId);
+                        console.log('loadAllCards:', cards);
+                        const cardsByColumn = organizeCardsByColumn(cards);
+                        console.log('organizeCardsByColumn loaded:', cardsByColumn);
+
+                        updateColumnsUI(columnsData, cardsByColumn);
+
+                        const editCardButton = document.getElementById('editCardButton');
+                        if (editCardButton) {
+                            editCardButton.addEventListener('click', editCard);
+                        }
+
+                    } else {
+                        console.warn('title not found in data');
+                    }
+
+                } catch (error) {
+                    console.error('Error during board page initialization:', error);
+                    alert('페이지 초기화 중 오류가 발생했습니다: ' + error.message);
+                }
+            }
+        });
+
+        window.performEditBoard = async function () {
+            let boardId = localStorage.getItem('board_id');
+            let title = document.getElementById('editBoardTitle').value;
+            let content = document.getElementById('editBoardContent').value;
+
+            try {
+                await editBoard(boardId, title, content);
+            } catch (error) {
+                alert("보드 수정에 실패 했습니다. " + error);
+                console.log("보드 수정에 실패 했습니다. " + error);
+            }
+        }
+
+        window.performInviteBoard = async function () {
+            let boardId = localStorage.getItem('board_id');
+            let email = document.getElementById('inviteUserEmail').value;
+
+            try {
+                await inviteBoard(boardId, email);
+            } catch (error) {
+                alert("보드 초대에 실패 했습니다. " + error);
+                console.log("보드 초대에 실패 했습니다. " + error);
+            }
+        }
+
+        window.performDeleteBoard = async function () {
+            let boardId = localStorage.getItem('board_id');
+
+            try {
+                await deleteBoard(boardId);
+            } catch (error) {
+                alert("보드 삭제에 실패 했습니다. " + error);
+                console.log("보드 삭제에 실패 했습니다. " + error);
+            }
+        }
+
+        window.createColumn = async function () {
+            let columnName = document.getElementById('columnNameInput').value;
+            let boardId = localStorage.getItem('board_id');
+
+            if (!columnName || !boardId) {
+                alert('Column name and board ID are required.');
+                return;
+            }
+
+            try {
+                await createColumn(columnName, boardId);
+                alert('컬럼 생성에 성공하였습니다.');
+                closeModal('createColumnModal');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error creating column:', error);
+                alert('Error creating column: ' + error.message);
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        function updateColumnsUI(columns, cardsByColumn) {
+            const boardContainer = document.getElementById('boardContainer');
+            boardContainer.innerHTML = '';
+
+            columns.forEach(column => {
+                addColumnToUI(column.title, column.columnId);
+                if (cardsByColumn[column.title]) {
+                    cardsByColumn[column.title].forEach(card => {
+                        addCardToUI(column.columnId, card);
+                    });
+                }
+            });
+
+            const addColumnButtonTemplate = `<div class="add-column" onclick="showModal('createColumnModal')">+ Add another</div>`;
+            boardContainer.insertAdjacentHTML('beforeend', addColumnButtonTemplate);
+        }
+
+        window.handleDeleteColumn = function (columnId) {
+            deleteColumn(columnId);
+        };
+
+        window.createCard = async function () {
+            handleCreateCard(event);
+        }
+
+        window.moveCard = async function (card) {
+            // 서버에 카드 이동 요청
+            try {
+                const boardId = localStorage.getItem('board_id');
+                await moveCard(boardId, card.id.replace('card', ''));
+                console.log('카드 이동 성공');
+            } catch (error) {
+                console.error('Error moving card:', error);
+                alert('카드 이동 중 오류가 발생했습니다: ' + error.message);
+                // 에러 발생 시 UI를 원래대로 되돌리는 로직을 여기에 추가할 수 있습니다.
+            }
+        }
+
+        // confirmOrder 함수를 window 객체에 할당합니다.
+
+        window.confirmOrder = confirmOrder;
+
+        window.showEditCardModal = showEditCardModal;
+
+        window.deleteCard = deleteCard;
+
+        function handleCardClick(cardElement) {
+            showModal('cardDetailModal');
+            const cardId = cardElement.dataset.cardId; // 현재 카드 ID 가져오기
+            const columnId = cardElement.dataset.columnId; // 현재 컬럼 ID 가져오기
+            const boardId = localStorage.getItem('board_id'); // 현재 보드 ID 가져오기
+
+            // 카드 세부 정보 업데이트
+            document.getElementById('cardTitle').textContent = cardElement.dataset.title;
+            document.getElementById('columnName').textContent = cardElement.dataset.columnTitle;
+            document.getElementById('cardAssignee').textContent = cardElement.dataset.assignee;
+            document.getElementById('cardDueDate').textContent = cardElement.dataset.dueDate;
+            document.getElementById('cardDescription').value = cardElement.dataset.content;
+
+            // 모달에 cardId와 columnId를 저장
+            const cardDetailModal = document.getElementById('cardDetailModal');
+            cardDetailModal.dataset.cardId = cardId;
+            cardDetailModal.dataset.columnId = columnId;
+
+            // 댓글 로드 및 렌더링
+            fetchComments(boardId, columnId, cardId).then(comments => {
+                renderComments(comments);
+            });
+        }
+
+        window.handleCardClick = handleCardClick;
+
+        function handleCreateComment() {
+            const cardDetailModal = document.getElementById('cardDetailModal');
+            const cardId = cardDetailModal.dataset.cardId;
+            const columnId = cardDetailModal.dataset.columnId;
+            const boardId = localStorage.getItem('board_id');
+
+            if (!cardId || !columnId || !boardId) {
+                console.error('Missing parameters:', {cardId, columnId, boardId});
+                alert('Cannot create comment. Missing parameters.');
+                return;
+            }
+
+            createComment(boardId, columnId, cardId);
+        }
+
+        window.handleCreateComment = handleCreateComment;
+    </script>
+</head>
+<body>
+<div class="header">
+    <div class="logo" onclick="window.location.href='/main'">
+        <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="Lion GIF">
+        <h1>LionBucket</h1>
+    </div>
+    <div class="board-title" id="boardTitle">라이언 보드</div>
+    <div class="actions">
+        <button onclick="showModal('editBoardModal')">Edit</button>
+        <button onclick="showModal('inviteModal')">Invite</button>
+        <button onclick="showModal('deleteModal')">Delete</button>
+        <button onclick="showModal('confirmOrderModal')">순서확정</button>
+        <button onclick="showModal('cardInfoModal')">카드 조회</button>
+    </div>
+</div>
+<div class="board-content">보드 한줄 소개 : <span id="boardContent" style="color: white">보드 한줄 소개</span></div>
+<div class="board-content">보드 멤버 : <span id="boardMember" style="color: white">보드 멤버</span></div>
+<div class="board-container" id="boardContainer"></div>
+
+<!-- Modal Definitions -->
+<div id="editBoardModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editBoardModal')">&times;</span>
+        <h2 class="modal-header">Edit board</h2>
+        <input type="text" placeholder="보드 이름" id="editBoardTitle">
+        <textarea placeholder="한줄 설명" id="editBoardContent"></textarea>
+        <button type="button" onclick="performEditBoard()">Edit</button>
+    </div>
+</div>
+
+<div id="inviteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('inviteModal')">&times;</span>
+        <h2 class="modal-header">Invite people</h2>
+        <input type="text" placeholder="초대할 멤버 아이디" id="inviteUserEmail">
+        <button type="button" onclick="performInviteBoard()">Invite</button>
+    </div>
+</div>
+
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+        <h2 class="modal-header">WARNING!</h2>
+        <p>삭제하는 경우 연결된 데이터가 전부 삭제됩니다. 정말 삭제하시겠습니까?</p>
+        <button type="button" onclick="performDeleteBoard()">확인</button>
+        <button type="button" onclick="closeModal('deleteModal')">취소</button>
+    </div>
+</div>
+
+<div id="confirmOrderModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('confirmOrderModal')">&times;</span>
+        <h2 class="modal-header">순서확정</h2>
+        <button type="button" onclick="confirmOrder()">확인</button>
+        <button type="button" onclick="closeModal('confirmOrderModal')">취소</button>
+    </div>
+</div>
+
+<div id="cardInfoModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('cardInfoModal')">&times;</span>
+        <h2 class="modal-header">카드 조회</h2>
+        <!--<button type="button" onclick="showModal('viewAllModal')">전체 조회</button>-->
+        <button type="button" onclick="showModal('viewWorkerModal')">작업자별 조회</button>
+        <button type="button" onclick="showModal('viewStatusModal')">상태별 조회</button>
+    </div>
+</div>
+
+<div id="createCardModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('createCardModal')">&times;</span>
+        <h2 class="modal-header">Create cards</h2>
+        <input type="text" id="newCardTitle" placeholder="카드 제목" required>
+        <textarea id="newCardContent" placeholder="내용"></textarea>
+        <input type="text" id="newCardAssignee" placeholder="담당자">
+        <input type="date" id="newCardDueDate">
+        <button type="button" onclick="createCard()">CREATE</button>
+    </div>
+</div>
+
+<div id="createColumnModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('createColumnModal')">&times;</span>
+        <h2 class="modal-header">Create columns</h2>
+        <input type="text" id="columnNameInput" placeholder="컬럼 이름">
+        <button type="button" onclick="createColumn()">CREATE</button>
+    </div>
+</div>
+
+<div id="cardDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('cardDetailModal')">&times;</span>
+        <div class="modal-header">
+            <div>
+                <h2 style="color: #FF6D28; display: inline-block;" id="cardTitle">Card_1</h2>
+                <span class="in-list">in list</span>
+                <span class="column-name" id="columnName">To do</span>
+            </div>
+            <div>
+                <button class="edit-btn" onclick="showEditCardModal()">Edit</button>
+                <button class="delete-btn" onclick="deleteCard()">Delete</button>
+            </div>
+        </div>
+        <p>작업자: <span id="cardAssignee">라이언</span></p>
+        <p>마감일자: <span id="cardDueDate">2024-07-12</span></p>
+        <textarea placeholder="Description" id="cardDescription"></textarea>
+        <div class="comment-section">
+            <p>Comment</p>
+            <div id="commentContainer"></div>
+        </div>
+        <textarea placeholder="댓글 작성" id="newComment"></textarea>
+        <button type="button" style="float: right;" onclick="handleCreateComment()">Create</button>
+    </div>
+</div>
+
+<!-- View Modals -->
+<div id="viewAllModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('viewAllModal')">&times;</span>
+        <h2 class="modal-header">전체 조회</h2>
+        <div id="allCardListContainer"></div>
+    </div>
+</div>
+
+<div id="viewWorkerModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('viewWorkerModal')">&times;</span>
+        <h2 class="modal-header">작업자별 조회</h2>
+        <div class="filter-container">
+            <input type="text" id="workerInput" placeholder="작업자 입력">
+            <button type="button" onclick="fetchCardsByWorker()">조회</button>
+        </div>
+        <div class="card-grid" id="workerCardListContainer"></div>
+    </div>
+</div>
+
+<div id="viewStatusModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('viewStatusModal')">&times;</span>
+        <h2 class="modal-header">상태별 조회</h2>
+        <div class="filter-container">
+            <input type="text" id="statusInput" placeholder="상태 입력">
+            <button type="button" onclick="fetchCardsByStatus()">조회</button>
+        </div>
+        <div class="card-grid" id="statusCardListContainer"></div>
+    </div>
+</div>
+
+<!-- 새로운 Edit 카드 모달 -->
+<div id="editCardModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editCardModal')">&times;</span>
+        <h2>Edit Card</h2>
+        <form id="editCardForm">
+            <label for="editTitle">Title:</label>
+            <input type="text" id="editTitle" name="title" required>
+
+            <label for="editAssignee">Assignee:</label>
+            <input type="text" id="editAssignee" name="assignee">
+
+            <label for="editContent">Content:</label>
+            <textarea id="editContent" name="content"></textarea>
+
+            <label for="editDueDate">Due Date:</label>
+            <input type="date" id="editDueDate" name="dueDate">
+
+            <button type="button" id="editCardButton">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    async function drop(ev) {
+        ev.preventDefault();
+        let data = ev.dataTransfer.getData("text");
+        let item = document.getElementById(data);
+
+        if (item.classList.contains('card')) {
+            await handleCardDrop(ev, item);
+        } else if (item.classList.contains('column')) {
+            let boardContainer = document.getElementById("boardContainer");
+            let columns = Array.from(boardContainer.querySelectorAll('.column'));
+            columns.splice(columns.indexOf(item), 1);
+            let insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
+            if (insertIndex === -1) insertIndex = columns.length;
+            columns.splice(insertIndex, 0, item);
+
+            columns.forEach((column, index) => {
+                column.dataset.order = index;
+                const h3 = column.querySelector('h3');
+                if (h3) {
+                    // 기존 텍스트에서 숫자와 괄호를 제거
+                    let title = h3.textContent.replace(/\s*\(\d+\)$/, '').trim();
+                    // 새로운 인덱스를 추가
+                    h3.textContent = `${title} (${index + 1})`;
+                }
+            });
+
+            boardContainer.innerHTML = '';
+            columns.forEach(column => boardContainer.appendChild(column));
+        }
+    }
+
+    async function handleCardDrop(ev, card) {
+        const targetColumn = ev.target.closest('.column');
+        if (!targetColumn) return;
+
+        const fromColumn = card.closest('.column');
+        const fromColumnId = fromColumn.id.replace('column', '');
+        const toColumnId = targetColumn.id.replace('column', '');
+
+        const cards = Array.from(targetColumn.querySelectorAll('.card'));
+        let newOrder = cards.length;
+
+        for (let i = 0; i < cards.length; i++) {
+            if (ev.clientY < cards[i].getBoundingClientRect().top + cards[i].offsetHeight / 2) {
+                newOrder = i;
+                break;
+            }
+        }
+
+        if (newOrder === cards.length) {
+            targetColumn.insertBefore(card, targetColumn.querySelector('.add-card'));
+        } else {
+            targetColumn.insertBefore(card, cards[newOrder]);
+        }
+
+        moveCard(card);
+    }
+
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    document.querySelectorAll('.column, .card').forEach(function (element) {
+        element.addEventListener('dragstart', drag);
+        element.addEventListener('dragover', allowDrop);
+        element.addEventListener('drop', drop);
+    });
+
+    document.getElementById('boardContainer').addEventListener('dragover', allowDrop);
+    document.getElementById('boardContainer').addEventListener('drop', drop);
+
+    function handleCreateComment() {
+        const cardDetailModal = document.getElementById('cardDetailModal');
+        const cardId = cardDetailModal.dataset.cardId;
+        const columnId = cardDetailModal.dataset.columnId;
+        const boardId = localStorage.getItem('board_id');
+
+        if (!cardId || !columnId || !boardId) {
+            console.error('Missing parameters:', {cardId, columnId, boardId});
+            alert('Cannot create comment. Missing parameters.');
+            return;
+        }
+
+        createComment(boardId, columnId, cardId);
+    }
+
+    window.handleCreateComment = handleCreateComment;
+</script>
+</body>
+</html>

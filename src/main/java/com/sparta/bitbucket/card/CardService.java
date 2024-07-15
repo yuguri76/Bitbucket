@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.card.service;
+package com.sparta.bitbucket.card;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +15,6 @@ import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardOrderDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.entity.Card;
-import com.sparta.bitbucket.card.repository.CardRepository;
 import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.column.service.ColumnService;
 import com.sparta.bitbucket.common.entity.ErrorMessage;

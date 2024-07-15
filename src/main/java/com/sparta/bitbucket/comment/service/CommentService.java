@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.card.CardRepository;
 import com.sparta.bitbucket.card.entity.Card;
-import com.sparta.bitbucket.card.repository.CardRepository;
 import com.sparta.bitbucket.comment.dto.CommentRequestDto;
 import com.sparta.bitbucket.comment.dto.CommentResponseDto;
 import com.sparta.bitbucket.comment.entity.Comment;

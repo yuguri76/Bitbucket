@@ -1,5 +1,4 @@
-package com.sparta.bitbucket.card.repository;
-
+package com.sparta.bitbucket.card;
 
 import java.util.List;
 import java.util.Optional;

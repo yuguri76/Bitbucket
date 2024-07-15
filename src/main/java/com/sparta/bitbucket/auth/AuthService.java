@@ -8,8 +8,8 @@ import com.sparta.bitbucket.auth.dto.LoginRequestDto;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.exception.auth.PasswordInvalidException;
+import com.sparta.bitbucket.security.JwtService;
 import com.sparta.bitbucket.security.TokenType;
-import com.sparta.bitbucket.security.service.JwtService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

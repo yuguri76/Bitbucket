@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.security.service;
+package com.sparta.bitbucket.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.sparta.bitbucket.auth.UserRepository;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
-import com.sparta.bitbucket.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 

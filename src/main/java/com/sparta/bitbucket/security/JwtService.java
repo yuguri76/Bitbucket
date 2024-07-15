@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.security.service;
+package com.sparta.bitbucket.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.sparta.bitbucket.security.JwtTokenProvider;
 import com.sparta.bitbucket.security.config.JwtConfig;
-import com.sparta.bitbucket.security.TokenType;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

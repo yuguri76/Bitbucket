@@ -1,13 +1,17 @@
 package com.sparta.bitbucket.card.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
+import com.sparta.bitbucket.comment.entity.Comment;
 import com.sparta.bitbucket.common.entity.Timestamped;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,6 +59,9 @@ public class Card extends Timestamped {
 	@JoinColumn(name = "board_id", nullable = false)
 	private Board board;
 
+	@OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<Comment> comments = new ArrayList<>();
+
 	@Builder
 	public Card(User createUser, Columns columns, Board board, String title, String status, String assignee,
 		String content, LocalDate dueDate, Long orders) {
@@ -82,6 +90,10 @@ public class Card extends Timestamped {
 
 	public void updateOrders(Long orders) {
 		this.orders = orders;
+	}
+
+	public void addComment(Comment comment) {
+		this.comments.add(comment);
 	}
 }
 

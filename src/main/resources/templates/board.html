@@ -297,6 +297,39 @@
             color: darkred;
         }
 
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 12px;
+            padding: 16px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .card-assignee, .card-due-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #444;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
         .card-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -340,6 +373,8 @@
             organizeCardsByColumn,
             renderBoardMemberList,
             updateBoardData,
+            showEditCardModal,
+            deleteCard
         } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
         import {moveCard} from "./js/card.js";
@@ -469,13 +504,12 @@
             handleCreateCard(event);
         }
 
-        window.moveCard = async function (toColumnId, card, newOrder) {
+        window.moveCard = async function (card) {
             // 서버에 카드 이동 요청
             try {
-                console.log('move card : ' + toColumnId + "," + newOrder);
                 const boardId = localStorage.getItem('board_id');
-                await moveCard(boardId, toColumnId, card.id.replace('card', ''), newOrder);
-                console.log('Card moved successfully');
+                await moveCard(boardId, card.id.replace('card', ''));
+                console.log('카드 이동 성공');
             } catch (error) {
                 console.error('Error moving card:', error);
                 alert('카드 이동 중 오류가 발생했습니다: ' + error.message);
@@ -487,6 +521,10 @@
       
         window.confirmOrder = confirmOrder;
 
+        window.showEditCardModal = showEditCardModal;
+
+        window.deleteCard = deleteCard;
+
         function handleCardClick(cardElement) {
             showModal('cardDetailModal');
             const cardId = cardElement.dataset.cardId; // 현재 카드 ID 가져오기
@@ -494,11 +532,11 @@
             const boardId = localStorage.getItem('board_id'); // 현재 보드 ID 가져오기
 
             // 카드 세부 정보 업데이트
-            document.getElementById('cardTitle').textContent = cardElement.querySelector('.card-title').textContent;
-            document.getElementById('columnName').textContent = columnId;
-            document.getElementById('cardAssignee').textContent = cardElement.querySelector('.card-assignee').textContent;
-            document.getElementById('cardDueDate').textContent = cardElement.querySelector('.card-due-date').textContent;
-            document.getElementById('cardDescription').value = cardElement.querySelector('.card-description').textContent;
+            document.getElementById('cardTitle').textContent = cardElement.dataset.title;
+            document.getElementById('columnName').textContent = cardElement.dataset.columnTitle;
+            document.getElementById('cardAssignee').textContent = cardElement.dataset.assignee;
+            document.getElementById('cardDueDate').textContent = cardElement.dataset.dueDate;
+            document.getElementById('cardDescription').value = cardElement.dataset.content;
 
             // 모달에 cardId와 columnId를 저장
             const cardDetailModal = document.getElementById('cardDetailModal');
@@ -630,8 +668,8 @@
                 <span class="column-name" id="columnName">To do</span>
             </div>
             <div>
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
+                <button class="edit-btn" onclick="showEditCardModal()">Edit</button>
+                <button class="delete-btn" onclick="deleteCard()">Delete</button>
             </div>
         </div>
         <p>작업자: <span id="cardAssignee">라이언</span></p>
@@ -679,6 +717,29 @@
     </div>
 </div>
 
+<!-- 새로운 Edit 카드 모달 -->
+<div id="editCardModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editCardModal')">&times;</span>
+        <h2>Edit Card</h2>
+        <form id="editCardForm">
+            <label for="editTitle">Title:</label>
+            <input type="text" id="editTitle" name="title" required>
+
+            <label for="editAssignee">Assignee:</label>
+            <input type="text" id="editAssignee" name="assignee">
+
+            <label for="editContent">Content:</label>
+            <textarea id="editContent" name="content"></textarea>
+
+            <label for="editDueDate">Due Date:</label>
+            <input type="date" id="editDueDate" name="dueDate">
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
+
 <script>
     function allowDrop(event) {
         event.preventDefault();
@@ -694,9 +755,7 @@
         let item = document.getElementById(data);
 
         if (item.classList.contains('card')) {
-
             await handleCardDrop(ev, item);
-
         } else if (item.classList.contains('column')) {
             let boardContainer = document.getElementById("boardContainer");
             let columns = Array.from(boardContainer.querySelectorAll('.column'));
@@ -707,7 +766,13 @@
 
             columns.forEach((column, index) => {
                 column.dataset.order = index;
-                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`;
+                const h3 = column.querySelector('h3');
+                if (h3) {
+                    // 기존 텍스트에서 숫자와 괄호를 제거
+                    let title = h3.textContent.replace(/\s*\(\d+\)$/, '').trim();
+                    // 새로운 인덱스를 추가
+                    h3.textContent = `${title} (${index + 1})`;
+                }
             });
 
             boardContainer.innerHTML = '';
@@ -739,7 +804,7 @@
             targetColumn.insertBefore(card, cards[newOrder]);
         }
 
-        moveCard(toColumnId, card, newOrder);
+        moveCard(card);
     }
 
     function showModal(modalId) {

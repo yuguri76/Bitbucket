@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.board.service;
+package com.sparta.bitbucket.board;
 
 import java.util.List;
 
@@ -18,8 +18,6 @@ import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.board.entity.BoardMember;
-import com.sparta.bitbucket.board.repository.BoardMemberRepository;
-import com.sparta.bitbucket.board.repository.BoardRepository;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.exception.auth.UnauthorizedException;

@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.board.controller;
+package com.sparta.bitbucket.board;
 
 import java.util.List;
 
@@ -19,7 +19,6 @@ import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
 import com.sparta.bitbucket.board.dto.BoardRequestDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
-import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.util.ResponseFactory;

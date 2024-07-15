@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.board.repository;
+package com.sparta.bitbucket.board;
 
 import java.util.Optional;
 

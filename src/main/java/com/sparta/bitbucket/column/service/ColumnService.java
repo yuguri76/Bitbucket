@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.board.BoardService;
 import com.sparta.bitbucket.board.entity.Board;
-import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.column.dto.ColumnResponseDto;
 import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
 import com.sparta.bitbucket.column.dto.EditColumnRequestDto;

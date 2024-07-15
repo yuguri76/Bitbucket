@@ -273,18 +273,23 @@
     <script type="module">
         import {
             addColumnToUI,
+            confirmOrder,
             createColumn,
             deleteBoard,
+            deleteColumn,
             editBoard,
+            handleCreateCard,
             inviteBoard,
             loadBoardData,
             loadColumns,
             renderBoardMemberList,
+            showCreateCardModal,
             updateBoardData,
-            deleteColumn,
-            confirmOrder
+            addCardToUI,
+            loadAllCards,
+            organizeCardsByColumn,
         } from "./js/board.js";
-        import { checkAuth } from "./js/auth.js";
+        import {checkAuth} from "./js/auth.js";
 
         // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
@@ -298,7 +303,7 @@
                     console.log('Authentication checked');
 
                     const boardData = await loadBoardData(boardId);
-                    console.log('Board page data loaded:', boardData);
+                    //console.log('Board page data loaded:', boardData);
 
                     if (boardData && boardData.title && boardData.content && boardData.id && boardData.memberList) {
                         let boardMemberText = renderBoardMemberList(boardData.memberList);
@@ -309,7 +314,13 @@
                         // Load columns from the database and update UI
                         const columnsData = await loadColumns(boardData.id);
                         console.log('Columns data loaded:', columnsData);
-                        updateColumnsUI(columnsData);
+
+                        const cards = await loadAllCards(boardId);
+                        console.log('loadAllCards:', cards);
+                        const cardsByColumn = organizeCardsByColumn(cards);
+                        console.log('organizeCardsByColumn loaded:', cardsByColumn);
+
+                        updateColumnsUI(columnsData, cardsByColumn);
                     } else {
                         console.warn('title not found in data');
                     }
@@ -387,38 +398,22 @@
             document.getElementById(modalId).style.display = "none";
         }
 
-        // UI에 컬럼 추가 함수
-        window.addColumnToUI = function (columnTitle, columnId) {
-            const boardContainer = document.getElementById('boardContainer');
-            const addColumnButton = boardContainer.querySelector('.add-column');
-            const columnTemplate = `
-                <div class="column" draggable="true" ondragstart="drag(event)" id="column${columnId}">
-                    <div style="display: flex; justify-content: space-between;">
-                        <h3>${columnTitle}</h3>
-                        <button class="delete-column-btn" data-column-id="${columnId}">X</button>
-                    </div>
-                    <div class="add-card" onclick="showModal('createCardModal')">+ Add a card</div>
-                </div>
-            `;
-            if (addColumnButton) {
-                addColumnButton.insertAdjacentHTML('beforebegin', columnTemplate);
-            } else {
-                boardContainer.insertAdjacentHTML('beforeend', columnTemplate);
-            }
-
-            // 이벤트 핸들러 추가
-            document.querySelector(`.delete-column-btn[data-column-id="${columnId}"]`).addEventListener('click', function() {
-                handleDeleteColumn(columnId);
-            });
-        }
-
         // UI에 컬럼 업데이트 함수
-        function updateColumnsUI(columns) {
+        function updateColumnsUI(columns, cardsByColumn) {
             const boardContainer = document.getElementById('boardContainer');
             boardContainer.innerHTML = ''; // Clear existing columns
 
             columns.forEach(column => {
                 addColumnToUI(column.title, column.columnId);
+
+                // 해당 컬럼의 카드 렌더링
+                console.log(column.title + ", " + cardsByColumn[column.title]);
+                if (cardsByColumn[column.title]) {
+                    cardsByColumn[column.title].forEach(card => {
+                        console.log(card);
+                        addCardToUI(column.columnId, card);
+                    });
+                }
             });
 
             const addColumnButtonTemplate = `
@@ -431,6 +426,10 @@
         window.handleDeleteColumn = function (columnId) {
             deleteColumn(columnId);
         };
+
+        window.createCard = async function () {
+            handleCreateCard(event);
+        }
 
         // confirmOrder 함수를 window 객체에 할당합니다.
         window.confirmOrder = confirmOrder;
@@ -508,12 +507,11 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('createCardModal')">&times;</span>
         <h2 class="modal-header">Create cards</h2>
-        <input type="text" placeholder="제목(필수)">
-        <input type="text" placeholder="카드 상태(디폴트)(입력아님)">
-        <textarea placeholder="내용"></textarea>
-        <input type="text" placeholder="마감일자">
-        <input type="text" placeholder="작업자">
-        <button type="button">CREATE</button>
+        <input type="text" id="newCardTitle" placeholder="카드 제목" required>
+        <textarea id="newCardContent" placeholder="내용"></textarea>
+        <input type="text" id="newCardAssignee" placeholder="담당자">
+        <input type="date" id="newCardDueDate">
+        <button type="button" onclick="createCard()">CREATE</button>
     </div>
 </div>
 

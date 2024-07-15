@@ -261,7 +261,6 @@ export async function createColumn(title, boardId) {
 
 // UI에 컬럼 추가 함수
 export function addColumnToUI(columnTitle, columnId) {
-    console.log(columnTitle + ", " + columnId);
     const boardContainer = document.getElementById('boardContainer');
     const addColumnButton = boardContainer.querySelector('.add-column');
     const columnElement = document.createElement('div');
@@ -281,7 +280,6 @@ export function addColumnToUI(columnTitle, columnId) {
         handleDeleteColumn(columnId);
     });
     columnElement.querySelector('.add-card').addEventListener('click', function () {
-        console.log(columnId);
         showCreateCardModal(columnId);
     });
 
@@ -408,12 +406,9 @@ export async function handleCreateCard(event) {
     const assignee = document.getElementById('newCardAssignee').value;
     const dueDate = document.getElementById('newCardDueDate').value;
 
-    console.log(boardId + ", " + columnId + ", " + ", " + title + ", " + content + ", " + assignee + ", " + dueDate);
-
     const cardData = {
         title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: 0
     };
-
 
     try {
         const newCard = await cardAPI.createCard(boardId, columnId, cardData);
@@ -426,7 +421,6 @@ export async function handleCreateCard(event) {
 
 // UI에 카드 추가
 export function addCardToUI(columnId, card) {
-    console.log(columnId + ", " + card);
     const column = document.getElementById(`column${columnId}`);
     const cardElement = document.createElement('div');
     cardElement.className = 'card';
@@ -447,7 +441,6 @@ export function addCardToUI(columnId, card) {
 
 // 카드 생성 모달 표시
 export function showCreateCardModal(columnId) {
-    console.log(columnId);
     const modal = document.getElementById('createCardModal');
     modal.style.display = 'flex';  // 'block' 대신 'flex' 사용
     modal.style.alignItems = 'center';  // 세로 중앙 정렬
@@ -470,7 +463,6 @@ async function drop(ev) {
     ev.preventDefault();
     let data = ev.dataTransfer.getData("text");
     let item = document.getElementById(data);
-    console.log("drag1");
     if (item.classList.contains('card')) {
         let targetColumn = ev.target.closest('.column');
         if (targetColumn) {
@@ -492,7 +484,6 @@ async function drop(ev) {
             }
         }
     } else if (item.classList.contains('column')) {
-        console.log("drag3");
         let boardContainer = document.getElementById("boardContainer");
         let columns = Array.from(boardContainer.querySelectorAll('.column'));
         columns.splice(columns.indexOf(item), 1);

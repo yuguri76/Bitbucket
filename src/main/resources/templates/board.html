@@ -302,7 +302,6 @@
                     console.log('Authentication checked');
 
                     const boardData = await loadBoardData(boardId);
-                    //console.log('Board page data loaded:', boardData);
 
                     if (boardData && boardData.title && boardData.content && boardData.id && boardData.memberList) {
                         let boardMemberText = renderBoardMemberList(boardData.memberList);
@@ -405,8 +404,6 @@
             columns.forEach(column => {
                 addColumnToUI(column.title, column.columnId);
 
-                // 해당 컬럼의 카드 렌더링
-                console.log(column.title + ", " + cardsByColumn[column.title]);
                 if (cardsByColumn[column.title]) {
                     cardsByColumn[column.title].forEach(card => {
                         console.log(card);
@@ -595,8 +592,6 @@
         ev.preventDefault();
         let data = ev.dataTransfer.getData("text");
         let item = document.getElementById(data);
-
-        console.log(item);
 
         if (item.classList.contains('card')) {
             let targetColumn = ev.target.closest('.column');

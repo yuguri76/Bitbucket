@@ -380,7 +380,7 @@ export async function createCard(columnId, title) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAccessToken()}`
             },
-            body: JSON.stringify({ title })
+            body: JSON.stringify({title})
         });
 
         const result = await response.json();
@@ -442,7 +442,11 @@ export async function handleCreateCard(event) {
     const newOrder = cards.length;  // 새 카드는 현재 컬럼의 마지막에 추가됩니다.
 
     const cardData = {
-        title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: newOrder
+        title,
+        content,
+        assignee,
+        dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null,
+        orders: newOrder
     };
 
     try {
@@ -458,15 +462,23 @@ export async function handleCreateCard(event) {
 export function addCardToUI(columnId, card) {
     const column = document.getElementById(`column${columnId}`);
     const cardElement = document.createElement('div');
+    const titleElement = column.querySelector('h3');
     cardElement.className = 'card';
     cardElement.draggable = true;
+    cardElement.id = `card${card.id}`;
     cardElement.dataset.cardId = card.id;
     cardElement.dataset.columnId = columnId;
+    cardElement.dataset.content = card.content;
+    cardElement.dataset.assignee = card.assignee;
+    cardElement.dataset.title = card.title;
+    cardElement.dataset.columnTitle = titleElement ? titleElement.textContent : null;
+    cardElement.dataset.dueDate = card.dueDate;
+
     cardElement.innerHTML = `
         <div class="card-title">${card.title}</div>
         <div class="card-assignee">Assignee: ${card.assignee}</div>
         <div class="card-due-date">Due Date: ${card.dueDate}</div>
-        <div class="card-description">${card.description}</div>
+        <div class="card-description">${card.content}</div>
     `;
     cardElement.addEventListener('dragstart', drag);
     cardElement.addEventListener('click', () => handleCardClick(cardElement)); // handleCardClick 함수를 호출하도록 수정
@@ -503,7 +515,7 @@ async function fetchCards(condition = 'all', conditionDetail = '') {
 }
 
 function resetModalContent(modalId) {
-    switch(modalId) {
+    switch (modalId) {
         case 'viewAllModal':
             document.getElementById('allCardListContainer').innerHTML = '';
             break;
@@ -535,13 +547,6 @@ function displayCards(cards, containerId) {
     });
 }
 
-// 전체 카드 조회
-async function fetchAllCards() {
-    const cards = await fetchCards();
-    displayCards(cards, 'allCardListContainer');
-    showModal('viewAllModal');
-}
-
 // 작업자별 카드 조회
 async function fetchCardsByWorker() {
     const worker = document.getElementById('workerInput').value;
@@ -564,12 +569,148 @@ async function fetchCardsByStatus() {
     }
 }
 
+// 전역 변수로 현재 카드 정보 저장
+let currentCardId, currentBoardId, currentColumnId;
+
+// CardDetail 모달을 열 때 카드 정보를 설정하는 함수
+function openCardDetailModal(card) {
+    currentCardId = card.dataset.cardId;
+    currentBoardId = localStorage.getItem('board_id');
+    currentColumnId = card.dataset.columnId;
+
+    document.getElementById('cardTitle').textContent = card.dataset.title;
+    document.getElementById('columnName').textContent = card.dataset.columnTitle;
+    document.getElementById('cardAssignee').textContent = card.dataset.assignee;
+    document.getElementById('cardDueDate').textContent = card.dataset.dueDate;
+    document.getElementById('cardContent').textContent = card.dataset.content;
+
+    showModal('cardDetailModal');
+}
+
+// Edit 모달을 여는 함수
+export function showEditCardModal() {
+
+    const cardDetailModal = document.getElementById('cardDetailModal');
+    const cardId = cardDetailModal.dataset.cardId;
+    const columnId = cardDetailModal.dataset.columnId;
+
+    document.getElementById('editTitle').value = document.getElementById('cardTitle').textContent;
+    document.getElementById('editAssignee').value = document.getElementById('cardAssignee').textContent;
+    document.getElementById('editContent').value = document.getElementById('cardDescription').textContent;
+    document.getElementById('editDueDate').value = document.getElementById('cardDueDate').textContent;
+
+    const editElement = document.getElementById('editCardModal');
+    editElement.dataset.cardId = cardId;
+    editElement.dataset.columnId = columnId;
+
+    closeModal('cardDetailModal');
+    showModal('editCardModal');
+}
+
+// 카드 수정 함수
+async function editCard(event) {
+    event.preventDefault();
+
+    const editedCard = {
+        title: document.getElementById('editTitle').value,
+        assignee: document.getElementById('editAssignee').value,
+        content: document.getElementById('editContent').value,
+        dueDate: document.getElementById('editDueDate').value
+    };
+
+    const editElement = document.getElementById('editCardModal');
+    const boardId = localStorage.getItem('board_id');
+    const cardId = editElement.dataset.cardId;
+    const columnId = editElement.dataset.columnId;
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessToken()}`
+            },
+            body: JSON.stringify(editedCard)
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        if (result.status === 200) {
+            // 카드 UI 업데이트
+            updateCardUI(result.data);
+
+            closeModal('editCardModal');
+            alert('카드 수정 성공!');
+            return result.data;
+        } else if (result.status === 401) {
+            return refreshTokenAndRetry(() => editCard(event));
+        }else{
+            throw new Error(response.message);
+        }
+    } catch (error) {
+        console.error('카드 수정 오류:', error);
+        alert('카드를 수정하는 도중 오류가 발생했습니다. 나중에 다시 시도해주세요.');
+    }
+}
+
+// 카드 UI 업데이트 함수
+function updateCardUI(updatedCard) {
+    const cardElement = document.getElementById(`card${updatedCard.id}`);
+    if (cardElement) {
+        cardElement.querySelector('.card-title').textContent = updatedCard.title;
+        cardElement.querySelector('.card-assignee').textContent = `Assignee: ${updatedCard.assignee}`;
+        cardElement.querySelector('.card-due-date').textContent = `Due Date: ${updatedCard.dueDate}`;
+        cardElement.querySelector('.card-description').textContent = updatedCard.content;
+
+        cardElement.dataset.title = updatedCard.title;
+        cardElement.dataset.assignee = updatedCard.assignee;
+        cardElement.dataset.dueDate = updatedCard.dueDate;
+        cardElement.dataset.content = updatedCard.content;
+    }
+}
+
+// 카드 삭제 함수
+export async function deleteCard() {
+    if (!confirm('카드를 삭제하시겠습니까??')) {
+        return;
+    }
+
+    const boardId = localStorage.getItem('board_id');
+    const cardId = document.getElementById('cardDetailModal').dataset.cardId;
+    const columnId = document.getElementById('cardDetailModal').dataset.columnId;
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${getAccessToken()}`
+            }
+        });
+
+        console.log(response);
+
+        if (response.status === 204) {
+            const cardElement = document.getElementById(`card${cardId}`);
+            if (cardElement) {
+                cardElement.remove();
+            }
+            closeModal('cardDetailModal');
+            alert('카드 삭제에 성공했습니다.!');
+        } else if (response.status === 401) {
+            return refreshTokenAndRetry(() => deleteCard());
+        } else {
+            throw new Error(response.message);
+        }
+    } catch (error) {
+        console.error('카드 삭제 에러:', error);
+        alert('카드 삭제에 실패했습니다. 재시도 해주세요.');
+    }
+}
+
 // 이벤트 리스너 등록
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('viewAllCardsBtn').addEventListener('click', fetchAllCards);
-    document.getElementById('viewWorkerCardsBtn').addEventListener('click', () => showModal('viewWorkerModal'));
-    document.getElementById('viewStatusCardsBtn').addEventListener('click', () => showModal('viewStatusModal'));
-});
+document.getElementById('editCardForm').addEventListener('submit', editCard);
+
 
 // 전역 스코프에 함수 노출
 window.closeModal = closeModal;

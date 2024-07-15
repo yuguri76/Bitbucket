@@ -109,6 +109,9 @@ export async function moveCard(boardId, cardId) {
         const requestData = getAllColumnsWithCards();
         console.log(requestData);
 
+        console.log(boardId);
+        console.log(cardId);
+
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/cards/${cardId}/move`, {
             method: 'PUT', headers: {
                 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`

@@ -1,6 +1,7 @@
-package com.sparta.bitbucket.auth.service;
+package com.sparta.bitbucket.auth;
 
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,9 @@ import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.dto.UserBoardsResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.repository.UserRepository;
+import com.sparta.bitbucket.board.BoardMemberRepository;
+import com.sparta.bitbucket.board.entity.Board;
+import com.sparta.bitbucket.board.entity.BoardMember;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.exception.auth.UsernameDuplicateException;
 
@@ -24,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final BoardMemberRepository boardMemberRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	@Value("${manager-secret-key}")
@@ -65,7 +69,9 @@ public class UserService {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.USER_EMAIL_NOT_FOUND.getMessage()));
 
-		return UserBoardsResponseDto.builder().username(user.getName()).boards(user.getBoards()).build();
+		List<Board> boards = boardMemberRepository.findByUser(user).stream().map(BoardMember::getBoard).toList();
+
+		return UserBoardsResponseDto.builder().username(user.getName()).boards(boards).build();
 
 	}
 

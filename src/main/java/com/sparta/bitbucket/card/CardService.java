@@ -1,25 +1,22 @@
-package com.sparta.bitbucket.card.service;
+package com.sparta.bitbucket.card;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.board.BoardService;
 import com.sparta.bitbucket.board.entity.Board;
-import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
 import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardOrderDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
 import com.sparta.bitbucket.card.entity.Card;
-import com.sparta.bitbucket.card.repository.CardRepository;
-import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
+import com.sparta.bitbucket.column.ColumnService;
 import com.sparta.bitbucket.column.entity.Columns;
-import com.sparta.bitbucket.column.service.ColumnService;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.exception.auth.UnauthorizedException;
 import com.sparta.bitbucket.common.exception.card.MissingSearchKeywordException;
@@ -27,7 +24,6 @@ import com.sparta.bitbucket.common.exception.card.ResourceNotFoundException;
 import com.sparta.bitbucket.common.exception.card.TitleConflictException;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -101,10 +97,10 @@ public class CardService {
 				ErrorMessage.UNAUTHORIZED_MANAGER + " " + ErrorMessage.UNAUTHORIZED_CARD_OWNER);
 		}
 
-		for(var request : requestDtoList){
+		for (var request : requestDtoList) {
 			Columns columns = columnService.findByColumnIdAndBoardId(request.getColumnId(), boardId);
 
-			for(CardOrderDto orderDto : request.getCardOrderList()){
+			for (CardOrderDto orderDto : request.getCardOrderList()) {
 				Card orderCard = findCard(orderDto.getId());
 				orderCard.updateColumn(columns);
 				orderCard.updateOrders(orderDto.getOrders());

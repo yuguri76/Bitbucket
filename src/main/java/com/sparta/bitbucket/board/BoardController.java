@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.board.controller;
+package com.sparta.bitbucket.board;
 
 import java.util.List;
 
@@ -14,13 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
-import com.sparta.bitbucket.board.dto.BoardEditRequestDto;
 import com.sparta.bitbucket.board.dto.BoardInviteRequestDto;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
+import com.sparta.bitbucket.board.dto.BoardRequestDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
-import com.sparta.bitbucket.board.service.BoardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.util.ResponseFactory;
@@ -58,7 +56,7 @@ public class BoardController {
 
 	@PostMapping
 	public ResponseEntity<DataResponseDto<BoardResponseDto>> createBoard(
-		@Valid @RequestBody BoardCreateRequestDto requestDto,
+		@Valid @RequestBody BoardRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
 		BoardResponseDto responseDto = boardService.createBoard(requestDto, userDetails.getUsername());
@@ -81,7 +79,7 @@ public class BoardController {
 	@PutMapping("/{boardId}")
 	public ResponseEntity<DataResponseDto<BoardResponseDto>> editBoard(
 		@PathVariable(value = "boardId") Long boardId,
-		@RequestBody BoardEditRequestDto requestDto,
+		@Valid @RequestBody BoardRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
 		BoardResponseDto responseDto = boardService.editBoard(boardId, requestDto, userDetails.getUser());
@@ -98,5 +96,4 @@ public class BoardController {
 
 		return ResponseFactory.noContent();
 	}
-
 }

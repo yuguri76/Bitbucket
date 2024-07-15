@@ -356,15 +356,17 @@
             color: #666;
         }
     </style>
-    <script type="module">    
+    <script type="module">
         import {
             addCardToUI,
             addColumnToUI,
             confirmOrder,
             createColumn,
             deleteBoard,
+            deleteCard,
             deleteColumn,
             editBoard,
+            editCard,
             handleCreateCard,
             inviteBoard,
             loadAllCards,
@@ -372,14 +374,13 @@
             loadColumns,
             organizeCardsByColumn,
             renderBoardMemberList,
-            updateBoardData,
             showEditCardModal,
-            deleteCard
+            updateBoardData
         } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
         import {moveCard} from "./js/card.js";
-        import { fetchComments, renderComments, createComment } from './js/comment.js';
-      
+        import {createComment, fetchComments, renderComments} from './js/comment.js';
+
         // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -408,6 +409,12 @@
                         console.log('organizeCardsByColumn loaded:', cardsByColumn);
 
                         updateColumnsUI(columnsData, cardsByColumn);
+
+                        const editCardButton = document.getElementById('editCardButton');
+                        if (editCardButton) {
+                            editCardButton.addEventListener('click', editCard);
+                        }
+
                     } else {
                         console.warn('title not found in data');
                     }
@@ -518,7 +525,7 @@
         }
 
         // confirmOrder 함수를 window 객체에 할당합니다.
-      
+
         window.confirmOrder = confirmOrder;
 
         window.showEditCardModal = showEditCardModal;
@@ -558,7 +565,7 @@
             const boardId = localStorage.getItem('board_id');
 
             if (!cardId || !columnId || !boardId) {
-                console.error('Missing parameters:', { cardId, columnId, boardId });
+                console.error('Missing parameters:', {cardId, columnId, boardId});
                 alert('Cannot create comment. Missing parameters.');
                 return;
             }
@@ -735,7 +742,7 @@
             <label for="editDueDate">Due Date:</label>
             <input type="date" id="editDueDate" name="dueDate">
 
-            <button type="submit">Save Changes</button>
+            <button type="button" id="editCardButton">Save Changes</button>
         </form>
     </div>
 </div>
@@ -831,7 +838,7 @@
         const boardId = localStorage.getItem('board_id');
 
         if (!cardId || !columnId || !boardId) {
-            console.error('Missing parameters:', { cardId, columnId, boardId });
+            console.error('Missing parameters:', {cardId, columnId, boardId});
             alert('Cannot create comment. Missing parameters.');
             return;
         }

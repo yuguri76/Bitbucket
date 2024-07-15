@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.bitbucket.security.service.JwtService;
-import com.sparta.bitbucket.security.service.UserDetailsServiceImpl;
+import com.sparta.bitbucket.security.JwtService;
+import com.sparta.bitbucket.security.UserDetailsServiceImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

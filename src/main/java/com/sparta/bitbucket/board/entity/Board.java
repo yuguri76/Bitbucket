@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sparta.bitbucket.auth.entity.User;
+import com.sparta.bitbucket.card.entity.Card;
+import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.common.entity.Timestamped;
 
 import jakarta.persistence.CascadeType;
@@ -42,6 +44,12 @@ public class Board extends Timestamped {
 
 	@OneToMany(mappedBy = "board", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private List<BoardMember> boardMemberList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "board", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	private List<Columns> columnsList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "board", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	private List<Card> cardList = new ArrayList<>();
 
 	@Builder
 	public Board(String title, String content, User user) {

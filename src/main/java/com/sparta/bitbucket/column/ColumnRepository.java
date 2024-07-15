@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.column.repository;
+package com.sparta.bitbucket.column;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,5 +12,6 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
 	List<Columns> findAllByBoardIdOrderByOrders(Long boardId);
 
 	Optional<Columns> findByIdAndBoardId(Long id, Long boardId);
+
 	Boolean existsByBoardIdAndTitle(Long boardId, String title);
 }

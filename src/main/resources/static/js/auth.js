@@ -4,7 +4,7 @@ export function login(email, password) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({email, password})
     })
         .then(response => {
             if (!response.ok) {
@@ -14,8 +14,7 @@ export function login(email, password) {
         })
         .then(result => {
             if (result.status === 200) {
-                localStorage.setItem('token', result.data.token);
-                localStorage.setItem('username', result.data.username); // 사용자 이름 저장
+                localStorage.setItem('token', result.data);
                 window.location.href = '/main';
             } else {
                 throw new Error(result.message);

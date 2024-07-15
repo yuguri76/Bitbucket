@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.card.controller;
+package com.sparta.bitbucket.card;
 
 import java.util.List;
 
@@ -18,7 +18,6 @@ import com.sparta.bitbucket.card.dto.CardCreateRequestDto;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
 import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.card.dto.CardResponseDto;
-import com.sparta.bitbucket.card.service.CardService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.util.ResponseFactory;
@@ -53,7 +52,8 @@ public class CardController {
 		@PathVariable Long cardId,
 		@Valid @RequestBody CardEditRequestDto requestDto
 	) {
-		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), boardId, columnId, cardId, requestDto);
+		CardResponseDto responseDto = cardService.updateCard(userDetails.getUser(), boardId, columnId, cardId,
+			requestDto);
 
 		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_CARD_SUCCESS.getMessage());
 	}
@@ -69,7 +69,6 @@ public class CardController {
 
 		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_CARD_ORDER_SUCCESS.getMessage());
 	}
-
 
 	@DeleteMapping("/columns/{columnId}/cards/{cardId}")
 	public ResponseEntity<?> deleteCard(

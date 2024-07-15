@@ -12,9 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.sparta.bitbucket.security.JwtService;
+import com.sparta.bitbucket.security.UserDetailsServiceImpl;
 import com.sparta.bitbucket.security.filter.JwtAuthorizationFilter;
-import com.sparta.bitbucket.security.service.JwtService;
-import com.sparta.bitbucket.security.service.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity

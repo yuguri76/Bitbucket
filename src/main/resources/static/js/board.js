@@ -608,7 +608,7 @@ export function showEditCardModal() {
 }
 
 // 카드 수정 함수
-async function editCard(event) {
+export async function editCard(event) {
     event.preventDefault();
 
     const editedCard = {
@@ -645,7 +645,7 @@ async function editCard(event) {
             return result.data;
         } else if (result.status === 401) {
             return refreshTokenAndRetry(() => editCard(event));
-        }else{
+        } else {
             throw new Error(response.message);
         }
     } catch (error) {
@@ -707,10 +707,6 @@ export async function deleteCard() {
         alert('카드 삭제에 실패했습니다. 재시도 해주세요.');
     }
 }
-
-// 이벤트 리스너 등록
-document.getElementById('editCardForm').addEventListener('submit', editCard);
-
 
 // 전역 스코프에 함수 노출
 window.closeModal = closeModal;

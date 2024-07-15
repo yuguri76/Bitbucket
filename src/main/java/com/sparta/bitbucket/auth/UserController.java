@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.auth.controller;
+package com.sparta.bitbucket.auth;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.bitbucket.auth.dto.SignupRequestDto;
 import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.dto.UserBoardsResponseDto;
-import com.sparta.bitbucket.auth.service.UserService;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
 

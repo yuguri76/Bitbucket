@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.board.service;
+package com.sparta.bitbucket.board;
 
 import java.util.List;
 
@@ -9,18 +9,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.bitbucket.auth.UserService;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.service.UserService;
-import com.sparta.bitbucket.board.dto.BoardCreateRequestDto;
-import com.sparta.bitbucket.board.dto.BoardEditRequestDto;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
+import com.sparta.bitbucket.board.dto.BoardRequestDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;
 import com.sparta.bitbucket.board.dto.BoardWithMemberListResponseDto;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.board.entity.BoardMember;
-import com.sparta.bitbucket.board.repository.BoardMemberRepository;
-import com.sparta.bitbucket.board.repository.BoardRepository;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.entity.StatusMessage;
 import com.sparta.bitbucket.common.exception.auth.UnauthorizedException;
@@ -86,7 +83,7 @@ public class BoardService {
 	}
 
 	@Transactional
-	public BoardResponseDto createBoard(BoardCreateRequestDto requestDto, String email) {
+	public BoardResponseDto createBoard(BoardRequestDto requestDto, String email) {
 
 		User user = userService.findUserByEmail(email);
 
@@ -151,8 +148,6 @@ public class BoardService {
 
 		BoardMember saveBoardMember = boardMemberRepository.save(boardMember);
 
-		invitedUser.addBoard(board);
-
 		return BoardMemberResponseDto
 			.builder()
 			.boardMember(saveBoardMember)
@@ -160,10 +155,14 @@ public class BoardService {
 	}
 
 	@Transactional
-	public BoardResponseDto editBoard(Long boardId, BoardEditRequestDto requestDto, User user) {
+	public BoardResponseDto editBoard(Long boardId, BoardRequestDto requestDto, User user) {
 
-		if (isNullAndEmpty(requestDto.getTitle()) && isNullAndEmpty(requestDto.getContent())) {
-			throw new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND);
+		if (isNullAndEmpty(requestDto.getTitle())) {
+			throw new ResourceNotFoundException(ErrorMessage.BOARD_TITLE_REQUIRED);
+		}
+
+		if (isNullAndEmpty(requestDto.getContent())) {
+			throw new ResourceNotFoundException(ErrorMessage.BOARD_CONTENT_REQUIRED);
 		}
 
 		Board board = findBoardById(boardId);
@@ -172,16 +171,13 @@ public class BoardService {
 			throw new UnauthorizedException(ErrorMessage.UNAUTHORIZED_MANAGER);
 		}
 
-		if (!isNullAndEmpty(requestDto.getTitle())) {
-			if (boardRepository.findByTitle(requestDto.getTitle()).isPresent()) {
-				throw new BoardTitleDuplicateException(ErrorMessage.BOARD_TITLE_DUPLICATE);
-			}
-			board.updateTitle(requestDto.getTitle());
+		// 보드 제목이 중복되는 값으로 수정하려고 하는 경우 예외처리
+		if (boardRepository.findByTitle(requestDto.getTitle()).isPresent()) {
+			throw new BoardTitleDuplicateException(ErrorMessage.BOARD_TITLE_DUPLICATE);
 		}
 
-		if (!isNullAndEmpty(requestDto.getContent())) {
-			board.updateContent(requestDto.getContent());
-		}
+		board.updateTitle(requestDto.getTitle());
+		board.updateContent(requestDto.getContent());
 
 		return BoardResponseDto
 			.builder()

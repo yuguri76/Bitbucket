@@ -47,9 +47,11 @@ public class CommentService {
 			.content(requestDto.getContent())
 			.build();
 
-		commentRepository.save(comment);
+		Comment savedComment = commentRepository.save(comment);
 
-		return new CommentResponseDto(comment);
+		card.addComment(savedComment);
+
+		return new CommentResponseDto(savedComment);
 	}
 
 	/**

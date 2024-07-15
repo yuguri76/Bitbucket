@@ -340,6 +340,8 @@
             organizeCardsByColumn,
             renderBoardMemberList,
             updateBoardData,
+            showEditCardModal,
+            deleteCard
         } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
         import {moveCard} from "./js/card.js";
@@ -487,6 +489,10 @@
       
         window.confirmOrder = confirmOrder;
 
+        window.showEditCardModal = showEditCardModal;
+
+        window.deleteCard = deleteCard;
+
         function handleCardClick(cardElement) {
             showModal('cardDetailModal');
             const cardId = cardElement.dataset.cardId; // 현재 카드 ID 가져오기
@@ -630,8 +636,8 @@
                 <span class="column-name" id="columnName">To do</span>
             </div>
             <div>
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
+                <button class="edit-btn" onclick="showEditCardModal()">Edit</button>
+                <button class="delete-btn" onclick="deleteCard()">Delete</button>
             </div>
         </div>
         <p>작업자: <span id="cardAssignee">라이언</span></p>
@@ -676,6 +682,29 @@
             <button type="button" onclick="fetchCardsByStatus()">조회</button>
         </div>
         <div class="card-grid" id="statusCardListContainer"></div>
+    </div>
+</div>
+
+<!-- 새로운 Edit 카드 모달 -->
+<div id="editCardModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editCardModal')">&times;</span>
+        <h2>Edit Card</h2>
+        <form id="editCardForm">
+            <label for="editTitle">Title:</label>
+            <input type="text" id="editTitle" name="title" required>
+
+            <label for="editAssignee">Assignee:</label>
+            <input type="text" id="editAssignee" name="assignee">
+
+            <label for="editContent">Content:</label>
+            <textarea id="editContent" name="content"></textarea>
+
+            <label for="editDueDate">Due Date:</label>
+            <input type="date" id="editDueDate" name="dueDate">
+
+            <button type="submit">Save Changes</button>
+        </form>
     </div>
 </div>
 

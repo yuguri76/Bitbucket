@@ -237,10 +237,14 @@ export async function loadColumns(boardId) {
 
 export async function createColumn(title, boardId) {
     try {
+        const boardContainer = document.getElementById('boardContainer');
+        const columns = boardContainer.querySelectorAll('.column');
+        const newOrder = columns.length;
+
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns`, {
             method: 'POST', headers: {
                 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
-            }, body: JSON.stringify({title, orders: 0})
+            }, body: JSON.stringify({title, orders: newOrder})
         });
 
         const result = await response.json();
@@ -406,8 +410,12 @@ export async function handleCreateCard(event) {
     const assignee = document.getElementById('newCardAssignee').value;
     const dueDate = document.getElementById('newCardDueDate').value;
 
+    const column = document.getElementById(`column${columnId}`);
+    const cards = column.querySelectorAll('.card');
+    const newOrder = cards.length;  // 새 카드는 현재 컬럼의 마지막에 추가됩니다.
+
     const cardData = {
-        title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: 0
+        title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: newOrder
     };
 
     try {
@@ -451,52 +459,4 @@ export function showCreateCardModal(columnId) {
 // 드래그 시작 시 호출되는 함수
 function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
-}
-
-// 드래그 오버 시 호출되는 함수
-function allowDrop(event) {
-    event.preventDefault();
-}
-
-// 드롭 시 호출되는 함수
-async function drop(ev) {
-    ev.preventDefault();
-    let data = ev.dataTransfer.getData("text");
-    let item = document.getElementById(data);
-    if (item.classList.contains('card')) {
-        let targetColumn = ev.target.closest('.column');
-        if (targetColumn) {
-            let cards = targetColumn.querySelectorAll('.card');
-            if (cards.length === 0) {
-                targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
-            } else {
-                let inserted = false;
-                cards.forEach(function (targetCard) {
-                    if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
-                        targetColumn.insertBefore(item, targetCard);
-                        inserted = true;
-                        return false; // break the loop
-                    }
-                });
-                if (!inserted) {
-                    targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
-                }
-            }
-        }
-    } else if (item.classList.contains('column')) {
-        let boardContainer = document.getElementById("boardContainer");
-        let columns = Array.from(boardContainer.querySelectorAll('.column'));
-        columns.splice(columns.indexOf(item), 1);
-        let insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
-        if (insertIndex === -1) insertIndex = columns.length;
-        columns.splice(insertIndex, 0, item);
-
-        columns.forEach((column, index) => {
-            column.dataset.order = index; // Update the order attribute
-            column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`; // Display the order for testing
-        });
-
-        boardContainer.innerHTML = ''; // Clear the container
-        columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
-    }
 }

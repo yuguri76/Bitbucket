@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.comment.service;
+package com.sparta.bitbucket.comment;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +12,6 @@ import com.sparta.bitbucket.card.entity.Card;
 import com.sparta.bitbucket.comment.dto.CommentRequestDto;
 import com.sparta.bitbucket.comment.dto.CommentResponseDto;
 import com.sparta.bitbucket.comment.entity.Comment;
-import com.sparta.bitbucket.comment.repository.CommentRepository;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.exception.comment.CustomException;
 

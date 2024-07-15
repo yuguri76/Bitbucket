@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.column.controller;
+package com.sparta.bitbucket.column;
 
 import static com.sparta.bitbucket.common.entity.StatusMessage.*;
 
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.bitbucket.column.dto.ColumnResponseDto;
 import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
 import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
-import com.sparta.bitbucket.column.service.ColumnService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.dto.MessageResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
@@ -41,6 +40,7 @@ public class ColumnController {
 		columnService.createColumn(boardId, userDetails.getUser(), requestDto);
 		return ResponseFactory.created(CREATE_COLUMNS_SUCCESS.getMessage());
 	}
+
 	@DeleteMapping("/columns/{columnId}")
 	public ResponseEntity<MessageResponseDto> deleteColumn(
 		@PathVariable("boardId") Long boardId,

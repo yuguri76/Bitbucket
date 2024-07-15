@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.column.service;
+package com.sparta.bitbucket.column;
 
 import static com.sparta.bitbucket.common.entity.ErrorMessage.*;
 
@@ -16,7 +16,6 @@ import com.sparta.bitbucket.column.dto.ColumnResponseDto;
 import com.sparta.bitbucket.column.dto.CreateColumnRequestDto;
 import com.sparta.bitbucket.column.dto.EditColumnRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
-import com.sparta.bitbucket.column.repository.ColumnRepository;
 import com.sparta.bitbucket.common.exception.comment.CustomException;
 
 import lombok.RequiredArgsConstructor;

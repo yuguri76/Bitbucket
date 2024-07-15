@@ -1,18 +1,24 @@
-package com.sparta.bitbucket.comment.controller;
+package com.sparta.bitbucket.comment;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.bitbucket.comment.dto.CommentRequestDto;
 import com.sparta.bitbucket.comment.dto.CommentResponseDto;
-import com.sparta.bitbucket.comment.service.CommentService;
 import com.sparta.bitbucket.common.dto.DataResponseDto;
 import com.sparta.bitbucket.common.util.ResponseFactory;
 import com.sparta.bitbucket.security.UserDetailsImpl;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * CommentController는 댓글 관련 요청을 처리합니다.

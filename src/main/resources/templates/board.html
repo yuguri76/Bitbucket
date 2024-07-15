@@ -199,12 +199,39 @@
             border-radius: 50%;
         }
 
-        .comment .comment-text {
+        .comment-text {
+            position: relative;
             background-color: #FFFFFF;
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             width: 100%;
+            height: 100px; /* 고정 높이 설정 */
+            overflow-y: auto; /* 내용이 넘칠 때 스크롤 추가 */
+        }
+
+        .comment-author-date {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .comment-content {
+            margin-top: 5px;
+            white-space: pre-wrap; /* 줄바꿈 포함 */
+            word-wrap: break-word; /* 긴 단어 줄바꿈 */
+        }
+
+        .comment-date {
+            position: absolute;
+            bottom: 0;
+            right: 10px;
+            font-size: 12px;
+            color: #959494;
         }
 
         .comment .comment-text strong {
@@ -271,28 +298,11 @@
         }
     </style>
     <script type="module">
-        import {
-            addCardToUI,
-            addColumnToUI,
-            confirmOrder,
-            createColumn,
-            deleteBoard,
-            deleteColumn,
-            editBoard,
-            handleCreateCard,
-            inviteBoard,
-            loadAllCards,
-            loadBoardData,
-            loadColumns,
-            organizeCardsByColumn,
-            renderBoardMemberList,
-            updateBoardData,
-        } from "./js/board.js";
-        import {checkAuth} from "./js/auth.js";
+        import { addCardToUI, addColumnToUI, confirmOrder, createColumn, deleteBoard, deleteColumn, editBoard, handleCreateCard, inviteBoard, loadAllCards, loadBoardData, loadColumns, organizeCardsByColumn, renderBoardMemberList, updateBoardData } from "./js/board.js";
+        import { checkAuth } from "./js/auth.js";
+        import { fetchComments, renderComments, createComment } from './js/comment.js';
 
-        // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
-
             const urlParams = new URLSearchParams(window.location.search);
             const boardId = urlParams.get('id');
 
@@ -330,10 +340,8 @@
             }
         });
 
-        // 보드 수정 함수
         window.performEditBoard = async function () {
             let boardId = localStorage.getItem('board_id');
-
             let title = document.getElementById('editBoardTitle').value;
             let content = document.getElementById('editBoardContent').value;
 
@@ -345,10 +353,8 @@
             }
         }
 
-        // 보드 초대 함수
         window.performInviteBoard = async function () {
             let boardId = localStorage.getItem('board_id');
-
             let email = document.getElementById('inviteUserEmail').value;
 
             try {
@@ -359,7 +365,6 @@
             }
         }
 
-        // 보드 삭제 함수
         window.performDeleteBoard = async function () {
             let boardId = localStorage.getItem('board_id');
 
@@ -382,9 +387,8 @@
 
             try {
                 await createColumn(columnName, boardId);
-
-                alert('컬럼 생성에 성공하였습니다.'); // 알림창 띄우기
-                closeModal('createColumnModal'); // 모달창 닫기
+                alert('컬럼 생성에 성공하였습니다.');
+                closeModal('createColumnModal');
                 window.location.reload();
             } catch (error) {
                 console.error('Error creating column:', error);
@@ -396,29 +400,24 @@
             document.getElementById(modalId).style.display = "none";
         }
 
-        // UI에 컬럼 업데이트 함수
         function updateColumnsUI(columns, cardsByColumn) {
             const boardContainer = document.getElementById('boardContainer');
-            boardContainer.innerHTML = ''; // Clear existing columns
+            boardContainer.innerHTML = '';
 
             columns.forEach(column => {
                 addColumnToUI(column.title, column.columnId);
 
-                if (cardsByColumn[column.title]) {
-                    cardsByColumn[column.title].forEach(card => {
-                        console.log(card);
+                if (cardsByColumn[column.columnId]) {
+                    cardsByColumn[column.columnId].forEach(card => {
                         addCardToUI(column.columnId, card);
                     });
                 }
             });
 
-            const addColumnButtonTemplate = `
-                <div class="add-column" onclick="showModal('createColumnModal')">+ Add another</div>
-            `;
+            const addColumnButtonTemplate = `<div class="add-column" onclick="showModal('createColumnModal')">+ Add another</div>`;
             boardContainer.insertAdjacentHTML('beforeend', addColumnButtonTemplate);
         }
 
-        // 컬럼 삭제 함수
         window.handleDeleteColumn = function (columnId) {
             deleteColumn(columnId);
         };
@@ -427,8 +426,50 @@
             handleCreateCard(event);
         }
 
-        // confirmOrder 함수를 window 객체에 할당합니다.
         window.confirmOrder = confirmOrder;
+
+        function handleCardClick(cardElement) {
+            showModal('cardDetailModal');
+            const cardId = cardElement.dataset.cardId; // 현재 카드 ID 가져오기
+            const columnId = cardElement.dataset.columnId; // 현재 컬럼 ID 가져오기
+            const boardId = localStorage.getItem('board_id'); // 현재 보드 ID 가져오기
+
+            // 카드 세부 정보 업데이트
+            document.getElementById('cardTitle').textContent = cardElement.querySelector('.card-title').textContent;
+            document.getElementById('columnName').textContent = columnId;
+            document.getElementById('cardAssignee').textContent = cardElement.querySelector('.card-assignee').textContent;
+            document.getElementById('cardDueDate').textContent = cardElement.querySelector('.card-due-date').textContent;
+            document.getElementById('cardDescription').value = cardElement.querySelector('.card-description').textContent;
+
+            // 모달에 cardId와 columnId를 저장
+            const cardDetailModal = document.getElementById('cardDetailModal');
+            cardDetailModal.dataset.cardId = cardId;
+            cardDetailModal.dataset.columnId = columnId;
+
+            // 댓글 로드 및 렌더링
+            fetchComments(boardId, columnId, cardId).then(comments => {
+                renderComments(comments);
+            });
+        }
+
+        window.handleCardClick = handleCardClick;
+
+        function handleCreateComment() {
+            const cardDetailModal = document.getElementById('cardDetailModal');
+            const cardId = cardDetailModal.dataset.cardId;
+            const columnId = cardDetailModal.dataset.columnId;
+            const boardId = localStorage.getItem('board_id');
+
+            if (!cardId || !columnId || !boardId) {
+                console.error('Missing parameters:', { cardId, columnId, boardId });
+                alert('Cannot create comment. Missing parameters.');
+                return;
+            }
+
+            createComment(boardId, columnId, cardId);
+        }
+
+        window.handleCreateComment = handleCreateComment;
     </script>
 </head>
 <body>
@@ -525,30 +566,24 @@
         <span class="close" onclick="closeModal('cardDetailModal')">&times;</span>
         <div class="modal-header">
             <div>
-                <h2 style="color: #FF6D28; display: inline-block;">Card_1</h2>
+                <h2 style="color: #FF6D28; display: inline-block;" id="cardTitle">Card_1</h2>
                 <span class="in-list">in list</span>
-                <span class="column-name">To do</span>
+                <span class="column-name" id="columnName">To do</span>
             </div>
             <div>
                 <button class="edit-btn">Edit</button>
                 <button class="delete-btn">Delete</button>
             </div>
         </div>
-        <p>작업자: 라이언</p>
-        <p>마감일자: 2024-07-12</p>
-        <textarea placeholder="Description"></textarea>
+        <p>작업자: <span id="cardAssignee">라이언</span></p>
+        <p>마감일자: <span id="cardDueDate">2024-07-12</span></p>
+        <textarea placeholder="Description" id="cardDescription"></textarea>
         <div class="comment-section">
             <p>Comment</p>
-            <div class="comment">
-                <img src="https://emoji.slack-edge.com/T06B9PCLY1E/bear_twerk/d8658b5c911625a1.gif" alt="User Image">
-                <div class="comment-text">
-                    <strong>작성자:</strong> 👍👍👍 죽이네요
-                    <span>2024-07-10</span>
-                </div>
-            </div>
+            <div id="commentContainer"></div>
         </div>
-        <textarea placeholder="댓글 작성"></textarea>
-        <button type="button" style="float: right;">Create</button>
+        <textarea placeholder="댓글 작성" id="newComment"></textarea>
+        <button type="button" style="float: right;" onclick="handleCreateComment()">Create</button>
     </div>
 </div>
 
@@ -605,7 +640,7 @@
                         if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
                             targetColumn.insertBefore(item, targetCard);
                             inserted = true;
-                            return false; // break the loop
+                            return false;
                         }
                     });
                     if (!inserted) {
@@ -622,12 +657,12 @@
             columns.splice(insertIndex, 0, item);
 
             columns.forEach((column, index) => {
-                column.dataset.order = index; // Update the order attribute
-                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`; // Display the order for testing
+                column.dataset.order = index;
+                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`;
             });
 
-            boardContainer.innerHTML = ''; // Clear the container
-            columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
+            boardContainer.innerHTML = '';
+            columns.forEach(column => boardContainer.appendChild(column));
         }
     }
 
@@ -639,7 +674,6 @@
         document.getElementById(modalId).style.display = "none";
     }
 
-    // Event listeners for drag and drop
     document.querySelectorAll('.column, .card').forEach(function (element) {
         element.addEventListener('dragstart', drag);
         element.addEventListener('dragover', allowDrop);
@@ -648,6 +682,23 @@
 
     document.getElementById('boardContainer').addEventListener('dragover', allowDrop);
     document.getElementById('boardContainer').addEventListener('drop', drop);
+
+    function handleCreateComment() {
+        const cardDetailModal = document.getElementById('cardDetailModal');
+        const cardId = cardDetailModal.dataset.cardId;
+        const columnId = cardDetailModal.dataset.columnId;
+        const boardId = localStorage.getItem('board_id');
+
+        if (!cardId || !columnId || !boardId) {
+            console.error('Missing parameters:', { cardId, columnId, boardId });
+            alert('Cannot create comment. Missing parameters.');
+            return;
+        }
+
+        createComment(boardId, columnId, cardId);
+    }
+
+    window.handleCreateComment = handleCreateComment;
 </script>
 </body>
 </html>

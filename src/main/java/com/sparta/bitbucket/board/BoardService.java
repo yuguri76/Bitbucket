@@ -148,8 +148,6 @@ public class BoardService {
 
 		BoardMember saveBoardMember = boardMemberRepository.save(boardMember);
 
-		invitedUser.addBoard(board);
-
 		return BoardMemberResponseDto
 			.builder()
 			.boardMember(saveBoardMember)

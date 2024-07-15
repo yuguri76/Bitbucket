@@ -77,7 +77,7 @@ public class User extends Timestamped {
 		this.refreshToken = refreshToken;
 	}
 
-	public void addBoard(Board board){
+	public void addBoard(Board board) {
 		this.boards.add(board);
 	}
 

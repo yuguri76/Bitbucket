@@ -144,7 +144,7 @@ export async function editBoard(boardId, title, content) {
 
         if (result.status === 200) {
             alert('보드 수정이 완료되었습니다.');
-            window.location.href = '/board?id=${boardId}';  // 보드 페이지로 리다이렉트
+            window.location.href = `/board?id=${boardId}`;  // 보드 페이지로 리다이렉트
         } else if (result.status === 401) {
             return refreshTokenAndRetry(() => editBoard(boardId, title, content));
         } else {
@@ -173,7 +173,7 @@ export async function inviteBoard(boardId, email) {
         if (result.status === 200) {
             let data = result.data;
             alert(`${data.boardTitle} 보드에 사용자${data.userName} 이 초대되었습니다.`);
-            window.location.href = '/board?id=${boardId}';
+            window.location.href = `/board?id=${boardId}`;
         } else if (result.status === 401) {
             return refreshTokenAndRetry(() => inviteBoard(boardId, email));
         } else {
@@ -237,10 +237,14 @@ export async function loadColumns(boardId) {
 
 export async function createColumn(title, boardId) {
     try {
+        const boardContainer = document.getElementById('boardContainer');
+        const columns = boardContainer.querySelectorAll('.column');
+        const newOrder = columns.length;
+
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns`, {
             method: 'POST', headers: {
                 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
-            }, body: JSON.stringify({title, orders: 0})
+            }, body: JSON.stringify({title, orders: newOrder})
         });
 
         const result = await response.json();
@@ -330,6 +334,7 @@ function showModal(modalId) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = "none";
+    resetModalContent(modalId);
 }
 
 // 순서확정 함수
@@ -432,8 +437,12 @@ export async function handleCreateCard(event) {
     const assignee = document.getElementById('newCardAssignee').value;
     const dueDate = document.getElementById('newCardDueDate').value;
 
+    const column = document.getElementById(`column${columnId}`);
+    const cards = column.querySelectorAll('.card');
+    const newOrder = cards.length;  // 새 카드는 현재 컬럼의 마지막에 추가됩니다.
+
     const cardData = {
-        title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: 0
+        title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: newOrder
     };
 
     try {
@@ -481,50 +490,88 @@ function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
 }
 
-// 드래그 오버 시 호출되는 함수
-function allowDrop(event) {
-    event.preventDefault();
-}
-
-// 드롭 시 호출되는 함수
-async function drop(ev) {
-    ev.preventDefault();
-    let data = ev.dataTransfer.getData("text");
-    let item = document.getElementById(data);
-    if (item.classList.contains('card')) {
-        let targetColumn = ev.target.closest('.column');
-        if (targetColumn) {
-            let cards = targetColumn.querySelectorAll('.card');
-            if (cards.length === 0) {
-                targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
-            } else {
-                let inserted = false;
-                cards.forEach(function (targetCard) {
-                    if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
-                        targetColumn.insertBefore(item, targetCard);
-                        inserted = true;
-                        return false; // break the loop
-                    }
-                });
-                if (!inserted) {
-                    targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
-                }
-            }
-        }
-    } else if (item.classList.contains('column')) {
-        let boardContainer = document.getElementById("boardContainer");
-        let columns = Array.from(boardContainer.querySelectorAll('.column'));
-        columns.splice(columns.indexOf(item), 1);
-        let insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
-        if (insertIndex === -1) insertIndex = columns.length;
-        columns.splice(insertIndex, 0, item);
-
-        columns.forEach((column, index) => {
-            column.dataset.order = index; // Update the order attribute
-            column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`; // Display the order for testing
-        });
-
-        boardContainer.innerHTML = ''; // Clear the container
-        columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
+// 카드 조회 함수
+async function fetchCards(condition = 'all', conditionDetail = '') {
+    try {
+        const boardId = localStorage.getItem('board_id');
+        const cards = await cardAPI.getCards(boardId, condition, conditionDetail);
+        return cards;
+    } catch (error) {
+        console.error('Error fetching cards:', error);
+        alert('카드 조회 중 오류가 발생했습니다: ' + error.message);
     }
 }
+
+function resetModalContent(modalId) {
+    switch(modalId) {
+        case 'viewAllModal':
+            document.getElementById('allCardListContainer').innerHTML = '';
+            break;
+        case 'viewWorkerModal':
+            document.getElementById('workerInput').value = '';
+            document.getElementById('workerCardListContainer').innerHTML = '';
+            break;
+        case 'viewStatusModal':
+            document.getElementById('statusInput').value = '';
+            document.getElementById('statusCardListContainer').innerHTML = '';
+            break;
+    }
+}
+
+function displayCards(cards, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    cards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card-item';
+        cardElement.innerHTML = `
+            <h3>${card.title}</h3>
+            <p>작업자: ${card.assignee}</p>
+            <p>상태: ${card.status}</p>
+            <p>마감일: ${card.dueDate}</p>
+        `;
+        container.appendChild(cardElement);
+    });
+}
+
+// 전체 카드 조회
+async function fetchAllCards() {
+    const cards = await fetchCards();
+    displayCards(cards, 'allCardListContainer');
+    showModal('viewAllModal');
+}
+
+// 작업자별 카드 조회
+async function fetchCardsByWorker() {
+    const worker = document.getElementById('workerInput').value;
+    if (worker) {
+        const cards = await fetchCards('assignee', worker);
+        displayCards(cards, 'workerCardListContainer');
+    } else {
+        alert('작업자를 입력해주세요.');
+    }
+}
+
+// 상태별 카드 조회
+async function fetchCardsByStatus() {
+    const status = document.getElementById('statusInput').value;
+    if (status) {
+        const cards = await fetchCards('status', status);
+        displayCards(cards, 'statusCardListContainer');
+    } else {
+        alert('상태를 입력해주세요.');
+    }
+}
+
+// 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('viewAllCardsBtn').addEventListener('click', fetchAllCards);
+    document.getElementById('viewWorkerCardsBtn').addEventListener('click', () => showModal('viewWorkerModal'));
+    document.getElementById('viewStatusCardsBtn').addEventListener('click', () => showModal('viewStatusModal'));
+});
+
+// 전역 스코프에 함수 노출
+window.closeModal = closeModal;
+window.fetchCardsByWorker = fetchCardsByWorker;
+window.fetchCardsByStatus = fetchCardsByStatus;

@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import com.sparta.bitbucket.auth.entity.User;
 import com.sparta.bitbucket.board.entity.Board;
 import com.sparta.bitbucket.card.dto.CardEditRequestDto;
-import com.sparta.bitbucket.card.dto.CardMoveRequestDto;
 import com.sparta.bitbucket.column.entity.Columns;
 import com.sparta.bitbucket.common.entity.Timestamped;
 
@@ -44,7 +43,7 @@ public class Card extends Timestamped {
 	private LocalDate dueDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="create_user_id", nullable = false)
+	@JoinColumn(name = "create_user_id", nullable = false)
 	private User createUser;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -56,7 +55,8 @@ public class Card extends Timestamped {
 	private Board board;
 
 	@Builder
-	public Card(User createUser, Columns columns, Board board, String title, String status, String assignee, String content, LocalDate dueDate, Long orders) {
+	public Card(User createUser, Columns columns, Board board, String title, String status, String assignee,
+		String content, LocalDate dueDate, Long orders) {
 		this.createUser = createUser;
 		this.columns = columns;
 		this.board = board;
@@ -75,8 +75,13 @@ public class Card extends Timestamped {
 		this.dueDate = requestDto.getDueDate();
 	}
 
-	public void updateOrders(CardMoveRequestDto requestDto) {
-		this.orders = requestDto.getOrders();
+	public void updateColumn(Columns columns) {
+		this.columns = columns;
+		this.status = columns.getTitle();
+	}
+
+	public void updateOrders(Long orders) {
+		this.orders = orders;
 	}
 }
 

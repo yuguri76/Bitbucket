@@ -144,7 +144,7 @@ export async function editBoard(boardId, title, content) {
 
         if (result.status === 200) {
             alert('보드 수정이 완료되었습니다.');
-            window.location.href = '/board?id=${boardId}';  // 보드 페이지로 리다이렉트
+            window.location.href = `/board?id=${boardId}`;  // 보드 페이지로 리다이렉트
         } else if (result.status === 401) {
             return refreshTokenAndRetry(() => editBoard(boardId, title, content));
         } else {
@@ -173,7 +173,7 @@ export async function inviteBoard(boardId, email) {
         if (result.status === 200) {
             let data = result.data;
             alert(`${data.boardTitle} 보드에 사용자${data.userName} 이 초대되었습니다.`);
-            window.location.href = '/board?id=${boardId}';
+            window.location.href = `/board?id=${boardId}`;
         } else if (result.status === 401) {
             return refreshTokenAndRetry(() => inviteBoard(boardId, email));
         } else {

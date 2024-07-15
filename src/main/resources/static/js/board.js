@@ -189,20 +189,21 @@ export async function inviteBoard(boardId, email) {
 export async function deleteBoard(boardId) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
-            method: 'DELETE', headers: {
+            method: 'DELETE',
+            headers: {
                 'Authorization': `Bearer ${getAccessToken()}`
             }
         });
 
-        const result = await response.json();
-
-        if (result.status === 200) {
+        if (response.status === 200 || response.status === 204) {
             alert('보드 삭제가 완료되었습니다.');
             window.location.href = '/main';
-        } else if (result.status === 401) {
+        } else if (response.status === 401) {
             return refreshTokenAndRetry(() => deleteBoard(boardId));
         } else {
-            throw new Error(result.message);
+            // 응답 본문이 있을 경우, 텍스트로 읽어서 에러 메시지로 사용
+            const result = await response.text();
+            throw new Error(result || '보드 삭제에 실패했습니다.');
         }
     } catch (error) {
         console.error('보드 삭제 오류:', error);

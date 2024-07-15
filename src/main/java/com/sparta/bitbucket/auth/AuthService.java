@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.auth.service;
+package com.sparta.bitbucket.auth;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import com.sparta.bitbucket.auth.dto.LoginRequestDto;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.exception.auth.PasswordInvalidException;
 import com.sparta.bitbucket.security.TokenType;

@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.auth.service;
+package com.sparta.bitbucket.auth;
 
 import java.security.MessageDigest;
 import java.util.Optional;
@@ -13,7 +13,6 @@ import com.sparta.bitbucket.auth.dto.SignupResponseDto;
 import com.sparta.bitbucket.auth.dto.UserBoardsResponseDto;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.repository.UserRepository;
 import com.sparta.bitbucket.common.entity.ErrorMessage;
 import com.sparta.bitbucket.common.exception.auth.UsernameDuplicateException;
 

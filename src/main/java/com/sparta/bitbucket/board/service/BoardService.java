@@ -9,9 +9,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.bitbucket.auth.UserService;
 import com.sparta.bitbucket.auth.entity.Role;
 import com.sparta.bitbucket.auth.entity.User;
-import com.sparta.bitbucket.auth.service.UserService;
 import com.sparta.bitbucket.board.dto.BoardMemberResponseDto;
 import com.sparta.bitbucket.board.dto.BoardRequestDto;
 import com.sparta.bitbucket.board.dto.BoardResponseDto;

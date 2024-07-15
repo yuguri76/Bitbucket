@@ -1,4 +1,4 @@
-package com.sparta.bitbucket.auth.repository;
+package com.sparta.bitbucket.auth;
 
 import java.util.Optional;
 

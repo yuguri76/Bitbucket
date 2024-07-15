@@ -58,15 +58,14 @@ public class CardController {
 		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_CARD_SUCCESS.getMessage());
 	}
 
-	@PutMapping("/columns/{columnId}/cards/{cardId}/move")
+	@PutMapping("/cards/{cardId}/move")
 	public ResponseEntity<DataResponseDto<CardResponseDto>> moveCard(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable Long boardId,
-		@PathVariable Long columnId,
 		@PathVariable Long cardId,
-		@Valid @RequestBody CardMoveRequestDto requestDto
+		@RequestBody List<CardMoveRequestDto> requestDtoList
 	) {
-		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), boardId, columnId, cardId, requestDto);
+		CardResponseDto responseDto = cardService.moveCard(userDetails.getUser(), boardId, cardId, requestDtoList);
 
 		return ResponseFactory.ok(responseDto, StatusMessage.UPDATE_CARD_ORDER_SUCCESS.getMessage());
 	}

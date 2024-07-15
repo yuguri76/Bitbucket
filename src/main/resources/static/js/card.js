@@ -108,20 +108,41 @@ export async function getCards(boardId, condition = 'all', conditionDetail = '')
     }
 }
 
-export async function moveCard(boardId, columnId, cardId, newColumnId, newOrder) {
+function getAllColumnsWithCards() {
+    const columns = Array.from(document.querySelectorAll('.column'));
+    return columns.map(column => {
+        const columnId = column.id.replace('column', '');
+        return {
+            columnId: columnId,
+            cardOrderList: getCardsInColumn(column)
+        };
+    });
+}
+
+function getCardsInColumn(column) {
+    const cards = Array.from(column.querySelectorAll('.card'));
+    return cards.map((card, index) => ({
+        id: card.id.replace('card', ''),
+        orders: index
+    }));
+}
+
+export async function moveCard(boardId, cardId) {
     try {
-        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}/cards/${cardId}/move`, {
+
+        const requestData = getAllColumnsWithCards();
+        console.log(requestData);
+
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/cards/${cardId}/move`, {
             method: 'PUT', headers: {
                 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAccessToken()}`
-            }, body: JSON.stringify({
-                toColumnId: newColumnId, toOrder: newOrder
-            })
+            }, body: JSON.stringify(requestData)
         });
         const result = await response.json();
         if (result.status === 200) {
             return result.data;
         } else if (result.status === 401) {
-            return refreshTokenAndRetry(() => moveCard(boardId, columnId, cardId, newColumnId, newOrder));
+            return refreshTokenAndRetry(() => moveCard(boardId, cardId));
         } else {
             throw new Error(result.message);
         }

@@ -269,6 +269,32 @@
         .delete-column-btn:hover {
             color: darkred;
         }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            max-height: calc(80vh - 150px); /* 모달 높이에서 헤더와 필터 영역 높이를 뺀 값 */
+            padding: 10px;
+        }
+
+        .card-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .card-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .card-item p {
+            margin: 5px 0;
+            color: #666;
+        }
     </style>
     <script type="module">
         import {
@@ -289,6 +315,7 @@
             updateBoardData,
         } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
+        import {moveCard} from "./js/card.js";
 
         // '/board' 페이지 로드 시, 보드 단건 조회 및 컬럼 로드
         document.addEventListener('DOMContentLoaded', async function () {
@@ -406,7 +433,6 @@
 
                 if (cardsByColumn[column.title]) {
                     cardsByColumn[column.title].forEach(card => {
-                        console.log(card);
                         addCardToUI(column.columnId, card);
                     });
                 }
@@ -425,6 +451,20 @@
 
         window.createCard = async function () {
             handleCreateCard(event);
+        }
+
+        window.moveCard = async function (toColumnId, card, newOrder) {
+            // 서버에 카드 이동 요청
+            try {
+                console.log('move card : ' + toColumnId + "," + newOrder);
+                const boardId = localStorage.getItem('board_id');
+                await moveCard(boardId, toColumnId, card.id.replace('card', ''), newOrder);
+                console.log('Card moved successfully');
+            } catch (error) {
+                console.error('Error moving card:', error);
+                alert('카드 이동 중 오류가 발생했습니다: ' + error.message);
+                // 에러 발생 시 UI를 원래대로 되돌리는 로직을 여기에 추가할 수 있습니다.
+            }
         }
 
         // confirmOrder 함수를 window 객체에 할당합니다.
@@ -493,7 +533,7 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('cardInfoModal')">&times;</span>
         <h2 class="modal-header">카드 조회</h2>
-        <button type="button" onclick="showModal('viewAllModal')">전체 조회</button>
+        <!--<button type="button" onclick="showModal('viewAllModal')">전체 조회</button>-->
         <button type="button" onclick="showModal('viewWorkerModal')">작업자별 조회</button>
         <button type="button" onclick="showModal('viewStatusModal')">상태별 조회</button>
     </div>
@@ -557,7 +597,7 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('viewAllModal')">&times;</span>
         <h2 class="modal-header">전체 조회</h2>
-        <p>전체 카드 리스트를 보여줍니다.</p>
+        <div id="allCardListContainer"></div>
     </div>
 </div>
 
@@ -565,8 +605,11 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('viewWorkerModal')">&times;</span>
         <h2 class="modal-header">작업자별 조회</h2>
-        <input type="text" placeholder="작업자 입력">
-        <button type="button">입력</button>
+        <div class="filter-container">
+            <input type="text" id="workerInput" placeholder="작업자 입력">
+            <button type="button" onclick="fetchCardsByWorker()">조회</button>
+        </div>
+        <div class="card-grid" id="workerCardListContainer"></div>
     </div>
 </div>
 
@@ -574,8 +617,11 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('viewStatusModal')">&times;</span>
         <h2 class="modal-header">상태별 조회</h2>
-        <input type="text" placeholder="상태 입력">
-        <button type="button">입력</button>
+        <div class="filter-container">
+            <input type="text" id="statusInput" placeholder="상태 입력">
+            <button type="button" onclick="fetchCardsByStatus()">조회</button>
+        </div>
+        <div class="card-grid" id="statusCardListContainer"></div>
     </div>
 </div>
 
@@ -594,25 +640,8 @@
         let item = document.getElementById(data);
 
         if (item.classList.contains('card')) {
-            let targetColumn = ev.target.closest('.column');
-            if (targetColumn) {
-                let cards = targetColumn.querySelectorAll('.card');
-                if (cards.length === 0) {
-                    targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
-                } else {
-                    let inserted = false;
-                    cards.forEach(function (targetCard) {
-                        if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
-                            targetColumn.insertBefore(item, targetCard);
-                            inserted = true;
-                            return false; // break the loop
-                        }
-                    });
-                    if (!inserted) {
-                        targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
-                    }
-                }
-            }
+            await handleCardDrop(ev, item);
+
         } else if (item.classList.contains('column')) {
             let boardContainer = document.getElementById("boardContainer");
             let columns = Array.from(boardContainer.querySelectorAll('.column'));
@@ -629,6 +658,33 @@
             boardContainer.innerHTML = ''; // Clear the container
             columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
         }
+    }
+
+    async function handleCardDrop(ev, card) {
+        const targetColumn = ev.target.closest('.column');
+        if (!targetColumn) return;
+
+        const fromColumn = card.closest('.column');
+        const fromColumnId = fromColumn.id.replace('column', '');
+        const toColumnId = targetColumn.id.replace('column', '');
+
+        const cards = Array.from(targetColumn.querySelectorAll('.card'));
+        let newOrder = cards.length;
+
+        for (let i = 0; i < cards.length; i++) {
+            if (ev.clientY < cards[i].getBoundingClientRect().top + cards[i].offsetHeight / 2) {
+                newOrder = i;
+                break;
+            }
+        }
+
+        if (newOrder === cards.length) {
+            targetColumn.insertBefore(card, targetColumn.querySelector('.add-card'));
+        } else {
+            targetColumn.insertBefore(card, cards[newOrder]);
+        }
+
+        moveCard(toColumnId, card, newOrder);
     }
 
     function showModal(modalId) {

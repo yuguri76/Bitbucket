@@ -734,7 +734,13 @@
 
             columns.forEach((column, index) => {
                 column.dataset.order = index;
-                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent} (${index})`;
+                const h3 = column.querySelector('h3');
+                if (h3) {
+                    // 기존 텍스트에서 숫자와 괄호를 제거
+                    let title = h3.textContent.replace(/\s*\(\d+\)$/, '').trim();
+                    // 새로운 인덱스를 추가
+                    h3.textContent = `${title} (${index + 1})`;
+                }
             });
 
             boardContainer.innerHTML = '';

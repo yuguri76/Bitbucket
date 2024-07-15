@@ -590,12 +590,13 @@ function openCardDetailModal(card) {
 // Edit 모달을 여는 함수
 export function showEditCardModal() {
 
-    const cardId = document.getElementById('cardDetailModal').dataset.cardId;
-    const columnId = document.getElementById('cardDetailModal').dataset.columnId;
+    const cardDetailModal = document.getElementById('cardDetailModal');
+    const cardId = cardDetailModal.dataset.cardId;
+    const columnId = cardDetailModal.dataset.columnId;
 
     document.getElementById('editTitle').value = document.getElementById('cardTitle').textContent;
     document.getElementById('editAssignee').value = document.getElementById('cardAssignee').textContent;
-    document.getElementById('editContent').value = document.getElementById('cardContent').textContent;
+    document.getElementById('editContent').value = document.getElementById('cardDescription').textContent;
     document.getElementById('editDueDate').value = document.getElementById('cardDueDate').textContent;
 
     const editElement = document.getElementById('editCardModal');
@@ -617,8 +618,13 @@ async function editCard(event) {
         dueDate: document.getElementById('editDueDate').value
     };
 
+    const editElement = document.getElementById('editCardModal');
+    const boardId = localStorage.getItem('board_id');
+    const cardId = editElement.dataset.cardId;
+    const columnId = editElement.dataset.columnId;
+
     try {
-        const response = await fetch(`http://localhost:8080/api/boards/${currentBoardId}/columns/${currentColumnId}/cards/${currentCardId}`, {
+        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -627,20 +633,24 @@ async function editCard(event) {
             body: JSON.stringify(editedCard)
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to update card');
-        }
-
         const result = await response.json();
+        console.log(result);
 
-        // 카드 UI 업데이트
-        updateCardUI(result.data);
+        if (result.status === 200) {
+            // 카드 UI 업데이트
+            updateCardUI(result.data);
 
-        closeModal('editCardModal');
-        alert('Card updated successfully!');
+            closeModal('editCardModal');
+            alert('카드 수정 성공!');
+            return result.data;
+        } else if (result.status === 401) {
+            return refreshTokenAndRetry(() => editCard(event));
+        }else{
+            throw new Error(response.message);
+        }
     } catch (error) {
-        console.error('Error updating card:', error);
-        alert('Failed to update card. Please try again.');
+        console.error('카드 수정 오류:', error);
+        alert('카드를 수정하는 도중 오류가 발생했습니다. 나중에 다시 시도해주세요.');
     }
 }
 

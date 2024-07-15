@@ -372,6 +372,32 @@ export async function confirmOrder() {
     }
 }
 
+export async function createCard(columnId, title) {
+    try {
+        const response = await fetch(`http://localhost:8080/api/columns/${columnId}/cards`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessToken()}`
+            },
+            body: JSON.stringify({ title })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 201) {
+            return result.data;
+        } else if (result.status === 401) {
+            return refreshTokenAndRetry(() => createCard(columnId, title));
+        } else {
+            throw new Error(result.message || '카드 생성에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('카드 생성 오류:', error);
+        throw error;
+    }
+}
+
 // 보드의 모든 카드를 가져오는 함수
 export async function loadAllCards(boardId) {
     try {
@@ -434,14 +460,16 @@ export function addCardToUI(columnId, card) {
     const cardElement = document.createElement('div');
     cardElement.className = 'card';
     cardElement.draggable = true;
-    cardElement.id = `card${card.id}`;
+    cardElement.dataset.cardId = card.id;
+    cardElement.dataset.columnId = columnId;
     cardElement.innerHTML = `
-        <div>${card.title}</div>
-        <div>Assignee: ${card.assignee}</div>
-        <div>Due Date: ${card.dueDate}</div>
+        <div class="card-title">${card.title}</div>
+        <div class="card-assignee">Assignee: ${card.assignee}</div>
+        <div class="card-due-date">Due Date: ${card.dueDate}</div>
+        <div class="card-description">${card.description}</div>
     `;
     cardElement.addEventListener('dragstart', drag);
-    cardElement.addEventListener('click', () => showModal('cardDetailModal'));
+    cardElement.addEventListener('click', () => handleCardClick(cardElement)); // handleCardClick 함수를 호출하도록 수정
 
     // 'Add a card' 버튼 앞에 새 카드를 삽입
     const addCardButton = column.querySelector('.add-card');

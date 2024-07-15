@@ -14,13 +14,15 @@ export function login(email, password) {
         })
         .then(result => {
             if (result.status === 200) {
-                localStorage.setItem('token', result.data);
+                localStorage.setItem('token', result.data.token);
+                localStorage.setItem('username', result.data.username); // 사용자 이름 저장
                 window.location.href = '/main';
             } else {
                 throw new Error(result.message);
             }
         });
 }
+
 
 export function logout() {
     const token = getAccessToken();
@@ -106,4 +108,12 @@ export async function checkAuth() {
 
 function redirectToLogin() {
     window.location.href = '/login';
+}
+
+export function getUserName() {
+    return localStorage.getItem('username');
+}
+
+export function getUserId() {
+    return localStorage.getItem('userId');
 }

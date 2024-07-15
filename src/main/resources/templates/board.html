@@ -272,6 +272,7 @@
     </style>
     <script type="module">
         import {
+            addCardToUI,
             addColumnToUI,
             confirmOrder,
             createColumn,
@@ -280,14 +281,12 @@
             editBoard,
             handleCreateCard,
             inviteBoard,
+            loadAllCards,
             loadBoardData,
             loadColumns,
-            renderBoardMemberList,
-            showCreateCardModal,
-            updateBoardData,
-            addCardToUI,
-            loadAllCards,
             organizeCardsByColumn,
+            renderBoardMemberList,
+            updateBoardData,
         } from "./js/board.js";
         import {checkAuth} from "./js/auth.js";
 
@@ -584,35 +583,29 @@
 </div>
 
 <script>
-    function allowDrop(ev) {
-        ev.preventDefault();
+    function allowDrop(event) {
+        event.preventDefault();
     }
 
     function drag(ev) {
         ev.dataTransfer.setData("text", ev.target.id);
     }
 
-    function showModal(modalId) {
-        document.getElementById(modalId).style.display = "flex";
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
-
-    function drop(ev) {
+    async function drop(ev) {
         ev.preventDefault();
-        var data = ev.dataTransfer.getData("text");
-        var item = document.getElementById(data);
+        let data = ev.dataTransfer.getData("text");
+        let item = document.getElementById(data);
+
+        console.log(item);
 
         if (item.classList.contains('card')) {
-            var targetColumn = ev.target.closest('.column');
+            let targetColumn = ev.target.closest('.column');
             if (targetColumn) {
-                var cards = targetColumn.querySelectorAll('.card');
+                let cards = targetColumn.querySelectorAll('.card');
                 if (cards.length === 0) {
                     targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
                 } else {
-                    var inserted = false;
+                    let inserted = false;
                     cards.forEach(function (targetCard) {
                         if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
                             targetColumn.insertBefore(item, targetCard);
@@ -626,10 +619,10 @@
                 }
             }
         } else if (item.classList.contains('column')) {
-            var boardContainer = document.getElementById("boardContainer");
-            var columns = Array.from(boardContainer.querySelectorAll('.column'));
+            let boardContainer = document.getElementById("boardContainer");
+            let columns = Array.from(boardContainer.querySelectorAll('.column'));
             columns.splice(columns.indexOf(item), 1);
-            var insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
+            let insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
             if (insertIndex === -1) insertIndex = columns.length;
             columns.splice(insertIndex, 0, item);
 
@@ -641,6 +634,14 @@
             boardContainer.innerHTML = ''; // Clear the container
             columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
         }
+    }
+
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
     }
 
     // Event listeners for drag and drop

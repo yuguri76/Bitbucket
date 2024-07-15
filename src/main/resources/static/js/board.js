@@ -1,5 +1,5 @@
-import { getAccessToken, refreshTokenAndRetry } from './auth.js';
-import { getRandomColor } from "./util.js";
+import {getAccessToken, refreshTokenAndRetry} from './auth.js';
+import {getRandomColor} from "./util.js";
 import * as cardAPI from './card.js';
 
 export async function loadMainPageData() {
@@ -264,31 +264,32 @@ export function addColumnToUI(columnTitle, columnId) {
     console.log(columnTitle + ", " + columnId);
     const boardContainer = document.getElementById('boardContainer');
     const addColumnButton = boardContainer.querySelector('.add-column');
-    const columnTemplate = `
-        <div class="column" draggable="true" ondragstart="drag(event)" id="column${columnId}">
-            <div style="display: flex; justify-content: space-between;">
-                <h3>${columnTitle}</h3>
-                <button class="delete-column-btn" data-column-id="${columnId}">X</button>
-            </div>
-            <div class="add-card" data-column-id="${columnId}">+ Add a card</div>
+    const columnElement = document.createElement('div');
+    columnElement.className = `column`;
+    columnElement.draggable = true;
+    columnElement.id = `column${columnId}`;
+    columnElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between;">
+            <h3>${columnTitle}</h3>
+            <button class="delete-column-btn" data-column-id="${columnId}">X</button>
         </div>
+        <div class="add-card" data-column-id="${columnId}">+ Add a card</div>
     `;
-    if (addColumnButton) {
-        addColumnButton.insertAdjacentHTML('beforebegin', columnTemplate);
-    } else {
-        boardContainer.insertAdjacentHTML('beforeend', columnTemplate);
-    }
 
-    // 이벤트 핸들러 추가
-    const newColumn = document.getElementById(`column${columnId}`);
-    if (newColumn) {
-        newColumn.querySelector('.delete-column-btn').addEventListener('click', function() {
-            handleDeleteColumn(columnId);
-        });
-        newColumn.querySelector('.add-card').addEventListener('click', function() {
-            console.log(columnId);
-            showCreateCardModal(columnId);
-        });
+    columnElement.addEventListener('dragstart', drag);
+    columnElement.querySelector('.delete-column-btn').addEventListener('click', function () {
+        handleDeleteColumn(columnId);
+    });
+    columnElement.querySelector('.add-card').addEventListener('click', function () {
+        console.log(columnId);
+        showCreateCardModal(columnId);
+    });
+
+
+    if (addColumnButton) {
+        addColumnButton.insertBefore(columnElement, addColumnButton);
+    } else {
+        boardContainer.appendChild(columnElement);
     }
 }
 
@@ -410,11 +411,7 @@ export async function handleCreateCard(event) {
     console.log(boardId + ", " + columnId + ", " + ", " + title + ", " + content + ", " + assignee + ", " + dueDate);
 
     const cardData = {
-        title,
-        content,
-        assignee,
-        dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null,
-        orders : 0
+        title, content, assignee, dueDate: dueDate ? new Date(dueDate).toISOString().split('T')[0] : null, orders: 0
     };
 
 
@@ -457,6 +454,57 @@ export function showCreateCardModal(columnId) {
     modal.dataset.columnId = columnId;
 }
 
-function drag(event) {
-    event.dataTransfer.setData("text", event.target.id);
+// 드래그 시작 시 호출되는 함수
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+// 드래그 오버 시 호출되는 함수
+function allowDrop(event) {
+    event.preventDefault();
+}
+
+// 드롭 시 호출되는 함수
+async function drop(ev) {
+    ev.preventDefault();
+    let data = ev.dataTransfer.getData("text");
+    let item = document.getElementById(data);
+    console.log("drag1");
+    if (item.classList.contains('card')) {
+        let targetColumn = ev.target.closest('.column');
+        if (targetColumn) {
+            let cards = targetColumn.querySelectorAll('.card');
+            if (cards.length === 0) {
+                targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
+            } else {
+                let inserted = false;
+                cards.forEach(function (targetCard) {
+                    if (ev.clientY < targetCard.getBoundingClientRect().top + targetCard.getBoundingClientRect().height / 2) {
+                        targetColumn.insertBefore(item, targetCard);
+                        inserted = true;
+                        return false; // break the loop
+                    }
+                });
+                if (!inserted) {
+                    targetColumn.insertBefore(item, targetColumn.querySelector(".add-card"));
+                }
+            }
+        }
+    } else if (item.classList.contains('column')) {
+        console.log("drag3");
+        let boardContainer = document.getElementById("boardContainer");
+        let columns = Array.from(boardContainer.querySelectorAll('.column'));
+        columns.splice(columns.indexOf(item), 1);
+        let insertIndex = columns.findIndex(targetColumn => ev.clientX < targetColumn.getBoundingClientRect().left + targetColumn.getBoundingClientRect().width / 2);
+        if (insertIndex === -1) insertIndex = columns.length;
+        columns.splice(insertIndex, 0, item);
+
+        columns.forEach((column, index) => {
+            column.dataset.order = index; // Update the order attribute
+            column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`; // Display the order for testing
+        });
+
+        boardContainer.innerHTML = ''; // Clear the container
+        columns.forEach(column => boardContainer.appendChild(column)); // Re-insert columns in new order
+    }
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class ColumnRequestDto {
 
-	private Long boardId;
+	private final Long boardId;
 
 	public ColumnRequestDto(Long boardId) {
 		this.boardId = boardId;

@@ -7,8 +7,8 @@ import lombok.Getter;
 
 @Getter
 public class BoardSummaryDto {
-	private Long id;
-	private String title;
+	private final Long id;
+	private final String title;
 
 	@Builder
 	public BoardSummaryDto(Board board) {

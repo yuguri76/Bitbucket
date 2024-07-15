@@ -7,8 +7,8 @@ import lombok.Getter;
 
 @Getter
 public class BoardMemberResponseDto {
-	private String boardTitle;
-	private String userName;
+	private final String boardTitle;
+	private final String userName;
 
 	@Builder
 	public BoardMemberResponseDto(BoardMember boardMember) {

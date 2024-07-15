@@ -1,30 +1,6 @@
 // card.js
 import {getAccessToken, refreshTokenAndRetry} from './auth.js';
 
-export async function loadCards(boardId, columnId) {
-    try {
-        const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}/cards`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${getAccessToken()}`
-            }
-        });
-
-        const result = await response.json();
-
-        if (result.status === 200) {
-            return result.data;
-        } else if (result.status === 401) {
-            return refreshTokenAndRetry(() => loadCards(boardId, columnId));
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        console.error('Error loading cards:', error);
-        throw error;
-    }
-}
-
 export async function createCard(boardId, columnId, cardData) {
     try {
         const response = await fetch(`http://localhost:8080/api/boards/${boardId}/columns/${columnId}/cards`, {

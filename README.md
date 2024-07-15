@@ -29,12 +29,12 @@
 ## 🥁 프로젝트 내용
 <details>
 <summary style="font-size: 1.5em; font-weight: bold;"> 🔎 ERD </summary>
-<img width="2928" alt="플러스주차_BitBucket (1)" src="https://github.com/user-attachments/assets/525359f8-525e-4600-84f7-768ffddf572b">
+<img width="2928" alt="플러스주차_BitBucket (5)" src="https://github.com/user-attachments/assets/ea804cbd-361f-455e-9a2d-2492f29719a4">
 </details>
 
 <details>
 <summary style="font-size: 1.5em; font-weight: bold;"> 🔎 API </summary>
-<img width="2652" alt="플러스주차_BitBucket" src="https://github.com/user-attachments/assets/7836db73-4cea-4fb8-afaf-56063cb2abdd">
+<img width="2256" alt="플러스주차_BitBucket (4)" src="https://github.com/user-attachments/assets/d4a0a8e8-d8d1-43e7-914d-8bd45830a61a">
 </details>
 
 <details>

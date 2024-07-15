@@ -458,15 +458,23 @@ export async function handleCreateCard(event) {
 export function addCardToUI(columnId, card) {
     const column = document.getElementById(`column${columnId}`);
     const cardElement = document.createElement('div');
+    const titleElement = column.querySelector('h3');
     cardElement.className = 'card';
     cardElement.draggable = true;
+    cardElement.id = `card${card.id}`;
     cardElement.dataset.cardId = card.id;
     cardElement.dataset.columnId = columnId;
+    cardElement.dataset.content = card.content;
+    cardElement.dataset.assignee = card.assignee;
+    cardElement.dataset.title = card.title;
+    cardElement.dataset.columnTitle = titleElement ? titleElement.textContent : null;
+    cardElement.dataset.dueDate = card.dueDate;
+
     cardElement.innerHTML = `
         <div class="card-title">${card.title}</div>
         <div class="card-assignee">Assignee: ${card.assignee}</div>
         <div class="card-due-date">Due Date: ${card.dueDate}</div>
-        <div class="card-description">${card.description}</div>
+        <div class="card-description">${card.content}</div>
     `;
     cardElement.addEventListener('dragstart', drag);
     cardElement.addEventListener('click', () => handleCardClick(cardElement)); // handleCardClick 함수를 호출하도록 수정

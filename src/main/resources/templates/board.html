@@ -494,11 +494,11 @@
             const boardId = localStorage.getItem('board_id'); // 현재 보드 ID 가져오기
 
             // 카드 세부 정보 업데이트
-            document.getElementById('cardTitle').textContent = cardElement.querySelector('.card-title').textContent;
-            document.getElementById('columnName').textContent = columnId;
-            document.getElementById('cardAssignee').textContent = cardElement.querySelector('.card-assignee').textContent;
-            document.getElementById('cardDueDate').textContent = cardElement.querySelector('.card-due-date').textContent;
-            document.getElementById('cardDescription').value = cardElement.querySelector('.card-description').textContent;
+            document.getElementById('cardTitle').textContent = cardElement.dataset.title;
+            document.getElementById('columnName').textContent = cardElement.dataset.columnTitle;
+            document.getElementById('cardAssignee').textContent = cardElement.dataset.assignee;
+            document.getElementById('cardDueDate').textContent = cardElement.dataset.dueDate;
+            document.getElementById('cardDescription').value = cardElement.dataset.content;
 
             // 모달에 cardId와 columnId를 저장
             const cardDetailModal = document.getElementById('cardDetailModal');
@@ -694,9 +694,7 @@
         let item = document.getElementById(data);
 
         if (item.classList.contains('card')) {
-
             await handleCardDrop(ev, item);
-
         } else if (item.classList.contains('column')) {
             let boardContainer = document.getElementById("boardContainer");
             let columns = Array.from(boardContainer.querySelectorAll('.column'));
@@ -707,7 +705,7 @@
 
             columns.forEach((column, index) => {
                 column.dataset.order = index;
-                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent.split(' ')[0]} (${index})`;
+                column.querySelector('h3').textContent = `${column.querySelector('h3').textContent} (${index})`;
             });
 
             boardContainer.innerHTML = '';

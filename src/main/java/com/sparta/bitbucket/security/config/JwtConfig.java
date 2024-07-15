@@ -8,10 +8,10 @@ import jakarta.annotation.PostConstruct;
 @Configuration
 public class JwtConfig {
 
-	public final static String TOKEN_PREFIX = "Bearer ";
-	public final static String HEADER = "Authorization";
-	public final static String AUTHORIZATION_KEY = "auth";
-	public final static String REFRESH_TOKEN_COOKIE_NAME = "RefreshToken";
+	public static final String TOKEN_PREFIX = "Bearer ";
+	public static final String HEADER = "Authorization";
+	public static final String AUTHORIZATION_KEY = "auth";
+	public static final String REFRESH_TOKEN_COOKIE_NAME = "RefreshToken";
 
 	@Value("${jwt.secret.key}")
 	private String secretKey;

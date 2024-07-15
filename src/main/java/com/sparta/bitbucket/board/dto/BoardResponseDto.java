@@ -9,12 +9,12 @@ import lombok.Getter;
 
 @Getter
 public class BoardResponseDto {
-	private Long id;
-	private String title;
-	private String content;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
-	private Long userId;
+	private final Long id;
+	private final String title;
+	private final String content;
+	private final LocalDateTime createdAt;
+	private final LocalDateTime updatedAt;
+	private final Long userId;
 
 	@Builder
 	public BoardResponseDto(Board board) {

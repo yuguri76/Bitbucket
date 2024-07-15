@@ -15,10 +15,10 @@ import lombok.Getter;
 @Getter
 public class SignupResponseDto {
 
-	private String email;
-	private String name;
-	private Role role;
-	private LocalDateTime createdAt;
+	private final String email;
+	private final String name;
+	private final Role role;
+	private final LocalDateTime createdAt;
 
 	/**
 	 * User Entity 데이터로 초기화.

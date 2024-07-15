@@ -13,22 +13,22 @@ import com.sparta.bitbucket.common.dto.MessageResponseDto;
  */
 public class ResponseFactory {
 
-	private final static String MSG_OK = "요청이 성공적으로 완료되었습니다.";
-	private final static String MSG_CREATED = "요청에 대한 데이터가 생성 되었습니다";
-	private final static String MSG_BAD_REQUEST = "해당 요청을 처리할 수 없습니다.";
-	private final static String MSG_NOT_FOUND = "요청한 리소스를 찾을 수 없습니다.";
-	private final static String MSG_INTERNAL_SERVER_ERROR = "서버 오류가 발생했습니다.";
-	private final static String MSG_CONFLICT = "이미 존재하는 항목입니다.";
-	private final static String MSG_UNAUTHORIZED = "요청에 대해 인증을 실패했습니다.";
+	private static final String MSG_OK = "요청이 성공적으로 완료되었습니다.";
+	private static final String MSG_CREATED = "요청에 대한 데이터가 생성 되었습니다";
+	private static final String MSG_BAD_REQUEST = "해당 요청을 처리할 수 없습니다.";
+	private static final String MSG_NOT_FOUND = "요청한 리소스를 찾을 수 없습니다.";
+	private static final String MSG_INTERNAL_SERVER_ERROR = "서버 오류가 발생했습니다.";
+	private static final String MSG_CONFLICT = "이미 존재하는 항목입니다.";
+	private static final String MSG_UNAUTHORIZED = "요청에 대해 인증을 실패했습니다.";
 
-	private final static int STATUS_OK = HttpStatus.OK.value();
-	private final static int STATUS_CREATED = HttpStatus.CREATED.value();
-	private final static int STATUS_NO_CONTENT = HttpStatus.NO_CONTENT.value();
-	private final static int STATUS_BAD_REQUEST = HttpStatus.BAD_REQUEST.value();
-	private final static int STATUS_NOT_FOUND = HttpStatus.NOT_FOUND.value();
-	private final static int STATUS_CONFLICT = HttpStatus.CONFLICT.value();
-	private final static int STATUS_INTERNAL_SERVER_ERROR = HttpStatus.INTERNAL_SERVER_ERROR.value();
-	private final static int STATUS_UNAUTHORIZED = HttpStatus.UNAUTHORIZED.value();
+	private static final int STATUS_OK = HttpStatus.OK.value();
+	private static final int STATUS_CREATED = HttpStatus.CREATED.value();
+	private static final int STATUS_NO_CONTENT = HttpStatus.NO_CONTENT.value();
+	private static final int STATUS_BAD_REQUEST = HttpStatus.BAD_REQUEST.value();
+	private static final int STATUS_NOT_FOUND = HttpStatus.NOT_FOUND.value();
+	private static final int STATUS_CONFLICT = HttpStatus.CONFLICT.value();
+	private static final int STATUS_INTERNAL_SERVER_ERROR = HttpStatus.INTERNAL_SERVER_ERROR.value();
+	private static final int STATUS_UNAUTHORIZED = HttpStatus.UNAUTHORIZED.value();
 
 	/**
 	 * 주어진 메시지가 유효하지 않은지 확인합니다.

@@ -11,8 +11,8 @@ import lombok.Getter;
 @Getter
 public class UserBoardsResponseDto {
 
-	String username;
-	List<BoardSummaryDto> boards;
+	private final String username;
+	private final List<BoardSummaryDto> boards;
 
 	@Builder
 	public UserBoardsResponseDto(String username, List<Board> boards) {

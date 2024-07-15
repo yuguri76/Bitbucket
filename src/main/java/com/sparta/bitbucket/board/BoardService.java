@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class BoardService {
 
-	private final static int PAGE_SIZE = 5;
+	private static final int PAGE_SIZE = 5;
 
 	private final BoardRepository boardRepository;
 	private final BoardMemberRepository boardMemberRepository;

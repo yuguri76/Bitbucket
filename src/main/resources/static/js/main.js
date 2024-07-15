@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         await checkAuth();
         console.log('Authentication checked');
 
+        // 메인으로 넘어갈 때 board_id 삭제
+        localStorage.removeItem("board_id");
+
         const data = await loadMainPageData();
         console.log('Main page data loaded:', data);
 

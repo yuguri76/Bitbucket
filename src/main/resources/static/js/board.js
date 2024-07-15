@@ -334,6 +334,7 @@ function showModal(modalId) {
 
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = "none";
+    resetModalContent(modalId);
 }
 
 // 순서확정 함수
@@ -460,3 +461,89 @@ export function showCreateCardModal(columnId) {
 function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
 }
+
+// 카드 조회 함수
+async function fetchCards(condition = 'all', conditionDetail = '') {
+    try {
+        const boardId = localStorage.getItem('board_id');
+        const cards = await cardAPI.getCards(boardId, condition, conditionDetail);
+        return cards;
+    } catch (error) {
+        console.error('Error fetching cards:', error);
+        alert('카드 조회 중 오류가 발생했습니다: ' + error.message);
+    }
+}
+
+function resetModalContent(modalId) {
+    switch(modalId) {
+        case 'viewAllModal':
+            document.getElementById('allCardListContainer').innerHTML = '';
+            break;
+        case 'viewWorkerModal':
+            document.getElementById('workerInput').value = '';
+            document.getElementById('workerCardListContainer').innerHTML = '';
+            break;
+        case 'viewStatusModal':
+            document.getElementById('statusInput').value = '';
+            document.getElementById('statusCardListContainer').innerHTML = '';
+            break;
+    }
+}
+
+function displayCards(cards, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    cards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'card-item';
+        cardElement.innerHTML = `
+            <h3>${card.title}</h3>
+            <p>작업자: ${card.assignee}</p>
+            <p>상태: ${card.status}</p>
+            <p>마감일: ${card.dueDate}</p>
+        `;
+        container.appendChild(cardElement);
+    });
+}
+
+// 전체 카드 조회
+async function fetchAllCards() {
+    const cards = await fetchCards();
+    displayCards(cards, 'allCardListContainer');
+    showModal('viewAllModal');
+}
+
+// 작업자별 카드 조회
+async function fetchCardsByWorker() {
+    const worker = document.getElementById('workerInput').value;
+    if (worker) {
+        const cards = await fetchCards('assignee', worker);
+        displayCards(cards, 'workerCardListContainer');
+    } else {
+        alert('작업자를 입력해주세요.');
+    }
+}
+
+// 상태별 카드 조회
+async function fetchCardsByStatus() {
+    const status = document.getElementById('statusInput').value;
+    if (status) {
+        const cards = await fetchCards('status', status);
+        displayCards(cards, 'statusCardListContainer');
+    } else {
+        alert('상태를 입력해주세요.');
+    }
+}
+
+// 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('viewAllCardsBtn').addEventListener('click', fetchAllCards);
+    document.getElementById('viewWorkerCardsBtn').addEventListener('click', () => showModal('viewWorkerModal'));
+    document.getElementById('viewStatusCardsBtn').addEventListener('click', () => showModal('viewStatusModal'));
+});
+
+// 전역 스코프에 함수 노출
+window.closeModal = closeModal;
+window.fetchCardsByWorker = fetchCardsByWorker;
+window.fetchCardsByStatus = fetchCardsByStatus;

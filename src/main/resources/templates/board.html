@@ -269,6 +269,32 @@
         .delete-column-btn:hover {
             color: darkred;
         }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            max-height: calc(80vh - 150px); /* 모달 높이에서 헤더와 필터 영역 높이를 뺀 값 */
+            padding: 10px;
+        }
+
+        .card-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .card-item h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .card-item p {
+            margin: 5px 0;
+            color: #666;
+        }
     </style>
     <script type="module">
         import {
@@ -427,7 +453,7 @@
             handleCreateCard(event);
         }
 
-        window.moveCard = async function(toColumnId, card, newOrder){
+        window.moveCard = async function (toColumnId, card, newOrder) {
             // 서버에 카드 이동 요청
             try {
                 console.log('move card : ' + toColumnId + "," + newOrder);
@@ -507,7 +533,7 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('cardInfoModal')">&times;</span>
         <h2 class="modal-header">카드 조회</h2>
-        <button type="button" onclick="showModal('viewAllModal')">전체 조회</button>
+        <!--<button type="button" onclick="showModal('viewAllModal')">전체 조회</button>-->
         <button type="button" onclick="showModal('viewWorkerModal')">작업자별 조회</button>
         <button type="button" onclick="showModal('viewStatusModal')">상태별 조회</button>
     </div>
@@ -571,7 +597,7 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('viewAllModal')">&times;</span>
         <h2 class="modal-header">전체 조회</h2>
-        <p>전체 카드 리스트를 보여줍니다.</p>
+        <div id="allCardListContainer"></div>
     </div>
 </div>
 
@@ -579,8 +605,11 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('viewWorkerModal')">&times;</span>
         <h2 class="modal-header">작업자별 조회</h2>
-        <input type="text" placeholder="작업자 입력">
-        <button type="button">입력</button>
+        <div class="filter-container">
+            <input type="text" id="workerInput" placeholder="작업자 입력">
+            <button type="button" onclick="fetchCardsByWorker()">조회</button>
+        </div>
+        <div class="card-grid" id="workerCardListContainer"></div>
     </div>
 </div>
 
@@ -588,8 +617,11 @@
     <div class="modal-content">
         <span class="close" onclick="closeModal('viewStatusModal')">&times;</span>
         <h2 class="modal-header">상태별 조회</h2>
-        <input type="text" placeholder="상태 입력">
-        <button type="button">입력</button>
+        <div class="filter-container">
+            <input type="text" id="statusInput" placeholder="상태 입력">
+            <button type="button" onclick="fetchCardsByStatus()">조회</button>
+        </div>
+        <div class="card-grid" id="statusCardListContainer"></div>
     </div>
 </div>
 
